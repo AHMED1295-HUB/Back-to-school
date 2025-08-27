@@ -373,39 +373,36 @@ header h1{margin:0;font-size:24px;display:flex;align-items:center;gap:12px}
   E('btnClear').onclick = ()=>{ cart=[]; renderCart(); };
 
   // Export
-  E('btnExport').onclick = ()=>{
-    const order = {
-      customer:{name:E('custName').value,phone:E('custPhone').value,address:E('custAddress').value,payment:E('paymentMethod').value,insta:E('instaHandle').value},
-      items:cart,
-      totals:{
-        subBooks:E('subtotalBooks').textContent,
-        subStat:E('subtotalStationery').textContent,
-        subAll:E('subtotalAll').textContent,
-        discount:E('totalDiscount').textContent,
-        deposit:E('depositAmount').textContent,
-        grand:E('grandTotal').textContent,
-        remain:E('remainAmount').textContent
-      },
-      ts:new Date().toISOString()
-    };
-    // تحميل JSON
-    const blob = new Blob([JSON.stringify(order,null,2)],{type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'order.json';
-    a.click();
+ E('btnExport').onclick = async ()=>{
+    // بناء الفاتورة مؤقتاً
+    E('invoiceBody').innerHTML = buildInvoice();
+    E('invoiceModal').style.display = 'flex';
 
-    // إرسال واتساب تلقائياً
-    const myPhone = '+0201143717677'; // ضع رقمك هنا
+    // تحويل الفاتورة إلى صورة
+    const invoiceElement = E('invoiceBody');
+    const canvas = await html2canvas(invoiceElement, { scale: 2 });
+
+    // إنشاء PDF باستخدام jsPDF
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL('image/png');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfHeight = (imgProps.height * pageWidth) / imgProps.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pdfHeight);
+    pdf.save('invoice.pdf');
+
+    // إرسال واتساب تلقائي للعميل
+    const phone = (E('custPhone').value||'').replace(/\D/g,'');
     const text = encodeURIComponent(
-      'فاتورة طلب جديدة:\n' +
-      cart.map(c=>`${c.name} x${c.qty} = ${c.price*c.qty}`).join('\n') + '\n' +
-      'الإجمالي: ' + E('grandTotal').textContent + '\n' +
-      'العميل: ' + (E('custName').value||'-') + ' | الهاتف: ' + (E('custPhone').value||'-')
+      (lang==='en'?'Order Invoice':'فاتورة الطلب')+'\n'+
+      cart.map(c=>`${c.name} x${c.qty} = ${c.price*c.qty}`).join('\n')+'\n'+
+      (lang==='en'?'Grand Total: ':'الإجمالي: ')+E('grandTotal').textContent
     );
-    const url = `https://wa.me/${myPhone}?text=${text}`;
+    const url = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
     window.open(url,'_blank');
-};
+  };
 
   // Invoice
   const buildInvoice = ()=>{
@@ -456,8 +453,8 @@ header h1{margin:0;font-size:24px;display:flex;align-items:center;gap:12px}
   E('sendWhatsBtn').onclick = ()=>{
     const phone = (E('custPhone').value||'').replace(/\D/g,'');
     const text = encodeURIComponent(
-      (lang==='en'?'Order Invoice':'فاتورة الطلب')+'\n' +
-      cart.map(c=>`${c.name} x${c.qty} = ${c.price*c.qty}`).join('\n')+'\n' +
+      (lang==='en'?'Order Invoice':'فاتورة الطلب')+'\n'+
+      cart.map(c=>`${c.name} x${c.qty} = ${c.price*c.qty}`).join('\n')+'\n'+
       (lang==='en'?'Grand Total: ':'الإجمالي: ')+E('grandTotal').textContent
     );
     const url = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
@@ -517,5 +514,8 @@ header h1{margin:0;font-size:24px;display:flex;align-items:center;gap:12px}
 })();
 </script>
 </body>
+</html>
+
 
 </html>
+
