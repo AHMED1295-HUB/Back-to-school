@@ -396,7 +396,7 @@ header h1{margin:0;font-size:24px;display:flex;align-items:center;gap:12px}
     a.click();
 
     // إرسال واتساب تلقائياً
-    const myPhone = '01143717677'; // ضع رقمك هنا
+    const myPhone = '+0201143717677'; // ضع رقمك هنا
     const text = encodeURIComponent(
       'فاتورة طلب جديدة:\n' +
       cart.map(c=>`${c.name} x${c.qty} = ${c.price*c.qty}`).join('\n') + '\n' +
@@ -517,4 +517,5 @@ header h1{margin:0;font-size:24px;display:flex;align-items:center;gap:12px}
 })();
 </script>
 </body>
+
 </html>
