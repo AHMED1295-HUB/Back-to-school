@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>نظام إدارة طلبات المكتبة</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#2c3e50;--primary-light:#34495e;--secondary:#e67e22;--secondary-light:#f39c12;--accent:#3498db;--success:#27ae60;--warning:#f1c40f;--danger:#e74c3c;--light:#ecf0f1;--dark:#2c3e50;--gray:#95a5a6;--light-gray:#bdc3c7;--text:#2c3e50;--text-light:#7f8c8d;--card-bg:#ffffff;--surface:#ffffff;--shadow:0 4px 6px rgba(0,0,0,.1);--radius:12px;--transition:all .3s ease}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo','Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);color:var(--text);line-height:1.6;min-height:100vh;padding:0;direction:rtl}
+.container{max-width:1400px;margin:0 auto;padding:20px}
+header{background:linear-gradient(90deg,var(--primary) 0%,var(--primary-light) 100%);color:#fff;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow);border-radius:var(--radius);margin-bottom:24px}
+header h1{margin:0;font-size:24px;display:flex;align-items:center;gap:12px}
+.lang-btn{background:var(--secondary);color:#fff;border:none;padding:10px 16px;border-radius:var(--radius);cursor:pointer;font-weight:700;transition:var(--transition);display:flex;align-items:center;gap:8px}
+.lang-btn:hover{background:var(--secondary-light);transform:translateY(-2px)}
+.main-content{display:grid;grid-template-columns:1fr 400px;gap:24px}
+@media (max-width:1024px){.main-content{grid-template-columns:1fr}.sidebar{order:2}}
+.panel{background:var(--card-bg);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:24px}
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--light)}
+.panel-title{color:var(--primary);font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+.filter-group{display:flex;flex-direction:column;gap:8px}
+.filter-label{font-size:14px;color:var(--text-light);font-weight:600}
+.filter-select,.filter-input{padding:12px;border-radius:var(--radius);border:1px solid var(--light-gray);background:#fff;font-family:'Cairo',sans-serif;transition:var(--transition)}
+.filter-select:focus,.filter-input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(52,152,219,.2)}
+.search-box{grid-column:1/-1;position:relative}
+.search-box .filter-input{padding-right:40px;width:100%}
+.search-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--gray)}
+.tabs{display:flex;gap:8px;margin-bottom:20px;background:var(--light);padding:6px;border-radius:var(--radius)}
+.tab{flex:1;padding:12px;text-align:center;background:transparent;border:none;border-radius:var(--radius);cursor:pointer;font-weight:600;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px}
+.tab.active{background:var(--primary);color:#fff}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
+.product-card{background:#fff;border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow);transition:var(--transition);display:flex;flex-direction:column;height:100%}
+.product-card:hover{transform:translateY(-5px);box-shadow:0 10px 20px rgba(0,0,0,.15)}
+.product-image{width:100%;height:160px;object-fit:contain;border-radius:8px;margin-bottom:12px;background:var(--light);padding:10px}
+.product-name{font-weight:700;margin:8px 0 4px;color:var(--text);font-size:16px;flex-grow:1}
+.product-meta{color:var(--text-light);font-size:14px;margin-bottom:12px}
+.product-price{font-weight:700;color:var(--primary);font-size:18px;margin-bottom:12px}
+.product-actions{display:flex;justify-content:center;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:var(--radius);border:none;cursor:pointer;font-weight:600;transition:var(--transition);font-family:'Cairo',sans-serif}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-light)}
+.btn-secondary{background:var(--secondary);color:#fff}.btn-secondary:hover{background:var(--secondary-light)}
+.btn-outline{background:transparent;border:2px solid var(--primary);color:var(--primary)}.btn-outline:hover{background:var(--primary);color:#fff}
+.btn-sm{padding:8px 12px;font-size:14px}
+.btn-block{width:100%}
+.cart-item{display:flex;gap:12px;padding:12px;border-radius:var(--radius);border:1px solid var(--light);margin-bottom:12px;background:#fff}
+.cart-item-image{width:60px;height:60px;object-fit:contain;border-radius:8px;background:var(--light);padding:4px}
+.cart-item-content{flex-grow:1}
+.cart-item-name{font-weight:600;margin-bottom:4px;font-size:15px}
+.cart-item-meta{color:var(--text-light);font-size:13px}
+.cart-item-actions{display:flex;align-items:center;gap:8px}
+.quantity-input{width:70px;padding:6px;border-radius:var(--radius);border:1px solid var(--light-gray);text-align:center}
+.summary-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--light-gray)}
+.summary-total{font-weight:800;font-size:18px;color:var(--primary);margin-top:10px;padding-top:10px;border-top:2px solid var(--primary-light)}
+.form-group{margin-bottom:16px}
+.form-label{display:block;margin-bottom:6px;font-weight:600;color:var(--text);font-size:14px}
+.form-input{width:100%;padding:12px;border-radius:var(--radius);border:1px solid var(--light-gray);font-family:'Cairo',sans-serif;transition:var(--transition)}
+.form-input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(52,152,219,.2)}
+.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal-content{background:#fff;border-radius:var(--radius);width:100%;max-width:800px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.modal-header{padding:20px;border-bottom:1px solid var(--light);display:flex;justify-content:space-between;align-items:center}
+.modal-body{padding:20px}
+.modal-footer{padding:20px;border-top:1px solid var(--light);display:flex;justify-content:flex-end;gap:12px}
+.text-center{text-align:center}.text-muted{color:var(--text-light)}.mb-0{margin-bottom:0}.mt-20{margin-top:20px}.mb-20{margin-bottom:20px}
+@media (max-width:768px){.filter-grid{grid-template-columns:1fr}.products-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}header{flex-direction:column;gap:12px;text-align:center}.tabs{flex-direction:column}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}.fade-in{animation:fadeIn .3s ease-in}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1 id="title"><i class="fas fa-book"></i> نظام إدارة طلبات المكتبة</h1>
+    <button class="lang-btn" id="langToggle"><i class="fas fa-language"></i><span>English</span></button>
+  </header>
+
+  <div class="main-content">
+    <div class="content">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title" id="filterTitle"><i class="fas fa-filter"></i> خيارات البحث والتصفية</h2>
+          <button class="btn btn-outline btn-sm" id="btnResetFilters"><i class="fas fa-redo"></i> <span id="resetFiltersTxt">تفريغ الفلاتر</span></button>
+        </div>
+
+        <div class="filter-grid">
+          <div class="filter-group">
+            <span class="filter-label" id="stageLbl">المرحلة</span>
+            <select class="filter-select" id="stageSelect"></select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label" id="gradeLbl">الصف</span>
+            <select class="filter-select" id="gradeSelect"></select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label" id="subjectLbl">المادة</span>
+            <select class="filter-select" id="subjectSelect"></select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label" id="seriesLbl">السلسلة</span>
+            <select class="filter-select" id="seriesSelect"></select>
+          </div>
+          <div class="filter-group search-box">
+            <span class="filter-label" id="searchLbl">بحث</span>
+            <input type="text" class="filter-input" id="searchInput" placeholder="ابحث باسم الكتاب أو السلسلة...">
+            <i class="fas fa-search search-icon"></i>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" id="tabBooks"><i class="fas fa-book"></i> <span id="booksTabTxt">كتب خارجية</span></button>
+          <button class="tab" id="tabStationery"><i class="fas fa-pencil-alt"></i> <span id="stationeryTabTxt">أدوات مكتبية</span></button>
+        </div>
+
+        <h2 class="panel-title" id="booksTitle"><i class="fas fa-books"></i> الكتب المتاحة</h2>
+        <div class="products-grid" id="booksGrid"></div>
+
+        <div class="panel" id="panelStationery" style="margin-top:20px;display:none">
+          <h2 class="panel-title" id="stationeryTitle"><i class="fas fa-pencil-alt"></i> الأدوات المكتبية</h2>
+          <div class="products-grid" id="stationeryGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title" id="cartTitle"><i class="fas fa-shopping-cart"></i> سلة المشتريات</h2>
+          <button class="btn btn-outline btn-sm" id="btnClear"><i class="fas fa-trash"></i> <span id="clearCartTxt">تفريغ السلة</span></button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" id="custNameLbl">اسم ولي الأمر</label>
+          <input type="text" class="form-input" id="custName" placeholder="أدخل الاسم الكامل">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="custPhoneLbl">رقم الهاتف</label>
+          <input type="tel" class="form-input" id="custPhone" placeholder="مثال: 20123456789">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="custAddressLbl">العنوان</label>
+          <input type="text" class="form-input" id="custAddress" placeholder="المدينة والمنطقة">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="paymentMethodLbl">طريقة الدفع</label>
+          <select class="form-input" id="paymentMethod">
+            <option value="instapay">InstaPay</option>
+            <option value="cod">الدفع عند الاستلام</option>
+          </select>
+        </div>
+        <div class="form-group" id="instaGroup">
+          <label class="form-label" id="instaLbl">معرف InstaPay</label>
+          <input type="text" class="form-input" id="instaHandle" placeholder="مثال: username@instapay">
+        </div>
+
+        <div class="cart-items" id="cartItems"></div>
+
+        <div class="summary">
+          <div class="summary-item"><span id="subBooksTxt">إجمالي الكتب:</span><span id="subtotalBooks">0 ج.م</span></div>
+          <div class="summary-item"><span id="subStatTxt">إجمالي الأدوات:</span><span id="subtotalStationery">0 ج.م</span></div>
+          <div class="summary-item"><span id="subAllTxt">المجموع قبل الخصم:</span><span id="subtotalAll">0 ج.م</span></div>
+          <div class="summary-item"><span id="discountTxt">قيمة الخصم:</span><span id="totalDiscount">0 ج.م</span></div>
+          
+          <div class="summary-item"><span id="depositTxt">مقدم 40%:</span><span id="depositAmount">0 ج.م</span></div>
+          <div class="summary-item summary-total"><span id="grandTxt">الإجمالي النهائي:</span><span id="grandTotal">0 ج.م</span></div>
+          <div class="summary-item"><span id="remainTxt">المتبقي عند الاستلام:</span><span id="remainAmount">0 ج.م</span></div>
+        </div>
+
+        <div class="actions" style="margin-top:20px">
+          <button class="btn btn-primary btn-block" id="btnInvoice"><i class="fas fa-receipt"></i> <span id="invoiceBtnTxt">عرض الفاتورة</span></button>
+          <button class="btn btn-secondary btn-block" id="btnExport"><i class="fas fa-download"></i> <span id="exportBtnTxt">تصدير الطلب</span></button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h2 class="panel-title" id="adminToolsTitle"><i class="fas fa-tools"></i> أدوات إدارية</h2></div>
+        <div class="form-group">
+          <label class="form-label" id="adminSearchLbl">بحث إداري</label>
+          <input type="text" class="form-input" id="adminSearch" placeholder="ابحث في جميع المنتجات...">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="invoiceModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="invoiceTitle">فاتورة الطلب</h2>
+      <button class="btn btn-outline" id="closeInvoice"><i class="fas fa-times"></i> <span id="closeTxt">إغلاق</span></button>
+    </div>
+    <div class="modal-body" id="invoiceBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="printBtn"><i class="fas fa-print"></i> <span id="printTxt">طباعة</span></button>
+      <button class="btn btn-primary" id="sendWhatsBtn"><i class="fab fa-whatsapp"></i> <span id="whatsTxt">إرسال عبر واتساب</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const E = (id) => document.getElementById(id);
+  const fmt = (n, lang) => (lang==='en' ? n.toLocaleString('en-US')+' EGP' : n.toLocaleString('ar-EG')+' ج.م');
+
+  // Sample data
+  const books = [
+    {id:'b1',name:'Gem English 3º',stage:'إعدادي',grade:'ثالث إعدادي',subject:'English',series:'Gem',price:220,image:'https://via.placeholder.com/300x200?text=Gem+Eng+3'},
+    {id:'b2',name:'المعاصر Math 2º',stage:'إعدادي',grade:'ثاني إعدادي',subject:'Math',series:'المعاصر',price:200,image:'https://via.placeholder.com/300x200?text=Elmoasser+Math+2'},
+    {id:'b3',name:'سلاح التلميذ عربي 4',stage:'ابتدائي',grade:'رابع ابتدائي',subject:'عربي',series:'سلاح التلميذ',price:150,image:'https://via.placeholder.com/300x200?text=Selah+Ar+4'},
+    {id:'b4',name:'الممتاز Science 5',stage:'ابتدائي',grade:'خامس ابتدائي',subject:'Science',series:'الممتاز',price:170,image:'https://via.placeholder.com/300x200?text=Elmomtaz+Sci+5'},
+    {id:'b5',name:'Top Student Physics 1º',stage:'ثانوي',grade:'أولى ثانوي',subject:'Physics',series:'Top Student',price:260,image:'https://via.placeholder.com/300x200?text=Top+Physics+1'}
+  ];
+  const stationery = [
+    {id:'s1',name:'كراس 60 ورقة',category:'دفاتر',price:25,image:'https://via.placeholder.com/300x200?text=Notebook+60'},
+    {id:'s2',name:'قلم رصاص HB',category:'أقلام',price:6,image:'https://via.placeholder.com/300x200?text=Pencil+HB'},
+    {id:'s3',name:'ألوان خشب 12',category:'ألوان',price:85,image:'https://via.placeholder.com/300x200?text=Colors+12'},
+    {id:'s4',name:'مسطرة 30 سم',category:'أدوات رسم',price:15,image:'https://via.placeholder.com/300x200?text=Ruler+30cm'},
+    {id:'s5',name:'حقيبة مدرسية',category:'شنط',price:550,image:'https://via.placeholder.com/300x200?text=School+Bag'}
+  ];
+
+  // State
+  let cart = JSON.parse(localStorage.getItem('cart')||'[]');
+  let lang = localStorage.getItem('lang') || 'ar';
+  let activeTab = localStorage.getItem('tab') || 'books';
+
+  // Populate filters from books
+  const setOptions = (sel, arr, placeholder) => {
+    sel.innerHTML = `<option value="">${placeholder}</option>` + arr.map(v=>`<option>${v}</option>`).join('');
+  };
+  const initFilters = () => {
+    const stages = [...new Set(books.map(b=>b.stage))];
+    const grades  = [...new Set(books.map(b=>b.grade))];
+    const subjects= [...new Set(books.map(b=>b.subject))];
+    const series  = [...new Set(books.map(b=>b.series))];
+    setOptions(E('stageSelect'), stages, lang==='en'?'All stages':'كل المراحل');
+    setOptions(E('gradeSelect'), grades, lang==='en'?'All grades':'كل الصفوف');
+    setOptions(E('subjectSelect'), subjects, lang==='en'?'All subjects':'كل المواد');
+    setOptions(E('seriesSelect'), series, lang==='en'?'All series':'كل السلاسل');
+  };
+
+  // Render
+  const createCard = (p, type) => {
+    const meta = type==='book'
+      ? `${p.stage} • ${p.grade} • ${p.subject} • ${p.series}`
+      : p.category;
+    return `
+      <div class="product-card fade-in">
+        <img class="product-image" src="${p.image}" alt="${p.name}">
+        <div class="product-name">${p.name}</div>
+        <div class="product-meta">${meta}</div>
+        <div class="product-price">${fmt(p.price,lang)}</div>
+        <div class="product-actions">
+          <button class="btn btn-primary btn-sm" data-add="${p.id}" data-type="${type}">
+            <i class="fas fa-cart-plus"></i> ${lang==='en'?'Add to cart':'أضف للسلة'}
+          </button>
+        </div>
+      </div>`;
+  };
+
+  const renderBooks = () => {
+    const st = E('stageSelect').value.trim();
+    const gr = E('gradeSelect').value.trim();
+    const sb = E('subjectSelect').value.trim();
+    const se = E('seriesSelect').value.trim();
+    const q  = E('searchInput').value.trim().toLowerCase();
+    const list = books.filter(b =>
+      (!st || b.stage===st) &&
+      (!gr || b.grade===gr) &&
+      (!sb || b.subject===sb) &&
+      (!se || b.series===se) &&
+      (!q || (b.name+b.series).toLowerCase().includes(q))
+    );
+    E('booksGrid').innerHTML = list.map(p=>createCard(p,'book')).join('') || `<div class="text-center text-muted">${lang==='en'?'No results':'لا توجد نتائج'}</div>`;
+  };
+
+  const renderStationery = () => {
+    const q = (E('searchInput').value || '').trim().toLowerCase();
+    const adminQ = (E('adminSearch').value || '').trim().toLowerCase();
+    const kw = (q + ' ' + adminQ).trim();
+    const list = stationery.filter(s => !kw || (s.name+s.category).toLowerCase().includes(kw));
+    E('stationeryGrid').innerHTML = list.map(p=>createCard(p,'stationery')).join('') || `<div class="text-center text-muted">${lang==='en'?'No results':'لا توجد نتائج'}</div>`;
+  };
+
+  const renderCart = () => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+    const wrap = E('cartItems');
+    if(!cart.length){ wrap.innerHTML = `<div class="text-center text-muted">${lang==='en'?'Cart is empty':'السلة فارغة'}</div>`; }
+    else{
+      wrap.innerHTML = cart.map((it,idx)=>`
+        <div class="cart-item">
+          <img class="cart-item-image" src="${it.image}" alt="${it.name}">
+          <div class="cart-item-content">
+            <div class="cart-item-name">${it.name}</div>
+            <div class="cart-item-meta">${it.meta}</div>
+            <div class="cart-item-meta">${fmt(it.price,lang)}</div>
+          </div>
+          <div class="cart-item-actions">
+            <input type="number" min="1" value="${it.qty}" class="quantity-input" data-qty="${idx}">
+            <button class="btn btn-outline btn-sm" data-del="${idx}"><i class="fas fa-times"></i></button>
+          </div>
+        </div>`).join('');
+    }
+    calcTotals();
+  };
+
+  const calcTotals = () => {
+    const subBooks = cart.filter(c=>c.type==='book').reduce((s,c)=>s+c.price*c.qty,0);
+    const subStat  = cart.filter(c=>c.type==='stationery').reduce((s,c)=>s+c.price*c.qty,0);
+    const subAll   = subBooks + subStat;
+    const discount = subAll >= 1500 ? Math.round(subAll*0.05) : 0;       // خصم 5% فوق 1500
+    const shipping = subAll === 0 ? 0 : (subAll < 1000 ? 50 : 0);        // شحن 50 أقل من 1000
+    const grand    = subAll - discount;
+    const deposit  = Math.round(grand * 0.4);
+    const remain   = grand - deposit;
+
+    E('subtotalBooks').textContent = fmt(subBooks,lang);
+    E('subtotalStationery').textContent = fmt(subStat,lang);
+    E('subtotalAll').textContent = fmt(subAll,lang);
+    E('totalDiscount').textContent = fmt(discount,lang);
+    E('grandTotal').textContent = fmt(grand,lang);
+    E('depositAmount').textContent = fmt(deposit,lang);
+    E('remainAmount').textContent = fmt(remain,lang);
+  };
+
+  // Actions
+  document.body.addEventListener('click',(e)=>{
+    const add = e.target.closest('[data-add]');
+    if(add){
+      const id = add.getAttribute('data-add');
+      const type = add.getAttribute('data-type');
+      const src = type==='book' ? books.find(x=>x.id===id) : stationery.find(x=>x.id===id);
+      const meta = type==='book' ? `${src.stage} • ${src.grade} • ${src.subject} • ${src.series}` : src.category;
+      const key = `${type}-${id}`;
+      const i = cart.findIndex(c=>c.key===key);
+      if(i>-1) cart[i].qty+=1;
+      else cart.push({key,type,id:src.id,name:src.name,price:src.price,qty:1,meta,image:src.image});
+      renderCart();
+    }
+    const del = e.target.closest('[data-del]');
+    if(del){ cart.splice(+del.getAttribute('data-del'),1); renderCart(); }
+  });
+
+  document.body.addEventListener('input',(e)=>{
+    const q = e.target.getAttribute('data-qty');
+    if(q!==null){ const v = Math.max(1, +e.target.value||1); cart[q].qty=v; renderCart(); }
+    if(e.target.id==='searchInput'){ activeTab==='books'?renderBooks():renderStationery(); }
+    if(e.target.id==='adminSearch'){ renderBooks(); renderStationery(); }
+  });
+
+  ['stageSelect','gradeSelect','subjectSelect','seriesSelect'].forEach(id=>{
+    E(id).addEventListener('change', renderBooks);
+  });
+
+  // Tabs
+  const setTab = (tab)=>{
+    activeTab = tab; localStorage.setItem('tab',tab);
+    E('tabBooks').classList.toggle('active', tab==='books');
+    E('tabStationery').classList.toggle('active', tab==='stationery');
+    E('booksTitle').style.display = tab==='books' ? '' : 'none';
+    E('booksGrid').style.display = tab==='books' ? '' : 'none';
+    E('panelStationery').style.display = tab==='stationery' ? '' : 'none';
+  };
+  E('tabBooks').onclick = ()=>{ setTab('books'); };
+  E('tabStationery').onclick = ()=>{ setTab('stationery'); };
+
+  // Reset filters
+  E('btnResetFilters').onclick = ()=>{
+    ['stageSelect','gradeSelect','subjectSelect','seriesSelect','searchInput'].forEach(id=>E(id).value='');
+    renderBooks(); renderStationery();
+  };
+
+  // Clear cart
+  E('btnClear').onclick = ()=>{ cart=[]; renderCart(); };
+
+  // Export
+  E('btnExport').onclick = ()=>{
+    const order = {
+      customer:{name:E('custName').value,phone:E('custPhone').value,address:E('custAddress').value,payment:E('paymentMethod').value,insta:E('instaHandle').value},
+      items:cart,
+      totals:{
+        subBooks:E('subtotalBooks').textContent,
+        subStat:E('subtotalStationery').textContent,
+        subAll:E('subtotalAll').textContent,
+        discount:E('totalDiscount').textContent,
+        deposit:E('depositAmount').textContent,
+        grand:E('grandTotal').textContent,
+        remain:E('remainAmount').textContent
+      },
+      ts:new Date().toISOString()
+    };
+    // تحميل JSON
+    const blob = new Blob([JSON.stringify(order,null,2)],{type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'order.json';
+    a.click();
+
+    // إرسال واتساب تلقائياً
+    const myPhone = '01143717677'; // ضع رقمك هنا
+    const text = encodeURIComponent(
+      'فاتورة طلب جديدة:\n' +
+      cart.map(c=>`${c.name} x${c.qty} = ${c.price*c.qty}`).join('\n') + '\n' +
+      'الإجمالي: ' + E('grandTotal').textContent + '\n' +
+      'العميل: ' + (E('custName').value||'-') + ' | الهاتف: ' + (E('custPhone').value||'-')
+    );
+    const url = `https://wa.me/${myPhone}?text=${text}`;
+    window.open(url,'_blank');
+};
+
+  // Invoice
+  const buildInvoice = ()=>{
+    const rows = cart.map(c=>`
+      <tr>
+        <td>${c.name}</td>
+        <td>${c.type==='book'?(lang==='en'?'Book':'كتاب'):(lang==='en'?'Stationery':'أداة')}</td>
+        <td>${c.qty}</td>
+        <td>${fmt(c.price,lang)}</td>
+        <td>${fmt(c.price*c.qty,lang)}</td>
+      </tr>`).join('');
+    const cust = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:10px">
+        <div><b>${lang==='en'?'Parent Name':'اسم ولي الأمر'}:</b> ${E('custName').value||'-'}</div>
+        <div><b>${lang==='en'?'Phone':'الهاتف'}:</b> ${E('custPhone').value||'-'}</div>
+        <div><b>${lang==='en'?'Address':'العنوان'}:</b> ${E('custAddress').value||'-'}</div>
+        <div><b>${lang==='en'?'Payment':'الدفع'}:</b> ${E('paymentMethod').value}</div>
+      </div>`;
+    const totals = `
+      <div style="margin-top:12px">
+        <div>${lang==='en'?'Books Subtotal':'إجمالي الكتب'}: <b>${E('subtotalBooks').textContent}</b></div>
+        <div>${lang==='en'?'Stationery Subtotal':'إجمالي الأدوات'}: <b>${E('subtotalStationery').textContent}</b></div>
+        <div>${lang==='en'?'Subtotal':'المجموع قبل الخصم'}: <b>${E('subtotalAll').textContent}</b></div>
+        <div>${lang==='en'?'Discount':'الخصم'}: <b>${E('totalDiscount').textContent}</b></div>
+        <div>${lang==='en'?'Deposit 40%':'مقدم 40%'}: <b>${E('depositAmount').textContent}</b></div>
+        <div style="font-weight:800">${lang==='en'?'Grand Total':'الإجمالي النهائي'}: <b>${E('grandTotal').textContent}</b></div>
+        <div>${lang==='en'?'Remain on delivery':'المتبقي عند الاستلام'}: <b>${E('remainAmount').textContent}</b></div>
+      </div>`;
+    return `
+      ${cust}
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr style="background:#f6f6f6">
+          <th style="text-align:right;padding:8px;border:1px solid #eee">${lang==='en'?'Item':'الصنف'}</th>
+          <th style="text-align:right;padding:8px;border:1px solid #eee">${lang==='en'?'Type':'النوع'}</th>
+          <th style="text-align:right;padding:8px;border:1px solid #eee">${lang==='en'?'Qty':'الكمية'}</th>
+          <th style="text-align:right;padding:8px;border:1px solid #eee">${lang==='en'?'Unit Price':'السعر'}</th>
+          <th style="text-align:right;padding:8px;border:1px solid #eee">${lang==='en'?'Total':'الإجمالي'}</th>
+        </tr></thead>
+        <tbody>${rows||`<tr><td colspan="5" style="padding:12px;text-align:center;color:#888">${lang==='en'?'No items':'لا توجد عناصر'}</td></tr>`}</tbody>
+      </table>
+      ${totals}
+    `;
+  };
+
+  E('btnInvoice').onclick = ()=>{ E('invoiceBody').innerHTML = buildInvoice(); E('invoiceModal').style.display='flex'; };
+  E('closeInvoice').onclick = ()=>{ E('invoiceModal').style.display='none'; };
+  E('printBtn').onclick = ()=>{ const w = window.open('','_blank'); w.document.write(`<html><head><title>Invoice</title></head><body>${buildInvoice()}</body></html>`); w.document.close(); w.focus(); w.print(); w.close(); };
+  E('sendWhatsBtn').onclick = ()=>{
+    const phone = (E('custPhone').value||'').replace(/\D/g,'');
+    const text = encodeURIComponent(
+      (lang==='en'?'Order Invoice':'فاتورة الطلب')+'\n' +
+      cart.map(c=>`${c.name} x${c.qty} = ${c.price*c.qty}`).join('\n')+'\n' +
+      (lang==='en'?'Grand Total: ':'الإجمالي: ')+E('grandTotal').textContent
+    );
+    const url = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
+    window.open(url,'_blank');
+  };
+
+  // Language
+  const applyLang = ()=>{
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang==='en'?'ltr':'rtl';
+    E('title').innerHTML = lang==='en' ? '<i class="fas fa-book"></i> Library Order System' : '<i class="fas fa-book"></i> نظام إدارة طلبات المكتبة';
+    E('filterTitle').innerHTML = (lang==='en'?'Filter & Search Options':'خيارات البحث والتصفية');
+    E('resetFiltersTxt').textContent = lang==='en'?'Clear Filters':'تفريغ الفلاتر';
+    E('stageLbl').textContent = lang==='en'?'Stage':'المرحلة';
+    E('gradeLbl').textContent = lang==='en'?'Grade':'الصف';
+    E('subjectLbl').textContent = lang==='en'?'Subject':'المادة';
+    E('seriesLbl').textContent = lang==='en'?'Series':'السلسلة';
+    E('searchLbl').textContent = lang==='en'?'Search':'بحث';
+    E('searchInput').placeholder = lang==='en'?'Search by book or series...':'ابحث باسم الكتاب أو السلسلة...';
+    E('booksTabTxt').textContent = lang==='en'?'Books':'كتب خارجية';
+    E('stationeryTabTxt').textContent = lang==='en'?'Stationery':'أدوات مكتبية';
+    E('booksTitle').innerHTML = (lang==='en'?'Available Books':'الكتب المتاحة');
+    E('stationeryTitle').innerHTML = (lang==='en'?'Stationery':'الأدوات المكتبية');
+    E('cartTitle').innerHTML = (lang==='en'?'Shopping Cart':'سلة المشتريات');
+    E('clearCartTxt').textContent = lang==='en'?'Clear Cart':'تفريغ السلة';
+    E('custNameLbl').textContent = lang==='en'?'Parent Name':'اسم ولي الأمر';
+    E('custPhoneLbl').textContent = lang==='en'?'Phone':'رقم الهاتف';
+    E('custAddressLbl').textContent = lang==='en'?'Address':'العنوان';
+    E('paymentMethodLbl').textContent = lang==='en'?'Payment Method':'طريقة الدفع';
+    E('instaLbl').textContent = lang==='en'?'InstaPay ID':'معرف InstaPay';
+    E('subBooksTxt').textContent = lang==='en'?'Books Subtotal:':'إجمالي الكتب:';
+    E('subStatTxt').textContent = lang==='en'?'Stationery Subtotal:':'إجمالي الأدوات:';
+    E('subAllTxt').textContent = lang==='en'?'Subtotal:':'المجموع قبل الخصم:';
+    E('discountTxt').textContent = lang==='en'?'Discount:':'قيمة الخصم:';
+    E('depositTxt').textContent = lang==='en'?'Deposit 40%:':'مقدم 40%:';
+    E('grandTxt').textContent = lang==='en'?'Grand Total:':'الإجمالي النهائي:';
+    E('remainTxt').textContent = lang==='en'?'Remain on delivery:':'المتبقي عند الاستلام:';
+    E('invoiceBtnTxt').textContent = lang==='en'?'Show Invoice':'عرض الفاتورة';
+    E('exportBtnTxt').textContent = lang==='en'?'Export Order':'تصدير الطلب';
+    E('adminToolsTitle').innerHTML = (lang==='en'?'Admin Tools':'أدوات إدارية');
+    E('adminSearchLbl').textContent = lang==='en'?'Admin Search':'بحث إداري';
+    E('adminSearch').placeholder = lang==='en'?'Search all products...':'ابحث في جميع المنتجات...';
+    E('invoiceTitle').textContent = lang==='en'?'Invoice':'فاتورة الطلب';
+    E('closeTxt').textContent = lang==='en'?'Close':'إغلاق';
+    E('printTxt').textContent = lang==='en'?'Print':'طباعة';
+    E('whatsTxt').textContent = lang==='en'?'Send via WhatsApp':'إرسال عبر واتساب';
+    E('langToggle').querySelector('span').textContent = lang==='en'?'العربية':'English';
+    initFilters();
+    renderBooks(); renderStationery(); renderCart();
+  };
+
+  E('langToggle').onclick = ()=>{ lang = (lang==='ar'?'en':'ar'); localStorage.setItem('lang',lang); applyLang(); };
+  E('paymentMethod').onchange = ()=>{ E('instaGroup').style.display = E('paymentMethod').value==='instapay' ? '' : 'none'; };
+
+  // Init
+  initFilters(); applyLang(); setTab(activeTab);
+})();
+</script>
+</body>
+</html>
