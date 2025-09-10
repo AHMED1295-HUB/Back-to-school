@@ -495,10 +495,11 @@
       <button class="close" onclick="invoiceModal.classList.remove('show')">&times;</button>
       <h3 id="invoiceTitle">فاتورة الطلب</h3>
       <div id="invoiceBody"></div>
-      <div style="margin-top:8px;display:flex;gap:6px">
-        <button id="printInvoiceBtn" class="btn btn-primary">طباعة</button>
-        <button id="sendWhatsBtn" class="btn btn-accent"><i class="fab fa-whatsapp"></i> واتساب</button>
-      </div>
+     <div style="margin-top:8px;display:flex;gap:6px">
+  <button id="printInvoiceBtn" class="btn btn-primary">طباعة</button>
+  <button id="sendWhatsBtn" class="btn btn-accent"><i class="fab fa-whatsapp"></i> للعميل</button>
+  <button id="sendAdminWhatsBtn" class="btn btn-accent"><i class="fab fa-whatsapp"></i> للمدير</button>
+</div>
     </div>
   </div>
 <script>
@@ -1106,13 +1107,14 @@ function openInvoiceModal() {
 refs.printInvoiceBtn.addEventListener("click", () => {
   window.print();
 });
-refs.sendWhatsBtn.addEventListener("click", () => {
-  const phone = (refs.custPhone.value || "").replace(/\D/g, "");
-  if (!phone) { showToast(currentLang === "ar" ? "أدخل رقم الموبايل" : "Enter phone number", "error"); return; }
+// زرار إرسال للمدير
+refs.sendAdminWhatsBtn.addEventListener("click", () => {
   let msg = `${T[currentLang].invoiceTitle}\n`;
   cart.forEach(i => msg += `${i.name} x${i.qty} = ${i.qty * i.price}\n`);
   msg += `${T[currentLang].grandTotal} ${refs.grandTotal.textContent}`;
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+  
+  // هنا حط رقمك (مثال لمصر: 201234567890)
+  window.open(`https://wa.me/201143717677?text=${encodeURIComponent(msg)}`, "_blank");
 });
 
 /* ---------- EXPORT CSV ---------- */
