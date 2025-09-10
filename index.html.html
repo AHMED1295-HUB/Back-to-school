@@ -1,853 +1,946 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title data-translate="pageTitle">نظام إدارة طلبات المكتبة</title>
-
-  <!-- Fonts & icons (CDN) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8">
+  <title>نظام XY لإدارة الطلبات</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --primary:#2c3e50; --primary-strong:#223043; --accent:#3498db; --success:#27ae60;
-      --muted:#7f8c8d; --card:#ffffff; --shadow: 0 6px 18px rgba(0,0,0,.08); --radius:12px;
-    }
-    *{box-sizing:border-box}
-    body{font-family:'Cairo',Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#f5f7fa 0%,#e9f0f6 100%);margin:0;padding:24px;color:var(--primary);direction:rtl}
-    .container{max-width:1200px;margin:0 auto}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-    header h1{font-size:20px;margin:0;display:flex;align-items:center;gap:10px}
-    .lang-switch button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
-    .admin-trigger{background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
-
-    /* layout */
-    .grid{display:grid;grid-template-columns:1fr 380px;gap:20px}
-    @media (max-width:1024px){.grid{grid-template-columns:1fr}}
-
-    /* main card */
-    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);}
-
-    /* tabs & products */
-    .tabs{display:flex;gap:10px;margin-bottom:16px}
-    .tab{padding:10px 14px;border-radius:10px;background:#f3f6f9;border:1px solid #e6eef7;cursor:pointer;font-weight:700}
-    .tab.active{background:var(--primary);color:#fff;border-color:transparent}
-    .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-    .product{background:#fff;border-radius:10px;padding:12px;border:1px solid #eef3f7;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .14s,box-shadow .14s}
-    .product:hover{transform:translateY(-6px);box-shadow:0 12px 30px rgba(0,0,0,.08)}
-    .product img{width:100%;height:130px;object-fit:contain;border-radius:8px;background:#fbfdff;padding:8px}
-    .product .name{font-weight:700;text-align:center}
-    .product .meta{color:var(--muted);font-size:13px}
-    .product .price{font-weight:800;color:var(--primary);margin-top:6px}
-
-    /* sidebar layout (right column) */
-    .sidebar .section{margin-bottom:14px}
-    .form-row{display:flex;gap:8px}
-    .form-col{flex:1}
-    label{display:block;font-weight:700;margin-bottom:6px}
-    input[type="text"], input[type="tel"], select{width:100%;padding:10px;border:1px solid #e6edf3;border-radius:10px}
-    .small{font-size:13px;color:var(--muted)}
-
-    /* cart */
-    .cart-table{width:100%;border-collapse:collapse;margin-top:8px}
-    .cart-table th,.cart-table td{border-bottom:1px solid #eef3f7;padding:8px;text-align:right}
-    .cart-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between}
-    .totals{margin-top:12px;padding-top:12px;border-top:1px dashed #e6eef3;font-weight:800;text-align:right}
-
-    /* buttons */
-    .btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
-    .btn.primary{background:var(--primary);color:#fff}
-    .btn.secondary{background:var(--accent);color:#fff}
-    .btn.ghost{background:transparent;border:2px solid #eef3f7;color:var(--primary)}
-
-    /* modal */
-    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center;padding:20px}
-    .modal .modal-card{width:100%;max-width:880px;background:#fff;border-radius:12px;padding:18px;box-shadow:0 18px 40px rgba(0,0,0,.18);max-height:90vh;overflow:auto}
-    .modal .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-    .modal .row{display:flex;gap:10px}
-    .file-preview{max-width:120px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #eef3f7}
-
-    /* responsive tweaks */
-    @media (max-width:600px){
-      .product img{height:100px}
-      .grid{gap:12px}
-    }
+    body{font-family:'Cairo',sans-serif;margin:0;background:#f6f8fb;color:#222;direction:rtl}
+    header{background:#2c3e50;color:#fff;padding:12px;display:flex;justify-content:space-between;align-items:center}
+    header h1{margin:0;font-size:18px}
+    .btn{padding:6px 12px;border-radius:6px;cursor:pointer;border:0;font-weight:bold}
+    .btn-primary{background:#3498db;color:#fff}
+    .btn-accent{background:#27ae60;color:#fff}
+    .btn-outline{background:#fff;border:1px solid #ccc}
+    .btn-danger{background:#e74c3c;color:#fff}
+    .container{display:grid;grid-template-columns:1fr 340px;gap:14px;padding:14px}
+    .panel{background:#fff;border-radius:8px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+    .filter-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:8px 0}
+    .filter-input,.filter-select{width:100%;padding:6px;border:1px solid #ccc;border-radius:6px}
+    .tabs{display:flex;gap:6px;margin:8px 0}
+    .tab{flex:1;padding:8px;border:0;cursor:pointer;border-radius:6px}
+    .tab.active{background:#2c3e50;color:#fff}
+    .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:8px}
+    .product-card{border:1px solid #eee;border-radius:6px;padding:8px;display:flex;flex-direction:column}
+    .product-image{height:100px;object-fit:cover;border-radius:6px}
+    .product-footer{margin-top:auto;display:flex;justify-content:space-between;align-items:center}
+    .sidebar .summary-item{display:flex;justify-content:space-between;margin:4px 0}
+    .cart-items{max-height:220px;overflow:auto;margin:8px 0}
+    .cart-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee}
+    .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000}
+    .modal.show{display:flex}
+    .modal-content{background:#fff;padding:16px;border-radius:8px;max-width:900px;width:100%;max-height:90vh;overflow:auto;position:relative}
+    .close{position:absolute;top:8px;left:8px;cursor:pointer;background:none;border:none;font-size:20px;color:red}
+    .settings-tabs{display:flex;gap:6px;margin-bottom:10px}
+    .settings-tab{flex:1;padding:8px;border:0;cursor:pointer;border-radius:6px}
+    .settings-tab.active{background:#2c3e50;color:#fff}
+    .settings-panel{display:none}
+    .settings-panel.active{display:block}
+    .xy-thumb{width:60px;height:40px;object-fit:cover;border-radius:6px;margin-top:4px}
+    .small-field{display:flex;gap:6px;align-items:center;margin-top:6px}
   </style>
 </head>
 <body>
+  <header>
+    <h1 id="mainTitle"><i class="fas fa-book"></i> نظام XY</h1>
+    <div>
+      <button id="langToggle" class="btn btn-outline">English</button>
+      <button id="btnSettings" class="btn btn-primary"><i class="fas fa-cog"></i> إعدادات</button>
+    </div>
+  </header>
+
   <div class="container">
-    <header>
-      <h1><i class="fas fa-book"></i> <span data-translate="pageTitle">نظام إدارة طلبات المكتبة</span></h1>
-      <div style="display:flex;gap:8px;align-items:center">
-        <div class="lang-switch"><button id="toggleLang" class="btn">English</button></div>
-        <button id="openAdminBtn" class="admin-trigger">⚙️ الإدارة</button>
-      </div>
-    </header>
-
-    <div class="grid">
-      <!-- MAIN COLUMN -->
-      <div>
-        <div class="card">
-          <div class="tabs" role="tablist">
-            <div class="tab active" data-tab="books" id="tabBooks"><i class="fas fa-book"></i> <span data-translate="books">كتب</span></div>
-            <div class="tab" data-tab="stationery" id="tabStationery"><i class="fas fa-pencil-alt"></i> <span data-translate="stationery">أدوات مكتبية</span></div>
-          </div>
-
-          <div id="products" class="products" aria-live="polite"></div>
+    <!-- المنتجات -->
+    <div class="panel">
+      <h3 id="filterTitle">خيارات البحث والتصفية</h3>
+      <input id="searchInput" class="filter-input" placeholder="ابحث باسم المنتج...">
+      <div class="filter-row">
+        <div class="filter-group book-only">
+          <label id="stageLbl">المرحلة</label>
+          <select id="stageSelect" class="filter-select"></select>
+        </div>
+        <div class="filter-group book-only">
+          <label id="gradeLbl">الصف</label>
+          <select id="gradeSelect" class="filter-select"></select>
+        </div>
+        <div class="filter-group book-only">
+          <label id="subjectLbl">المادة</label>
+          <select id="subjectSelect" class="filter-select"></select>
+        </div>
+        <div class="filter-group book-only">
+          <label id="seriesLbl">السلسلة</label>
+          <select id="seriesSelect" class="filter-select"></select>
         </div>
       </div>
+      <div class="tabs">
+        <button id="tabBooks" class="tab active">كتب خارجية</button>
+        <button id="tabStationery" class="tab">أدوات مكتبية</button>
+      </div>
+      <div id="booksGrid" class="products-grid"></div>
+      <div id="stationeryGrid" class="products-grid" style="display:none"></div>
+    </div>
 
-      <!-- SIDEBAR -->
-      <aside class="sidebar">
-        <!-- Customer data card (moved before cart) -->
-        <div class="card section">
-          <h3><i class="fas fa-user"></i> <span data-translate="customerData">بيانات العميل</span></h3>
-          <div style="margin-top:10px">
-            <div class="form-group">
-              <label for="custName" data-translate="custNameLbl">اسم ولي الأمر</label>
-              <input id="custName" type="text" placeholder="أدخل الاسم الكامل">
-            </div>
-            <div class="form-group">
-              <label for="custPhone" data-translate="custPhoneLbl">رقم الهاتف</label>
-              <input id="custPhone" type="tel" placeholder="مثال: 20123456789">
-            </div>
-            <div class="form-group">
-              <label for="custAddress" data-translate="custAddressLbl">العنوان</label>
-              <input id="custAddress" type="text" placeholder="المدينة والمنطقة">
-            </div>
-            <div class="form-group">
-              <label for="paymentMethod" data-translate="paymentMethodLbl">طريقة الدفع</label>
-              <select id="paymentMethod">
-                <option value="instapay">InstaPay</option>
-                <option value="cod">الدفع عند الاستلام</option>
-              </select>
-            </div>
-            <div id="instaGroup" class="form-group">
-              <label for="instaHandle" data-translate="instaLbl">معرف InstaPay</label>
-              <input id="instaHandle" type="text" placeholder="مثال: username@instapay">
-            </div>
-          </div>
-        </div>
+    <!-- السلة -->
+    <aside class="sidebar panel">
+      <h3 id="cartTitle">سلة المشتريات</h3>
+      <div class="panel" style="margin-bottom:10px">
+        <label>اسم ولي الأمر</label>
+        <input id="custName" class="filter-input" placeholder="أدخل الاسم الكامل">
+        <label>رقم الهاتف</label>
+        <input id="custPhone" class="filter-input" placeholder="مثال: 20123456789">
+        <label>العنوان</label>
+        <input id="custAddress" class="filter-input" placeholder="المدينة / المنطقة">
+      </div>
+      <div id="cartItems" class="cart-items"></div>
+      <div class="summary">
+        <div class="summary-item"><span id="lblSubtotalBooks">إجمالي الكتب:</span><span id="subtotalBooks">0 ج.م</span></div>
+        <div class="summary-item"><span id="lblSubtotalStationery">إجمالي الأدوات:</span><span id="subtotalStationery">0 ج.م</span></div>
+        <div class="summary-item"><span id="lblSubtotalAll">المجموع قبل الخصم:</span><span id="subtotalAll">0 ج.م</span></div>
+        <div class="summary-item"><span id="lblTotalDiscount">قيمة الخصم:</span><span id="totalDiscount">0 ج.م</span></div>
+        <div class="summary-item"><span id="lblDepositAmount">المقدم:</span><span id="depositAmount">0 ج.م</span></div>
+        <div class="summary-item"><span id="lblGrandTotal">الإجمالي النهائي:</span><span id="grandTotal">0 ج.م</span></div>
+        <div class="summary-item"><span id="lblRemainAmount">المتبقي عند الاستلام:</span><span id="remainAmount">0 ج.م</span></div>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:6px">
+        <button id="btnInvoice" class="btn btn-primary" style="flex:1">فاتورة</button>
+        <button id="btnExport" class="btn btn-outline" style="flex:1">تصدير</button>
+        <button id="btnClear" class="btn btn-danger" style="flex:1">تفريغ</button>
+      </div>
+    </aside>
+  </div>
 
-        <!-- Cart card -->
-        <div class="card section">
-          <h3><i class="fas fa-shopping-cart"></i> <span data-translate="cart">سلة المشتريات</span></h3>
-          <div style="margin-top:10px;overflow:auto">
-            <table class="cart-table" id="cartTable" aria-live="polite">
-              <thead>
-                <tr>
-                  <th data-translate="item">المنتج</th>
-                  <th data-translate="qty">الكمية</th>
-                  <th data-translate="unitPrice">السعر</th>
-                  <th data-translate="lineTotal">الإجمالي</th>
-                  <th> </th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-
-            <div class="totals" id="cartTotals">
-              <div id="subtotalRow">المجموع: 0 ج.م</div>
-              <div id="discountRow">الخصم: 0 ج.م</div>
-              <div id="grandRow" style="margin-top:8px">الإجمالي النهائي: 0 ج.م</div>
-            </div>
-
-            <div class="cart-actions" style="margin-top:12px">
-              <button id="btnInvoice" class="btn primary" title="عرض الفاتورة"><i class="fas fa-receipt"></i> <span data-translate="invoiceBtnTxt">عرض الفاتورة</span></button>
-              <button id="btnExport" class="btn secondary" title="تصدير الطلب"><i class="fas fa-download"></i> <span data-translate="exportBtnTxt">تصدير الطلب</span></button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Admin quick search -->
-        <div class="card section">
-          <h4><i class="fas fa-tools"></i> <span data-translate="adminToolsTitle">أدوات إدارية</span></h4>
-          <div style="margin-top:8px">
-            <label for="adminSearch" class="small" data-translate="adminSearchLbl">بحث إداري</label>
-            <input id="adminSearch" type="text" placeholder="ابحث في جميع المنتجات...">
-          </div>
-        </div>
-      </aside>
+  <!-- نافذة تسجيل الدخول -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <button class="close" onclick="loginModal.classList.remove('show')">&times;</button>
+      <h3 id="loginTitle">تسجيل الدخول</h3>
+      <input id="adminEmail" placeholder="Email" class="filter-input">
+      <input id="adminPassword" type="password" placeholder="Password" class="filter-input">
+      <button id="loginSubmit" class="btn btn-primary">دخول</button>
     </div>
   </div>
 
-  <!-- Modal: Admin password prompt (simple) -->
-  <div id="adminPasswordModal" class="modal" aria-hidden="true">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 data-translate="adminLogin">تسجيل دخول الإدارة</h3>
-        <button id="closeAdminPassword" class="btn ghost">×</button>
-      </div>
-      <div style="text-align:right">
-        <label for="adminPassword" class="form-label small">كلمة المرور</label>
-        <input id="adminPassword" type="password" placeholder="ادخل كلمة المرور">
-        <div style="margin-top:12px;text-align:center">
-          <button id="adminPasswordEnter" class="btn primary">دخول</button>
-          <button id="adminPasswordCancel" class="btn ghost">إلغاء</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PLACEHOLDER: Part 2 (script + admin panel modal + invoice modal) -->
-  <!-- انسخ Part 2 هنا بعد نهاية Part 1 -->
-  <!-- Admin Panel Modal (shows after correct password) -->
-  <div id="adminPanelModal" class="modal" aria-hidden="true">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 data-translate="manageProducts">لوحة إدارة المنتجات</h3>
-        <div>
-          <button id="closeAdminPanel" class="btn ghost">إغلاق</button>
-        </div>
+  <!-- نافذة الإعدادات -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <button class="close" onclick="settingsModal.classList.remove('show')">&times;</button>
+      <h3 id="settingsTitle">إعدادات الإدارة</h3>
+      <div class="settings-tabs">
+        <button class="settings-tab active" data-tab="productsPanel">المنتجات</button>
+        <button class="settings-tab" data-tab="discountPanel">الخصم</button>
+        <button class="settings-tab" data-tab="filtersPanel">الفلاتر</button>
       </div>
 
-      <!-- Admin form: add/edit product -->
-      <div style="text-align:right;display:grid;grid-template-columns:1fr;gap:8px">
-        <div>
-          <label class="small" data-translate="prodName">اسم المنتج</label>
-          <input id="prodName" type="text" placeholder="">
+      <!-- المنتجات -->
+      <div id="productsPanel" class="settings-panel active">
+        <h4>قائمة المنتجات</h4>
+        <div id="productsList"></div>
+        <h4>إضافة / تعديل منتج</h4>
+        <input id="newProdName" placeholder="اسم المنتج" class="filter-input">
+        <select id="newProdType" class="filter-input">
+          <option value="book">كتاب</option>
+          <option value="stationery">أداة مكتبية</option>
+        </select>
+        <input id="newProdPrice" type="number" placeholder="السعر" class="filter-input">
+        <input id="newProdSeries" placeholder="السلسلة/الفئة" class="filter-input">
+        <input id="newProdImage" type="file" accept="image/*" class="filter-input">
+        <img id="newProdPreview" class="xy-thumb" style="display:none">
+        <div style="margin-top:6px;display:flex;gap:6px">
+          <button id="addProductBtn" class="btn btn-primary" style="flex:1">إضافة</button>
+          <button id="updateProductBtn" class="btn btn-accent" style="flex:1">تحديث</button>
         </div>
-        <div>
-          <label class="small" data-translate="prodType">النوع</label>
-          <select id="prodType">
-            <option value="book">كتاب</option>
-            <option value="stationery">أدوات مكتبية</option>
-          </select>
-        </div>
-        <div>
-          <label class="small" data-translate="prodMeta">بيانات إضافية</label>
-          <input id="prodMeta" type="text" placeholder="مثال: صف • مادة • سلسلة أو تصنيف">
-        </div>
-        <div style="display:flex;gap:8px">
-          <div style="flex:1">
-            <label class="small" data-translate="prodPrice">السعر (ج.م)</label>
-            <input id="prodPrice" type="number" min="0" step="0.01">
+      </div>
+
+      <!-- الخصم -->
+      <div id="discountPanel" class="settings-panel">
+        <h4>إعداد الخصم</h4>
+        <label>نسبة الخصم %</label>
+        <input id="discountRate" type="number" class="filter-input">
+        <label>نسبة المقدم %</label>
+        <input id="depositRate" type="number" class="filter-input">
+        <button id="saveDiscountBtn" class="btn btn-primary" style="margin-top:6px">حفظ</button>
+      </div>
+
+      <!-- الفلاتر -->
+      <div id="filtersPanel" class="settings-panel">
+        <h4>إدارة الفلاتر</h4>
+
+        <div style="margin-top:8px">
+          <label>المراحل</label>
+          <div id="filtersStages"></div>
+          <div class="small-field">
+            <input id="newStage" class="filter-input" placeholder="أدخل مرحلة جديدة">
+            <button id="addStageBtn" class="btn btn-primary">إضافة مرحلة</button>
           </div>
-          <div style="flex:1">
-            <label class="small" data-translate="prodImage">صورة المنتج</label>
-            <input id="prodImage" type="file" accept="image/*">
-            <div id="prodImagePreview" style="margin-top:8px"></div>
-          </div>
-        </div>
-
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
-          <button id="saveProdBtn" class="btn primary" data-editing="">حفظ المنتج</button>
-          <button id="clearProdFormBtn" class="btn ghost">مسح الحقول</button>
-        </div>
-
-        <hr style="margin:12px 0">
-
-        <h4 data-translate="existingProducts">المنتجات الحالية</h4>
-        <div id="adminProductsList" style="max-height:240px;overflow:auto"></div>
-
-        <hr style="margin:12px 0">
-
-        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start">
-          <button id="refreshOrdersBtn" class="btn secondary">تحديث الطلبات</button>
-          <button id="exportOrdersBtn" class="btn success">تصدير (Excel)</button>
-          <button id="aggReportBtn" class="btn ghost">تقرير مجمّع</button>
-          <button id="backupBtn" class="btn ghost">تنزيل نسخة احتياطية (JSON)</button>
-          <button id="restoreBtn" class="btn ghost">رفع نسخة احتياطية</button>
-          <input id="restoreFile" type="file" accept=".json" style="display:none">
         </div>
 
         <div style="margin-top:8px">
-          <h4 data-translate="ordersTitle">الطلبات المسجلة</h4>
-          <div id="ordersList" style="max-height:180px;overflow:auto"></div>
+          <label>الصفوف</label>
+          <div id="filtersGrades"></div>
+          <div class="small-field">
+            <input id="newGrade" class="filter-input" placeholder="أدخل صف جديد">
+            <button id="addGradeBtn" class="btn btn-primary">إضافة صف</button>
+          </div>
+        </div>
+
+        <div style="margin-top:8px">
+          <label>المواد</label>
+          <div id="filtersSubjects"></div>
+          <div class="small-field">
+            <input id="newSubject" class="filter-input" placeholder="أدخل مادة جديدة">
+            <button id="addSubjectBtn" class="btn btn-primary">إضافة مادة</button>
+          </div>
+        </div>
+
+        <div style="margin-top:8px">
+          <label>السلاسل</label>
+          <div id="filtersSeries"></div>
+          <div class="small-field">
+            <input id="newSeries" class="filter-input" placeholder="أدخل سلسلة جديدة">
+            <button id="addSeriesBtn" class="btn btn-primary">إضافة سلسلة</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <!-- نافذة الفاتورة -->
+  <div id="invoiceModal" class="modal">
+    <div class="modal-content">
+      <button class="close" onclick="invoiceModal.classList.remove('show')">&times;</button>
+      <h3 id="invoiceTitle">فاتورة الطلب</h3>
+      <div id="invoiceBody"></div>
+      <div style="margin-top:8px;display:flex;gap:6px">
+        <button id="printInvoiceBtn" class="btn btn-primary">طباعة</button>
+        <button id="sendWhatsBtn" class="btn btn-accent"><i class="fab fa-whatsapp"></i> واتساب</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* =========================
+   XY System - JavaScript (Complete with Filters Management)
+   ========================= */
+
+const ADMIN = { email: "admin@example.com", password: "1234" };
+let currentLang = "ar"; // "ar" or "en"
+
+/* ---------- DATA (load from localStorage or default sample) ---------- */
+let products = JSON.parse(localStorage.getItem("xy_products_v2")) || [
+  { id: 101, type: "book", name: "الرياضيات - الصف الأول", price: 50, stage: "الابتدائية", grade: "الصف الأول", subject: "الرياضيات", series: "سلسلة النجاح", image: "" },
+  { id: 102, type: "book", name: "اللغة العربية - الصف الأول", price: 45, stage: "الابتدائية", grade: "الصف الأول", subject: "اللغة العربية", series: "سلسلة النجاح", image: "" },
+  { id: 103, type: "book", name: "العلوم - الصف الثاني", price: 55, stage: "الابتدائية", grade: "الصف الثاني", subject: "العلوم", series: "سلسلة التميز", image: "" },
+  { id: 104, type: "book", name: "الإنجليزية - الصف الثالث", price: 60, stage: "الابتدائية", grade: "الصف الثالث", subject: "الإنجليزية", series: "سلسلة التميز", image: "" },
+  { id: 105, type: "book", name: "الرياضيات - الصف الرابع", price: 70, stage: "الابتدائية", grade: "الصف الرابع", subject: "الرياضيات", series: "سلسلة التفوق", image: "" },
+  { id: 201, type: "stationery", name: "دفتر سادة A4", price: 15, category: "قرطاسية", image: "" },
+  { id: 202, type: "stationery", name: "قلم رصاص HB", price: 5, category: "قرطاسية", image: "" },
+  { id: 203, type: "stationery", name: "مسطرة 30 سم", price: 8, category: "قرطاسية", image: "" },
+  { id: 204, type: "stationery", name: "ممحاة", price: 3, category: "قرطاسية", image: "" },
+  { id: 205, type: "stationery", name: "علبة ألوان", price: 40, category: "قرطاسية", image: "" }
+];
+
+let filters = JSON.parse(localStorage.getItem("xy_filters_v2")) || {
+  stages: ["الابتدائية", "الإعدادية", "الثانوية"],
+  grades: ["الصف الأول", "الصف الثاني", "الصف الثالث", "الصف الرابع", "الصف الخامس"],
+  subjects: ["اللغة العربية", "الرياضيات", "العلوم", "الإنجليزية"],
+  series: ["سلسلة النجاح", "سلسلة التميز", "سلسلة التفوق"]
+};
+
+let discountSettings = JSON.parse(localStorage.getItem("xy_discount_v2")) || { discountRate: 0, depositRate: 40 };
+let cart = []; // {id, qty, ...product}
+
+/* ---------- TRANSLATIONS ---------- */
+const T = {
+  ar: {
+    pageTitle: "نظام XY لإدارة الطلبات",
+    mainTitle: "نظام XY",
+    langText: "English",
+    filterTitle: "خيارات البحث والتصفية",
+    searchPlaceholder: "ابحث باسم المنتج...",
+    stageLbl: "المرحلة",
+    gradeLbl: "الصف",
+    subjectLbl: "المادة",
+    seriesLbl: "السلسلة",
+    booksTab: "كتب خارجية",
+    stationeryTab: "أدوات مكتبية",
+    cartTitle: "سلة المشتريات",
+    parentName: "اسم ولي الأمر",
+    enterName: "أدخل الاسم الكامل",
+    phone: "رقم الهاتف",
+    phoneEx: "مثال: 20123456789",
+    address: "العنوان",
+    addressEx: "المدينة / المنطقة",
+    subtotalBooks: "إجمالي الكتب:",
+    subtotalStationery: "إجمالي الأدوات:",
+    subtotalAll: "المجموع قبل الخصم:",
+    totalDiscount: "قيمة الخصم:",
+    depositAmount: "المقدم:",
+    grandTotal: "الإجمالي النهائي:",
+    remainAmount: "المتبقي عند الاستلام:",
+    invoice: "فاتورة",
+    export: "تصدير CSV",
+    clearCart: "تفريغ",
+    loginTitle: "تسجيل الدخول",
+    settingsTitle: "إعدادات الإدارة",
+    productsTab: "المنتجات",
+    discountTab: "الخصم",
+    addProd: "إضافة",
+    updateProd: "تحديث",
+    refreshProd: "تحديث العرض",
+    saveDiscount: "حفظ",
+    loginWrong: "بيانات الدخول غير صحيحة",
+    productAdded: "تم إضافة المنتج",
+    productUpdated: "تم تحديث المنتج",
+    productRemoved: "تم حذف المنتج",
+    filtersSaved: "تم حفظ الفلاتر",
+    csvSaved: "تم تنزيل CSV",
+    invoiceTitle: "فاتورة الطلب",
+    print: "طباعة",
+    whatsapp: "إرسال واتساب",
+    cartEmpty: "السلة فارغة",
+    confirmClearCart: "هل تريد تفريغ السلة؟",
+    increase: "+",
+    decrease: "-",
+    deleted: "تم الحذف",
+    enterPhone: "أدخل رقم الموبايل",
+    enterProdName: "ادخل اسم المنتج",
+    noEdit: "لا توجد عملية تعديل",
+  },
+  en: {
+    pageTitle: "XY Order System",
+    mainTitle: "XY System",
+    langText: "العربية",
+    filterTitle: "Search & Filters",
+    searchPlaceholder: "Search product name...",
+    stageLbl: "Stage",
+    gradeLbl: "Grade",
+    subjectLbl: "Subject",
+    seriesLbl: "Series",
+    booksTab: "Books",
+    stationeryTab: "Stationery",
+    cartTitle: "Shopping Cart",
+    parentName: "Parent Name",
+    enterName: "Enter full name",
+    phone: "Phone",
+    phoneEx: "Example: 20123456789",
+    address: "Address",
+    addressEx: "City / Area",
+    subtotalBooks: "Books Total:",
+    subtotalStationery: "Stationery Total:",
+    subtotalAll: "Subtotal:",
+    totalDiscount: "Discount:",
+    depositAmount: "Deposit:",
+    grandTotal: "Final Total:",
+    remainAmount: "Remaining:",
+    invoice: "Invoice",
+    export: "Export CSV",
+    clearCart: "Clear",
+    loginTitle: "Login",
+    settingsTitle: "Admin Settings",
+    productsTab: "Products",
+    discountTab: "Discount",
+    addProd: "Add",
+    updateProd: "Update",
+    refreshProd: "Refresh",
+    saveDiscount: "Save",
+    loginWrong: "Credentials incorrect",
+    productAdded: "Product added",
+    productUpdated: "Product updated",
+    productRemoved: "Product removed",
+    filtersSaved: "Filters saved",
+    csvSaved: "CSV downloaded",
+    invoiceTitle: "Order Invoice",
+    print: "Print",
+    whatsapp: "Send WhatsApp",
+    cartEmpty: "Cart is empty",
+    confirmClearCart: "Clear cart?",
+    increase: "+",
+    decrease: "-",
+    deleted: "Deleted",
+    enterPhone: "Enter phone number",
+    enterProdName: "Enter product name",
+    noEdit: "No product selected",
+  }
+};
+
+/* ---------- DOM refs ---------- */
+const refs = {
+  langToggle: document.getElementById("langToggle"),
+  mainTitle: document.getElementById("mainTitle"),
+  filterTitle: document.getElementById("filterTitle"),
+  searchInput: document.getElementById("searchInput"),
+  stageSelect: document.getElementById("stageSelect"),
+  gradeSelect: document.getElementById("gradeSelect"),
+  subjectSelect: document.getElementById("subjectSelect"),
+  seriesSelect: document.getElementById("seriesSelect"),
+  tabBooks: document.getElementById("tabBooks"),
+  tabStationery: document.getElementById("tabStationery"),
+  booksGrid: document.getElementById("booksGrid"),
+  stationeryGrid: document.getElementById("stationeryGrid"),
+
+  cartTitle: document.getElementById("cartTitle"),
+  custName: document.getElementById("custName"),
+  custPhone: document.getElementById("custPhone"),
+  custAddress: document.getElementById("custAddress"),
+  cartItems: document.getElementById("cartItems"),
+  subtotalBooks: document.getElementById("subtotalBooks"),
+  subtotalStationery: document.getElementById("subtotalStationery"),
+  subtotalAll: document.getElementById("subtotalAll"),
+  totalDiscount: document.getElementById("totalDiscount"),
+  depositAmount: document.getElementById("depositAmount"),
+  grandTotal: document.getElementById("grandTotal"),
+  remainAmount: document.getElementById("remainAmount"),
+
+  btnInvoice: document.getElementById("btnInvoice"),
+  btnExport: document.getElementById("btnExport"),
+  btnClear: document.getElementById("btnClear"),
+
+  loginModal: document.getElementById("loginModal"),
+  loginSubmit: document.getElementById("loginSubmit"),
+  adminEmail: document.getElementById("adminEmail"),
+  adminPassword: document.getElementById("adminPassword"),
+
+  settingsModal: document.getElementById("settingsModal"),
+  settingsTabs: document.querySelectorAll(".settings-tab"),
+  settingsPanels: document.querySelectorAll(".settings-panel"),
+  productsList: document.getElementById("productsList"),
+  newProdName: document.getElementById("newProdName"),
+  newProdType: document.getElementById("newProdType"),
+  newProdPrice: document.getElementById("newProdPrice"),
+  newProdSeries: document.getElementById("newProdSeries"),
+  newProdImage: document.getElementById("newProdImage"),
+  newProdPreview: document.getElementById("newProdPreview"),
+  addProductBtn: document.getElementById("addProductBtn"),
+  updateProductBtn: document.getElementById("updateProductBtn"),
+
+  discountRate: document.getElementById("discountRate"),
+  depositRate: document.getElementById("depositRate"),
+  saveDiscountBtn: document.getElementById("saveDiscountBtn"),
+
+  invoiceModal: document.getElementById("invoiceModal"),
+  invoiceBody: document.getElementById("invoiceBody"),
+  printInvoiceBtn: document.getElementById("printInvoiceBtn"),
+  sendWhatsBtn: document.getElementById("sendWhatsBtn"),
+
+  // filters admin elements
+  filtersStages: document.getElementById("filtersStages"),
+  filtersGrades: document.getElementById("filtersGrades"),
+  filtersSubjects: document.getElementById("filtersSubjects"),
+  filtersSeries: document.getElementById("filtersSeries"),
+  newStage: document.getElementById("newStage"),
+  newGrade: document.getElementById("newGrade"),
+  newSubject: document.getElementById("newSubject"),
+  newSeries: document.getElementById("newSeries"),
+  addStageBtn: document.getElementById("addStageBtn"),
+  addGradeBtn: document.getElementById("addGradeBtn"),
+  addSubjectBtn: document.getElementById("addSubjectBtn"),
+  addSeriesBtn: document.getElementById("addSeriesBtn")
+};
+
+/* ---------- UTILITIES ---------- */
+function saveAll() {
+  localStorage.setItem("xy_products_v2", JSON.stringify(products));
+  localStorage.setItem("xy_filters_v2", JSON.stringify(filters));
+  localStorage.setItem("xy_discount_v2", JSON.stringify(discountSettings));
+}
+function showToast(msg, type = "info") {
+  const el = document.createElement("div");
+  el.textContent = msg;
+  el.style.cssText = "position:fixed;bottom:18px;left:18px;padding:10px 14px;border-radius:8px;color:#fff;z-index:99999";
+  el.style.background = type === "error" ? "#e74c3c" : (type === "success" ? "#27ae60" : "#3498db");
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+function formatCurrency(n) { return `${Number(n).toFixed(2)} ج.م`; }
+
+/* ---------- TRANSLATION APPLY ---------- */
+function applyTranslations() {
+  const t = T[currentLang];
+  document.title = t.pageTitle;
+  if (refs.mainTitle) refs.mainTitle.textContent = `${t.mainTitle}`;
+  if (refs.filterTitle) refs.filterTitle.textContent = t.filterTitle;
+  if (refs.searchInput) refs.searchInput.placeholder = t.searchPlaceholder;
+  if (document.getElementById("stageLbl")) document.getElementById("stageLbl").textContent = t.stageLbl;
+  if (document.getElementById("gradeLbl")) document.getElementById("gradeLbl").textContent = t.gradeLbl;
+  if (document.getElementById("subjectLbl")) document.getElementById("subjectLbl").textContent = t.subjectLbl;
+  if (document.getElementById("seriesLbl")) document.getElementById("seriesLbl").textContent = t.seriesLbl;
+  if (refs.tabBooks) refs.tabBooks.textContent = t.booksTab;
+  if (refs.tabStationery) refs.tabStationery.textContent = t.stationeryTab;
+  if (refs.cartTitle) refs.cartTitle.textContent = t.cartTitle;
+  document.getElementById("lblSubtotalBooks").textContent = t.subtotalBooks;
+  document.getElementById("lblSubtotalStationery").textContent = t.subtotalStationery;
+  document.getElementById("lblSubtotalAll").textContent = t.subtotalAll;
+  document.getElementById("lblTotalDiscount").textContent = t.totalDiscount;
+  document.getElementById("lblDepositAmount").textContent = t.depositAmount;
+  document.getElementById("lblGrandTotal").textContent = t.grandTotal;
+  document.getElementById("lblRemainAmount").textContent = t.remainAmount;
+  if (refs.btnInvoice) refs.btnInvoice.textContent = t.invoice;
+  if (refs.btnExport) refs.btnExport.textContent = t.export;
+  if (refs.btnClear) refs.btnClear.textContent = t.clearCart;
+  document.getElementById("loginTitle").textContent = t.loginTitle;
+  document.getElementById("settingsTitle").textContent = t.settingsTitle;
+  if (refs.settingsTabs && refs.settingsTabs.length >= 2) {
+    refs.settingsTabs[0].textContent = t.productsTab;
+    refs.settingsTabs[1].textContent = t.discountTab;
+  }
+  if (document.getElementById("invoiceTitle")) document.getElementById("invoiceTitle").textContent = t.invoiceTitle;
+  if (refs.printInvoiceBtn) refs.printInvoiceBtn.textContent = t.print;
+  if (refs.sendWhatsBtn) refs.sendWhatsBtn.innerHTML = `<i class="fab fa-whatsapp"></i> ${t.whatsapp}`;
+}
+refs.langToggle.addEventListener("click", () => {
+  currentLang = currentLang === "ar" ? "en" : "ar";
+  applyTranslations();
+});
+applyTranslations();
+
+/* ---------- POPULATE FILTER SELECTS ---------- */
+function populateFilterSelects() {
+  function fill(selectEl, arr) {
+    if (!selectEl) return;
+    const allText = currentLang === "ar" ? "الكل" : "All";
+    selectEl.innerHTML = `<option value="">${allText}</option>` + arr.map(v => `<option value="${v}">${v}</option>`).join("");
+  }
+  fill(refs.stageSelect, filters.stages);
+  fill(refs.gradeSelect, filters.grades);
+  fill(refs.subjectSelect, filters.subjects);
+  fill(refs.seriesSelect, filters.series);
+}
+populateFilterSelects();
+
+/* ---------- RENDER PRODUCTS (with + / - buttons) ---------- */
+function renderProducts() {
+  refs.booksGrid.innerHTML = "";
+  refs.stationeryGrid.innerHTML = "";
+
+  const search = (refs.searchInput.value || "").trim().toLowerCase();
+  const stage = refs.stageSelect.value;
+  const grade = refs.gradeSelect.value;
+  const subject = refs.subjectSelect.value;
+  const seriesSel = refs.seriesSelect.value;
+
+  products.forEach(p => {
+    if (search && !p.name.toLowerCase().includes(search)) return;
+    if (p.type === "book") {
+      if ((stage && p.stage !== stage) || (grade && p.grade !== grade) || (subject && p.subject !== subject) || (seriesSel && p.series !== seriesSel)) return;
+    }
+
+    const card = document.createElement("div");
+    card.className = "product-card";
+    const imgSrc = p.image && p.image.length ? p.image : "https://via.placeholder.com/300x200?text=No+Image";
+    card.innerHTML = `
+      <img class="product-image" src="${imgSrc}" alt="${p.name}">
+      <div style="margin-top:8px;font-weight:800">${p.name}</div>
+      <div class="product-meta" style="font-size:13px;color:#666;margin-top:6px">
+        ${p.type === "book" ? `${p.stage || ""} ${p.grade ? " | " + p.grade : ""} ${p.subject ? " | " + p.subject : ""}` : (p.category || "")}
+      </div>
+      <div class="product-footer">
+        <div style="font-weight:800">${formatCurrency(p.price)}</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-decrease" data-id="${p.id}">${T[currentLang].decrease}</button>
+          <button class="btn btn-primary btn-increase" data-id="${p.id}">${T[currentLang].increase}</button>
         </div>
       </div>
-    </div>
-  </div>
+    `;
 
-  <!-- Invoice Modal -->
-  <div id="invoiceModal" class="modal" aria-hidden="true">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 data-translate="invoiceModalTitle">فاتورة الطلب</h3>
-        <button id="closeInvoice" class="btn ghost">إغلاق</button>
+    card.querySelector(".btn-increase").addEventListener("click", (e) => { addToCart(p.id); });
+    card.querySelector(".btn-decrease").addEventListener("click", (e) => { decreaseCartQty(p.id); });
+
+    if (p.type === "book") refs.booksGrid.appendChild(card); else refs.stationeryGrid.appendChild(card);
+  });
+}
+
+/* ---------- CART FUNCTIONS & CALCULATIONS ---------- */
+function addToCart(id) {
+  const prod = products.find(x => x.id === id);
+  if (!prod) return;
+  const it = cart.find(c => c.id === id);
+  if (it) it.qty += 1; else cart.push({ ...prod, qty: 1 });
+  renderCart();
+}
+function decreaseCartQty(id) {
+  const it = cart.find(c => c.id === id);
+  if (!it) return;
+  it.qty -= 1;
+  if (it.qty <= 0) cart = cart.filter(c => c.id !== id);
+  renderCart();
+}
+function removeFromCart(id) {
+  cart = cart.filter(c => c.id !== id);
+  renderCart();
+}
+
+function renderCart() {
+  refs.cartItems.innerHTML = "";
+  let booksTotal = 0, stationeryTotal = 0;
+  cart.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "cart-item";
+    row.innerHTML = `
+      <div style="max-width:60%"><strong>${item.name}</strong><div style="color:#666;font-size:13px">${item.qty} × ${formatCurrency(item.price)}</div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <div style="font-weight:800">${formatCurrency(item.qty * item.price)}</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline small-dec" data-id="${item.id}">-</button>
+          <button class="btn btn-outline small-inc" data-id="${item.id}">+</button>
+          <button class="btn btn-outline" data-del="${item.id}"><i class="fas fa-trash"></i></button>
+        </div>
       </div>
-      <div id="invoiceBody" style="text-align:right"></div>
-      <div style="margin-top:12px;display:flex;gap:8px;justify-content:center">
-        <button id="printInvoice" class="btn primary">طباعة</button>
-        <button id="downloadPdf" class="btn secondary">حفظ PDF</button>
-        <button id="sendWhats" class="btn success">إرسال واتساب</button>
+    `;
+    refs.cartItems.appendChild(row);
+
+    row.querySelector(".small-inc").addEventListener("click", () => { addToCart(item.id); });
+    row.querySelector(".small-dec").addEventListener("click", () => { decreaseCartQty(item.id); });
+    row.querySelector("[data-del]").addEventListener("click", () => { removeFromCart(item.id); });
+
+    if (item.type === "book") booksTotal += item.qty * item.price; else stationeryTotal += item.qty * item.price;
+  });
+
+  const subtotal = booksTotal + stationeryTotal;
+  const discountValue = subtotal * (discountSettings.discountRate / 100);
+  const afterDiscount = Math.max(0, subtotal - discountValue);
+  const deposit = afterDiscount * (discountSettings.depositRate / 100);
+  const remain = Math.max(0, afterDiscount - deposit);
+
+  refs.subtotalBooks.textContent = formatCurrency(booksTotal);
+  refs.subtotalStationery.textContent = formatCurrency(stationeryTotal);
+  refs.subtotalAll.textContent = formatCurrency(subtotal);
+  refs.totalDiscount.textContent = formatCurrency(discountValue);
+  refs.depositAmount.textContent = formatCurrency(deposit);
+  refs.grandTotal.textContent = formatCurrency(afterDiscount);
+  refs.remainAmount.textContent = formatCurrency(remain);
+
+  refs.btnInvoice.disabled = cart.length === 0;
+}
+
+/* ---------- TAB NAVIGATION (Books / Stationery) ---------- */
+refs.tabBooks.addEventListener("click", () => {
+  refs.tabBooks.classList.add("active");
+  refs.tabStationery.classList.remove("active");
+  refs.booksGrid.style.display = "grid";
+  refs.stationeryGrid.style.display = "none";
+});
+refs.tabStationery.addEventListener("click", () => {
+  refs.tabStationery.classList.add("active");
+  refs.tabBooks.classList.remove("active");
+  refs.stationeryGrid.style.display = "grid";
+  refs.booksGrid.style.display = "none";
+});
+
+/* ---------- SEARCH / FILTER LISTENERS ---------- */
+[refs.searchInput, refs.stageSelect, refs.gradeSelect, refs.subjectSelect, refs.seriesSelect].forEach(el => {
+  if (!el) return;
+  el.addEventListener("input", debounce(renderProducts, 180));
+  el.addEventListener("change", renderProducts);
+});
+
+/* ---------- DEBOUNCE helper ---------- */
+function debounce(fn, wait) {
+  let t;
+  return function (...args) {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), wait);
+  };
+}
+
+/* ---------- LOGIN & SETTINGS ---------- */
+refs.btnClear.addEventListener("click", () => {
+  if (cart.length === 0) { showToast(T[currentLang].cartEmpty, "info"); return; }
+  if (!confirm(T[currentLang].confirmClearCart)) return;
+  cart = [];
+  renderCart();
+});
+refs.btnExport.addEventListener("click", exportCSV);
+
+refs.btnInvoice.addEventListener("click", () => { openInvoiceModal(); });
+
+refs.btnInvoice.disabled = true; // initially
+
+document.getElementById("btnSettings").addEventListener("click", () => {
+  refs.adminEmail.value = "";
+  refs.adminPassword.value = "";
+  refs.loginModal.classList.add("show");
+});
+
+refs.loginSubmit.addEventListener("click", () => {
+  const e = (refs.adminEmail.value || "").trim();
+  const p = (refs.adminPassword.value || "").trim();
+  if (e === ADMIN.email && p === ADMIN.password) {
+    refs.loginModal.classList.remove("show");
+    refs.settingsModal.classList.add("show");
+    onSettingsOpen();
+  } else {
+    showToast(T[currentLang].loginWrong, "error");
+  }
+});
+
+refs.settingsTabs.forEach(btn => {
+  btn.addEventListener("click", () => {
+    refs.settingsTabs.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    refs.settingsPanels.forEach(p => p.classList.remove("active"));
+    const target = btn.dataset.tab;
+    const panel = document.getElementById(target);
+    if (panel) panel.classList.add("active");
+  });
+});
+
+document.querySelectorAll(".modal .close").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    const modal = btn.closest(".modal");
+    if (modal) modal.classList.remove("show");
+  });
+});
+
+/* ---------- ADMIN: Products management (add / edit / delete + image upload) ---------- */
+let editingProductId = null;
+
+function renderProductsAdmin() {
+  refs.productsList.innerHTML = "";
+  products.forEach(p => {
+    const row = document.createElement("div");
+    row.style = "display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid #f0f0f0";
+    row.innerHTML = `<div style="display:flex;gap:8px;align-items:center">
+        <img src="${p.image && p.image.length ? p.image : 'https://via.placeholder.com/80'}" class="xy-thumb" alt="">
+        <div><strong>${p.name}</strong><div style="font-size:12px;color:#666">${p.type === 'book' ? (p.stage ? p.stage + " | " : "") + (p.grade ? p.grade + " | " : "") + (p.subject ? p.subject : "") : (p.category || "")}</div></div>
       </div>
-    </div>
-  </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <div style="font-weight:800">${formatCurrency(p.price)}</div>
+        <button class="btn btn-outline" data-edit="${p.id}"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-outline" data-del="${p.id}"><i class="fas fa-trash"></i></button>
+      </div>`;
+    refs.productsList.appendChild(row);
 
-  <!-- Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-  <script>
-  (function(){
-    // Utils
-    const $ = id => document.getElementById(id);
-    const qsa = s => Array.from(document.querySelectorAll(s));
-    const fmt = (n, lang='ar') => lang==='en' ? n.toLocaleString('en-US')+' EGP' : n.toLocaleString('ar-EG')+' ج.م';
-    const uid = (pref='id') => pref + Date.now().toString(36) + Math.floor(Math.random()*999).toString(36);
-
-    // Translation strings
-    const translations = {
-      ar: {
-        pageTitle: "نظام إدارة طلبات المكتبة",
-        books: "كتب", stationery: "أدوات مكتبية",
-        customerData: "بيانات العميل", custNameLbl: "اسم ولي الأمر", custPhoneLbl: "رقم الهاتف", custAddressLbl: "العنوان",
-        paymentMethodLbl: "طريقة الدفع", instaLbl: "معرف InstaPay",
-        cart: "سلة المشتريات", item: "الصنف", qty: "الكمية", unitPrice: "السعر", lineTotal: "الإجمالي",
-        invoiceBtnTxt: "عرض الفاتورة", exportBtnTxt: "تصدير الطلب", adminToolsTitle: "أدوات إدارية", adminSearchLbl: "بحث إداري",
-        adminLogin: "تسجيل دخول الإدارة", manageProducts: "إدارة المنتجات", prodName: "اسم المنتج", prodType: "النوع",
-        prodMeta: "بيانات إضافية", prodPrice: "السعر (ج.م)", prodImage: "صورة المنتج", save: "حفظ", cancel: "إغلاق",
-        existingProducts: "المنتجات الحالية", ordersTitle: "الطلبات المسجلة", refresh: "تحديث", exportOrders: "تصدير الطلبات",
-        aggReport: "تقرير مجمّع", invoiceModalTitle: "فاتورة الطلب", downloadPdf: "تحميل PDF", close: "إغلاق"
-      },
-      en: {
-        pageTitle: "Library Orders System",
-        books: "Books", stationery: "Stationery",
-        customerData: "Customer Data", custNameLbl: "Parent Name", custPhoneLbl: "Phone", custAddressLbl: "Address",
-        paymentMethodLbl: "Payment Method", instaLbl: "InstaPay ID",
-        cart: "Shopping Cart", item: "Item", qty: "Qty", unitPrice: "Unit Price", lineTotal: "Line Total",
-        invoiceBtnTxt: "Show Invoice", exportBtnTxt: "Export Order", adminToolsTitle: "Admin Tools", adminSearchLbl: "Admin Search",
-        adminLogin: "Admin Login", manageProducts: "Manage Products", prodName: "Product Name", prodType: "Type",
-        prodMeta: "Extra data", prodPrice: "Price (EGP)", prodImage: "Product Image", save: "Save", cancel: "Close",
-        existingProducts: "Existing Products", ordersTitle: "Saved Orders", refresh: "Refresh", exportOrders: "Export Orders",
-        aggReport: "Aggregated Report", invoiceModalTitle: "Order Invoice", downloadPdf: "Download PDF", close: "Close"
-      }
-    };
-
-    // State
-    let lang = localStorage.getItem('lang') || 'ar';
-    let activeTab = localStorage.getItem('tab') || 'books';
-    let products = JSON.parse(localStorage.getItem('products')||'null');
-    let cart = JSON.parse(localStorage.getItem('cart')||'[]');
-    let orders = JSON.parse(localStorage.getItem('orders')||'[]');
-    const ADMIN_PASSWORD_KEY = 'admin_password'; // optional stored pass (not secure against devtools)
-    const DEFAULT_ADMIN_PASS = 'admin123';
-
-    // default products if none
-    const defaultProducts = [
-      { id: 'b1', type:'book', name:'Gem English 3º', meta:'إعدادي • ثالث إعدادي • English • Gem', price:220, image:'https://via.placeholder.com/300x200?text=Gem+Eng+3' },
-      { id: 'b2', type:'book', name:'المعاصر Math 2º', meta:'إعدادي • ثاني إعدادي • Math • المعاصر', price:200, image:'https://via.placeholder.com/300x200?text=Elmoasser+Math+2' },
-      { id: 's1', type:'stationery', name:'كراس 60 ورقة', meta:'دفاتر', price:25, image:'https://via.placeholder.com/300x200?text=Notebook+60' },
-      { id: 's2', type:'stationery', name:'قلم رصاص HB', meta:'أقلام', price:6, image:'https://via.placeholder.com/300x200?text=Pencil+HB' }
-    ];
-    if(!products){ products = defaultProducts; localStorage.setItem('products', JSON.stringify(products)); }
-
-    // Apply translation to page static elements
-    function applyLang(){
-      localStorage.setItem('lang', lang);
-      document.documentElement.lang = (lang==='en'?'en':'ar');
-      document.documentElement.dir = (lang==='en'?'ltr':'rtl');
-
-      qsa('[data-translate]').forEach(el=>{
-        const key = el.getAttribute('data-translate');
-        if(translations[lang] && translations[lang][key]) el.textContent = translations[lang][key];
-      });
-
-      // button text for toggle
-      $('toggleLang').textContent = (lang==='en'? 'العربية' : 'English');
-
-      // re-render dynamic parts
+    row.querySelector("[data-edit]").addEventListener("click", () => { startEditProduct(p.id); });
+    row.querySelector("[data-del]").addEventListener("click", () => {
+      if (!confirm(T[currentLang].deleted + "؟")) return;
+      products = products.filter(x => x.id !== p.id);
+      saveAll();
       renderProducts();
-      renderCart();
-      renderAdminProducts();
-      renderOrdersList();
-    }
+      renderProductsAdmin();
+      showToast(T[currentLang].productRemoved, "success");
+    });
+  });
+}
 
-    // Render products grid
-    function renderProducts(){
-      const wrap = $('products');
-      wrap.innerHTML = '';
-      const list = products.filter(p => activeTab === 'books' ? p.type==='book' : p.type==='stationery');
-      if(list.length===0){
-        wrap.innerHTML = `<div style="padding:20px;color:#666;text-align:center">${ lang==='en' ? 'No items' : 'لا توجد عناصر' }</div>`;
-        return;
-      }
-      list.forEach(p=>{
-        const el = document.createElement('div');
-        el.className = 'product';
-        el.innerHTML = `
-          <img src="${p.image||''}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
-          <div class="name">${p.name}</div>
-          <div class="meta">${p.meta||''}</div>
-          <div class="price">${ fmt(p.price, lang) }</div>
-          <div style="margin-top:8px"><button class="btn primary" data-add="${p.id}">${ lang==='en' ? 'Add' : 'أضف' }</button></div>
-        `;
-        wrap.appendChild(el);
+function startEditProduct(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  editingProductId = id;
+  refs.newProdName.value = p.name || "";
+  refs.newProdType.value = p.type || "book";
+  refs.newProdPrice.value = p.price || 0;
+  refs.newProdSeries.value = p.series || p.category || "";
+  if (p.image) { refs.newProdPreview.src = p.image; refs.newProdPreview.style.display = "block"; } else { refs.newProdPreview.style.display = "none"; }
+}
+
+refs.newProdImage.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) { refs.newProdPreview.style.display = "none"; refs.newProdPreview.src = ""; return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    refs.newProdPreview.src = reader.result;
+    refs.newProdPreview.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+});
+
+refs.addProductBtn.addEventListener("click", () => {
+  const name = (refs.newProdName.value || "").trim();
+  const type = refs.newProdType.value;
+  const price = parseFloat(refs.newProdPrice.value) || 0;
+  const seriesOrCat = (refs.newProdSeries.value || "").trim();
+  let imageData = "";
+  if (refs.newProdPreview.src && refs.newProdPreview.style.display !== "none") {
+    imageData = refs.newProdPreview.src;
+  }
+  if (!name) { showToast(currentLang === "ar" ? T.ar.enterProdName : T.en.enterProdName, "error"); return; }
+  const id = Date.now();
+  const item = type === "book" ? { id, type: "book", name, price, stage: filters.stages[0] || "", grade: filters.grades[0] || "", subject: filters.subjects[0] || "", series: seriesOrCat, image: imageData } : { id, type: "stationery", name, price, category: seriesOrCat, image: imageData };
+  products.push(item);
+  saveAll();
+  renderProducts();
+  renderProductsAdmin();
+  refs.newProdName.value = "";
+  refs.newProdPrice.value = "";
+  refs.newProdSeries.value = "";
+  refs.newProdImage.value = "";
+  refs.newProdPreview.style.display = "none";
+  refs.newProdPreview.src = "";
+  showToast(T[currentLang].productAdded, "success");
+});
+
+refs.updateProductBtn.addEventListener("click", () => {
+  if (!editingProductId) { showToast(currentLang === "ar" ? T.ar.noEdit : T.en.noEdit, "error"); return; }
+  const p = products.find(x => x.id === editingProductId);
+  if (!p) return;
+  p.name = (refs.newProdName.value || "").trim();
+  p.type = refs.newProdType.value;
+  p.price = parseFloat(refs.newProdPrice.value) || 0;
+  p.series = (refs.newProdSeries.value || "").trim();
+  if (refs.newProdPreview.src && refs.newProdPreview.style.display !== "none") p.image = refs.newProdPreview.src;
+  saveAll();
+  renderProducts();
+  renderProductsAdmin();
+  editingProductId = null;
+  refs.newProdName.value = ""; refs.newProdPrice.value = ""; refs.newProdSeries.value = ""; refs.newProdImage.value = ""; refs.newProdPreview.style.display = "none";
+  showToast(T[currentLang].productUpdated, "success");
+});
+
+/* ---------- ADMIN: Filters management (add / delete) ---------- */
+function renderFiltersAdmin() {
+  function renderList(containerEl, arr, type) {
+    containerEl.innerHTML = "";
+    arr.forEach((item, i) => {
+      const div = document.createElement("div");
+      div.style = "display:flex;justify-content:space-between;align-items:center;margin:6px 0;padding:6px;border:1px solid #eee;border-radius:6px";
+      div.innerHTML = `<span>${item}</span><button class="btn btn-outline" data-del="${type}-${i}"><i class="fas fa-trash"></i></button>`;
+      containerEl.appendChild(div);
+      div.querySelector("[data-del]").addEventListener("click", () => {
+        filters[type].splice(i, 1);
+        saveAll();
+        renderFiltersAdmin();
+        populateFilterSelects();
+        showToast(T[currentLang].filtersSaved, "success");
       });
-    }
-
-    // Render cart
-    function renderCart(){
-      localStorage.setItem('cart', JSON.stringify(cart));
-      const tbody = $('cartTable').querySelector('tbody');
-      tbody.innerHTML = '';
-      if(cart.length===0){
-        tbody.innerHTML = `<tr><td colspan="5" style="color:#666;padding:12px;text-align:center">${ lang==='en' ? 'Cart is empty' : 'السلة فارغة' }</td></tr>`;
-        $('cartTotals').querySelector('#subtotalRow').textContent = (lang==='en'?'Subtotal: ':'المجموع: ') + fmt(0,lang);
-        $('cartTotals').querySelector('#discountRow').textContent = (lang==='en'?'Discount: ':'الخصم: ') + fmt(0,lang);
-        $('cartTotals').querySelector('#grandRow').textContent = (lang==='en'?'Grand Total: ':'الإجمالي النهائي: ') + fmt(0,lang);
-        return;
-      }
-      let subtotal = 0;
-      cart.forEach((c, idx)=>{
-        const line = c.price * c.qty;
-        subtotal += line;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td style="text-align:right">${c.name}</td>
-          <td><input type="number" value="${c.qty}" min="1" data-idx="${idx}" style="width:64px;text-align:center;border-radius:6px;border:1px solid #e6edf3;padding:6px"></td>
-          <td>${ fmt(c.price, lang) }</td>
-          <td>${ fmt(line, lang) }</td>
-          <td><button class="btn ghost" data-remove="${idx}"><i class="fas fa-trash"></i></button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-      const discount = subtotal >= 1500 ? Math.round(subtotal * 0.05) : 0;
-      const grand = subtotal - discount;
-      $('cartTotals').querySelector('#subtotalRow').textContent = (lang==='en'?'Subtotal: ':'المجموع: ') + fmt(subtotal,lang);
-      $('cartTotals').querySelector('#discountRow').textContent = (lang==='en'?'Discount: ':'الخصم: ') + fmt(discount,lang);
-      $('cartTotals').querySelector('#grandRow').textContent = (lang==='en'?'Grand Total: ':'الإجمالي النهائي: ') + fmt(grand,lang);
-    }
-
-    // Add to cart handler (delegation)
-    document.body.addEventListener('click', async (e)=>{
-      const add = e.target.closest('[data-add]');
-      if(add){
-        const id = add.getAttribute('data-add');
-        const p = products.find(x=>x.id===id);
-        if(!p) return;
-        const i = cart.findIndex(it=>it.id===id);
-        if(i>-1) cart[i].qty += 1;
-        else cart.push({ id: p.id, name: p.name, price: p.price, qty: 1, type: p.type });
-        renderCart();
-      }
-
-      const rem = e.target.closest('[data-remove]');
-      if(rem){
-        const idx = +rem.getAttribute('data-remove');
-        cart.splice(idx,1);
-        renderCart();
-      }
-
-      // admin open password modal
-      if(e.target.id === 'openAdminBtn') $('adminPasswordModal').style.display = 'flex';
-
-      // admin password cancel/close
-      if(e.target.id === 'closeAdminPassword' || e.target.id === 'adminPasswordCancel') $('adminPasswordModal').style.display = 'none';
-
-      // admin password enter
-      if(e.target.id === 'adminPasswordEnter'){
-        const val = $('adminPassword').value || '';
-        const stored = localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_ADMIN_PASS;
-        if(val === stored){
-          $('adminPasswordModal').style.display = 'none';
-          openAdminPanel();
-        } else {
-          alert(lang==='en' ? 'Wrong password' : 'كلمة مرور خاطئة');
-        }
-      }
-
-      // admin panel close
-      if(e.target.id === 'closeAdminPanel') $('adminPanelModal').style.display = 'none';
-
-      // save product
-      if(e.target.id === 'saveProdBtn'){
-        saveProductFromAdmin();
-      }
-
-      // clear prod form
-      if(e.target.id === 'clearProdFormBtn'){
-        clearProdForm();
-      }
-
-      // admin product edit/delete (delegation on adminProductsList)
-      const editBtn = e.target.closest('[data-edit-prod]');
-      if(editBtn){
-        const id = editBtn.getAttribute('data-edit-prod');
-        const p = products.find(x=>x.id===id);
-        if(!p) return;
-        $('prodName').value = p.name;
-        $('prodType').value = p.type;
-        $('prodMeta').value = p.meta;
-        $('prodPrice').value = p.price;
-        if(p.image) {
-          $('prodImagePreview').innerHTML = `<img src="${p.image}" class="file-preview">`;
-        } else $('prodImagePreview').innerHTML = '';
-        $('saveProdBtn').setAttribute('data-editing', p.id);
-        // scroll admin modal to top
-        $('adminPanelModal').scrollTop = 0;
-      }
-      const delBtn = e.target.closest('[data-del-prod]');
-      if(delBtn){
-        const id = delBtn.getAttribute('data-del-prod');
-        if(!confirm(lang==='en' ? 'Delete product?' : 'هل تريد حذف المنتج؟')) return;
-        products = products.filter(x=>x.id!==id);
-        localStorage.setItem('products', JSON.stringify(products));
-        renderAdminProducts();
-        renderProducts();
-      }
-
-      // refresh orders
-      if(e.target.id === 'refreshOrdersBtn') renderOrdersList();
-
-      // export orders excel
-      if(e.target.id === 'exportOrdersBtn') exportOrdersExcel();
-
-      // aggregated report
-      if(e.target.id === 'aggReportBtn') showAggregatedReport();
-
-      // backup download
-      if(e.target.id === 'backupBtn') downloadBackupJSON();
-
-      // restore
-      if(e.target.id === 'restoreBtn') $('restoreFile').click();
-
     });
+  }
+  renderList(refs.filtersStages, filters.stages, "stages");
+  renderList(refs.filtersGrades, filters.grades, "grades");
+  renderList(refs.filtersSubjects, filters.subjects, "subjects");
+  renderList(refs.filtersSeries, filters.series, "series");
+}
 
-    // qty change listener
-    document.body.addEventListener('input',(e)=>{
-      if(e.target.matches('input[data-idx]')){
-        const idx = +e.target.getAttribute('data-idx');
-        const v = Math.max(1, parseInt(e.target.value||1,10));
-        cart[idx].qty = v;
-        renderCart();
-      }
+refs.addStageBtn.addEventListener("click", () => {
+  const val = (refs.newStage.value || "").trim();
+  if (!val) return;
+  if (!filters.stages.includes(val)) filters.stages.push(val);
+  refs.newStage.value = "";
+  saveAll(); renderFiltersAdmin(); populateFilterSelects();
+  showToast(T[currentLang].filtersSaved, "success");
+});
+refs.addGradeBtn.addEventListener("click", () => {
+  const val = (refs.newGrade.value || "").trim();
+  if (!val) return;
+  if (!filters.grades.includes(val)) filters.grades.push(val);
+  refs.newGrade.value = "";
+  saveAll(); renderFiltersAdmin(); populateFilterSelects();
+  showToast(T[currentLang].filtersSaved, "success");
+});
+refs.addSubjectBtn.addEventListener("click", () => {
+  const val = (refs.newSubject.value || "").trim();
+  if (!val) return;
+  if (!filters.subjects.includes(val)) filters.subjects.push(val);
+  refs.newSubject.value = "";
+  saveAll(); renderFiltersAdmin(); populateFilterSelects();
+  showToast(T[currentLang].filtersSaved, "success");
+});
+refs.addSeriesBtn.addEventListener("click", () => {
+  const val = (refs.newSeries.value || "").trim();
+  if (!val) return;
+  if (!filters.series.includes(val)) filters.series.push(val);
+  refs.newSeries.value = "";
+  saveAll(); renderFiltersAdmin(); populateFilterSelects();
+  showToast(T[currentLang].filtersSaved, "success");
+});
+
+/* ---------- ADMIN: Discount save ---------- */
+refs.saveDiscountBtn.addEventListener("click", () => {
+  discountSettings.discountRate = parseFloat(refs.discountRate.value) || 0;
+  discountSettings.depositRate = parseFloat(refs.depositRate.value) || 0;
+  saveAll();
+  renderCart();
+  showToast(T[currentLang].saveDiscount, "success");
+});
+
+/* ---------- INVOICE / PRINT / WHATSAPP ---------- */
+function openInvoiceModal() {
+  if (cart.length === 0) { showToast(T[currentLang].cartEmpty, "info"); return; }
+  let html = `<p><strong>${T[currentLang].invoiceTitle}</strong></p>`;
+  html += `<p><strong>${T[currentLang].parentName || "Client"}:</strong> ${refs.custName.value || "-" }<br>`;
+  html += `<strong>${T[currentLang].phone || "Phone"}:</strong> ${refs.custPhone.value || "-" }<br>`;
+  html += `<strong>${T[currentLang].address || "Address"}:</strong> ${refs.custAddress.value || "-" }</p>`;
+  html += `<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f0f0f0"><th style="padding:6px;border:1px solid #eee">المنتج</th><th style="padding:6px;border:1px solid #eee">الكمية</th><th style="padding:6px;border:1px solid #eee">السعر</th><th style="padding:6px;border:1px solid #eee">الإجمالي</th></tr></thead><tbody>`;
+  cart.forEach(i => {
+    html += `<tr><td style="padding:6px;border:1px solid #eee">${i.name}</td><td style="padding:6px;border:1px solid #eee">${i.qty}</td><td style="padding:6px;border:1px solid #eee">${formatCurrency(i.price)}</td><td style="padding:6px;border:1px solid #eee">${formatCurrency(i.qty * i.price)}</td></tr>`;
+  });
+  html += `</tbody></table>`;
+  html += `<p><strong>${T[currentLang].subtotalAll}</strong> ${refs.subtotalAll.textContent}<br>`;
+  html += `<strong>${T[currentLang].totalDiscount}</strong> ${refs.totalDiscount.textContent}<br>`;
+  html += `<strong>${T[currentLang].grandTotal}</strong> ${refs.grandTotal.textContent}<br>`;
+  html += `<strong>${T[currentLang].depositAmount}</strong> ${refs.depositAmount.textContent}<br>`;
+  html += `<strong>${T[currentLang].remainAmount}</strong> ${refs.remainAmount.textContent}</p>`;
+
+  refs.invoiceBody.innerHTML = html;
+  refs.invoiceModal.classList.add("show");
+}
+refs.printInvoiceBtn.addEventListener("click", () => { window.print(); });
+refs.sendWhatsBtn.addEventListener("click", () => {
+  const phone = (refs.custPhone.value || "").replace(/\D/g, "");
+  if (!phone) { showToast(T[currentLang].enterPhone, "error"); return; }
+  let msg = `${T[currentLang].invoiceTitle}\n`;
+  cart.forEach(i => msg += `${i.name} x${i.qty} = ${i.qty * i.price}\n`);
+  msg += `${T[currentLang].grandTotal} ${refs.grandTotal.textContent}`;
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+});
+
+/* ---------- EXPORT CSV ---------- */
+function exportCSV() {
+  const rows = [["id", "name", "type", "price", "extra"]];
+  products.forEach(p => {
+    const extra = p.type === "book" ? `${p.stage||""}|${p.grade||""}|${p.subject||""}|${p.series||""}` : (p.category || "");
+    rows.push([p.id, p.name, p.type, p.price, extra]);
+  });
+  rows.push([]);
+  rows.push(["Filters"]);
+  rows.push(["Stages", ...filters.stages]);
+  rows.push(["Grades", ...filters.grades]);
+  rows.push(["Subjects", ...filters.subjects]);
+  rows.push(["Series", ...filters.series]);
+
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "xy_export.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast(T[currentLang].csvSaved, "success");
+}
+
+/* ---------- SETTINGS OPEN initial sync ---------- */
+function onSettingsOpen() {
+  renderProductsAdmin();
+  refs.discountRate.value = discountSettings.discountRate;
+  refs.depositRate.value = discountSettings.depositRate;
+  renderFiltersAdmin();
+}
+
+/* ---------- INITIALIZATION ---------- */
+function init() {
+  applyTranslations();
+  populateFilterSelects();
+  renderProducts();
+  renderCart();
+  document.querySelectorAll(".modal .close").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const modal = btn.closest(".modal");
+      if (modal) modal.classList.remove("show");
     });
+  });
+}
+init();
 
-    // file input preview and store
-    $('prodImage') && $('prodImage').addEventListener('change', async (e)=>{
-      if(e.target.files && e.target.files[0]){
-        const file = e.target.files[0];
-        // preview
-        const reader = new FileReader();
-        reader.onload = function(ev){
-          $('prodImagePreview').innerHTML = `<img src="${ev.target.result}" class="file-preview">`;
-          $('prodImagePreview').setAttribute('data-base64', ev.target.result);
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+/* ---------- expose some helpers for inline onclicks if needed ---------- */
+window.addToCart = addToCart;
+window.decreaseQty = decreaseCartQty;
 
-    // helper: file -> base64
-    function fileToBase64(file){
-      return new Promise((res, rej)=>{
-        const r = new FileReader();
-        r.onload = () => res(r.result);
-        r.onerror = e => rej(e);
-        r.readAsDataURL(file);
-      });
-    }
-
-    // save product from admin form
-    async function saveProductFromAdmin(){
-      const name = $('prodName').value.trim();
-      const type = $('prodType').value;
-      const meta = $('prodMeta').value.trim();
-      const price = parseFloat($('prodPrice').value) || 0;
-      if(!name){ alert(lang==='en' ? 'Product name required' : 'اسم المنتج مطلوب'); return; }
-
-      let imageData = '';
-      // check preview data attribute first
-      const preview = $('prodImagePreview').getAttribute('data-base64');
-      if(preview) imageData = preview;
-      else if($('prodImage').files && $('prodImage').files[0]){
-        try{ imageData = await fileToBase64($('prodImage').files[0]); } catch(e){ console.error(e); }
-      }
-
-      const editing = $('saveProdBtn').getAttribute('data-editing');
-      if(editing){
-        products = products.map(p => p.id===editing ? {...p, name, type, meta, price, image: imageData || p.image} : p);
-        $('saveProdBtn').removeAttribute('data-editing');
-      } else {
-        const id = uid(type==='book'?'b':'s');
-        products.push({ id, type, name, meta, price, image: imageData || '' });
-      }
-      // persist and refresh
-      localStorage.setItem('products', JSON.stringify(products));
-      clearProdForm();
-      renderAdminProducts();
-      renderProducts();
-      alert(lang==='en' ? 'Saved' : 'تم الحفظ');
-    }
-
-    function clearProdForm(){
-      $('prodName').value=''; $('prodMeta').value=''; $('prodPrice').value=''; $('prodImage').value='';
-      $('prodImagePreview').innerHTML=''; $('prodImagePreview').removeAttribute('data-base64');
-      $('saveProdBtn').removeAttribute('data-editing');
-    }
-
-    // render admin products list
-    function renderAdminProducts(){
-      const wrap = $('adminProductsList');
-      if(!wrap) return;
-      wrap.innerHTML = '';
-      products.forEach(p=>{
-        const row = document.createElement('div');
-        row.style = 'display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;border-bottom:1px solid #eef3f7';
-        row.innerHTML = `
-          <div style="flex:1;text-align:right">
-            <div style="font-weight:700">${p.name}</div>
-            <div style="font-size:13px;color:#666">${p.meta||''}</div>
-            <div style="font-weight:800">${ fmt(p.price, lang) }</div>
-          </div>
-          <div style="display:flex;gap:6px">
-            <button class="btn ghost" data-edit-prod="${p.id}">${ lang==='en' ? 'Edit' : 'تعديل' }</button>
-            <button class="btn ghost" data-del-prod="${p.id}">${ lang==='en' ? 'Delete' : 'حذف' }</button>
-          </div>
-        `;
-        wrap.appendChild(row);
-      });
-    }
-
-    // Orders: checkout flow
-    $('btnInvoice').addEventListener('click', ()=>{
-      if(cart.length===0){ alert(lang==='en' ? 'Cart is empty' : 'السلة فارغة'); return; }
-      // validate customer fields
-      const cname = $('custName').value.trim();
-      const cphone = $('custPhone').value.trim();
-      if(!cname || !cphone){ alert(lang==='en' ? 'Fill customer name and phone' : 'من فضلك أدخل الاسم ورقم الهاتف'); return; }
-      // open invoice modal
-      showInvoice(buildInvoiceHTML());
-    });
-
-    function buildInvoiceHTML(orderObj){
-      // use orderObj (if given) else use current cart + customer data
-      const items = orderObj ? orderObj.items : cart.map(i=>({ name:i.name, qty:i.qty, price:i.price }));
-      let html = `<div style="text-align:right;font-family:Arial, Tahoma; color:${varColor('#222')}"><h2 style="margin:0 0 8px">${translations[lang].pageTitle}</h2>`;
-      html += `<div style="margin-bottom:8px"><b>${ lang==='en' ? 'Date' : 'التاريخ' }:</b> ${new Date().toLocaleString()}</div>`;
-      if(!orderObj){
-        html += `<div style="margin-bottom:8px"><b>${ lang==='en' ? 'Name' : 'الاسم' }:</b> ${$('custName').value||'-'}</div>`;
-        html += `<div style="margin-bottom:8px"><b>${ lang==='en' ? 'Phone' : 'الهاتف' }:</b> ${$('custPhone').value||'-'}</div>`;
-        html += `<div style="margin-bottom:8px"><b>${ lang==='en' ? 'Address' : 'العنوان' }:</b> ${$('custAddress').value||'-'}</div>`;
-      } else {
-        html += `<div style="margin-bottom:8px"><b>${ lang==='en' ? 'Order ID' : 'رقم الطلب' }:</b> ${orderObj.id}</div>`;
-      }
-
-      html += '<table style="width:100%;border-collapse:collapse;margin-top:6px"><thead><tr>';
-      html += `<th style="border:1px solid #ccc;padding:6px;text-align:right">${ translations[lang].item }</th>`;
-      html += `<th style="border:1px solid #ccc;padding:6px;text-align:center">${ translations[lang].qty }</th>`;
-      html += `<th style="border:1px solid #ccc;padding:6px;text-align:center">${ translations[lang].unitPrice }</th>`;
-      html += `<th style="border:1px solid #ccc;padding:6px;text-align:center">${ translations[lang].lineTotal }</th>`;
-      html += `</tr></thead><tbody>`;
-      let total = 0;
-      items.forEach(it=>{
-        const line = it.qty * it.price;
-        total += line;
-        html += `<tr><td style="padding:6px;border:1px solid #ccc;text-align:right">${it.name}</td><td style="padding:6px;border:1px solid #ccc;text-align:center">${it.qty}</td><td style="padding:6px;border:1px solid #ccc;text-align:center">${fmt(it.price,lang)}</td><td style="padding:6px;border:1px solid #ccc;text-align:center">${fmt(line,lang)}</td></tr>`;
-      });
-      html += `</tbody></table>`;
-      html += `<div style="text-align:right;margin-top:10px;font-weight:800">${ lang==='en' ? 'Grand Total:' : 'الإجمالي النهائي:' } ${ fmt(total,lang) }</div>`;
-      html += '</div>';
-      return html;
-    }
-
-    // helper fn to set color in invoice (avoid inline var error)
-    function varColor(c){ return c; }
-
-    function showInvoice(html){
-      $('invoiceBody').innerHTML = html;
-      $('invoiceModal').style.display = 'flex';
-    }
-
-    $('closeInvoice').addEventListener('click', ()=> $('invoiceModal').style.display = 'none');
-
-    $('printInvoice').addEventListener('click', ()=>{
-      const w = window.open('','_blank');
-      w.document.write(`<html><head><title>Invoice</title></head><body>${$('invoiceBody').innerHTML}</body></html>`);
-      w.document.close(); w.print();
-    });
-
-    $('downloadPdf').addEventListener('click', async ()=>{
-      const el = $('invoiceBody');
-      const canvas = await html2canvas(el, { scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p','mm','a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfHeight = (imgProps.height * pageWidth) / imgProps.width;
-      pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pdfHeight);
-      pdf.save('invoice.pdf');
-    });
-
-    $('sendWhats').addEventListener('click', ()=>{
-      const phone = ($('custPhone').value||'').replace(/\D/g,'');
-      const text = encodeURIComponent(
-        (lang==='en' ? 'Order Invoice' : 'فاتورة الطلب') + '\n' +
-        cart.map(c=>`${c.name} x${c.qty} = ${c.price*c.qty}`).join('\n') + '\n' +
-        (lang==='en' ? 'Grand Total: ' : 'الإجمالي: ') + $('cartTotals').querySelector('#grandRow').textContent
-      );
-      const url = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
-      window.open(url,'_blank');
-    });
-
-    // Checkout saving order
-    function saveCurrentOrder(){
-      if(cart.length===0) return null;
-      const order = {
-        id: 'o'+Date.now(),
-        createdAt: new Date().toISOString(),
-        customer: { name: $('custName').value||'', phone: $('custPhone').value||'', address: $('custAddress').value||'' },
-        items: cart.map(i=>({ id:i.id, name:i.name, price:i.price, qty:i.qty })),
-        totals: { subtotal: cart.reduce((s,c)=>s+c.price*c.qty,0) }
-      };
-      orders.push(order);
-      localStorage.setItem('orders', JSON.stringify(orders));
-      // clear cart
-      cart = [];
-      localStorage.setItem('cart', JSON.stringify(cart));
-      renderCart();
-      renderOrdersList();
-      return order;
-    }
-
-    // On invoice confirm (user might want to save order to orders)
-    // We can save when user prints / downloads or press a "save" button - here we'll save on Export action
-    $('btnExport').addEventListener('click', async ()=>{
-      // first show invoice modal
-      if(cart.length===0){ alert(lang==='en' ? 'Cart is empty' : 'السلة فارغة'); return; }
-      const html = buildInvoiceHTML();
-      showInvoice(html);
-      // also save order in storage
-      const saved = saveCurrentOrder();
-      if(saved) alert(lang==='en' ? 'Order saved' : 'تم حفظ الطلب');
-    });
-
-    // Orders list render in admin panel
-    function renderOrdersList(){
-      orders = JSON.parse(localStorage.getItem('orders')||'[]');
-      const wrap = $('ordersList');
-      if(!wrap) return;
-      wrap.innerHTML = '';
-      if(orders.length===0){ wrap.innerHTML = `<div style="color:#666">${ lang==='en' ? 'No orders yet' : 'لا توجد طلبات' }</div>`; return; }
-      orders.slice().reverse().forEach(o=>{
-        const d = document.createElement('div');
-        d.style = 'padding:8px;border-bottom:1px solid #eef3f7;text-align:right';
-        d.innerHTML = `<div style="font-weight:700">${ lang==='en' ? 'Order' : 'طلب' } ${o.id}</div>
-          <div style="font-size:13px;color:#666">${ new Date(o.createdAt).toLocaleString() }</div>
-          <div style="margin-top:6px">${ o.items.map(it=>`${it.name} x${it.qty}`).join(', ') }</div>`;
-        wrap.appendChild(d);
-      });
-    }
-
-    // Aggregated report
-    function showAggregatedReport(){
-      orders = JSON.parse(localStorage.getItem('orders')||'[]');
-      if(!orders.length){ alert(lang==='en' ? 'No orders to aggregate' : 'لا توجد طلبات للتجميع'); return; }
-      const agg = {};
-      orders.forEach(o=>{
-        o.items.forEach(it=>{
-          if(!agg[it.id]) agg[it.id] = { name: it.name, qty: 0, price: it.price, times: 0 };
-          agg[it.id].qty += it.qty;
-          agg[it.id].times++;
-        });
-      });
-      let html = `<h3 style="text-align:right">${ lang==='en' ? 'Aggregated Purchase Report' : 'تقرير مجمّع لطلبات المورد' }</h3>`;
-      html += `<table style="width:100%;border-collapse:collapse;text-align:right"><thead><tr><th>${ translations[lang].item }</th><th>${ translations[lang].qty }</th><th>${ translations[lang].unitPrice }</th><th>${ translations[lang].lineTotal }</th><th>${ lang==='en' ? 'Times' : 'عدد الطلبات' }</th></tr></thead><tbody>`;
-      let overall = 0;
-      Object.values(agg).forEach(a=>{
-        const line = a.qty * a.price;
-        overall += line;
-        html += `<tr><td style="padding:6px;border:1px solid #ccc">${a.name}</td><td style="padding:6px;border:1px solid #ccc">${a.qty}</td><td style="padding:6px;border:1px solid #ccc">${fmt(a.price,lang)}</td><td style="padding:6px;border:1px solid #ccc">${fmt(line,lang)}</td><td style="padding:6px;border:1px solid #ccc">${a.times}</td></tr>`;
-      });
-      html += `</tbody></table><div style="text-align:right;margin-top:10px;font-weight:800">${ lang==='en' ? 'Overall Total: ' : 'الإجمالي الكلي: ' } ${ fmt(overall,lang) }</div>`;
-      const w = window.open('','_blank');
-      w.document.write(`<html><head><title>Aggregated Report</title></head><body>${html}</body></html>`);
-      w.document.close();
-      w.print();
-    }
-
-    // Export orders to Excel (SheetJS)
-    function exportOrdersExcel(){
-      orders = JSON.parse(localStorage.getItem('orders')||'[]');
-      if(!orders.length){ alert(lang==='en' ? 'No orders' : 'لا توجد طلبات'); return; }
-      const rows = [[ 'Order ID', 'Date', 'Customer', 'Product', 'Qty', 'Unit Price', 'Line Total' ]];
-      orders.forEach(o=>{
-        o.items.forEach(it=>{
-          rows.push([ o.id, new Date(o.createdAt).toLocaleString(), (o.customer && o.customer.name) || '', it.name, it.qty, it.price, it.qty*it.price ]);
-        });
-      });
-      const ws = XLSX.utils.aoa_to_sheet(rows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Orders');
-      XLSX.writeFile(wb, 'orders.xlsx');
-    }
-
-    // Backup / restore JSON
-    function downloadBackupJSON(){
-      const data = { products, orders };
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'backup_products_orders.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    }
-    $('restoreFile') && $('restoreFile').addEventListener('change', (e)=>{
-      const f = e.target.files[0];
-      if(!f) return;
-      const r = new FileReader();
-      r.onload = (ev) => {
-        try{
-          const obj = JSON.parse(ev.target.result);
-          if(obj.products) products = obj.products;
-          if(obj.orders) orders = obj.orders;
-          localStorage.setItem('products', JSON.stringify(products));
-          localStorage.setItem('orders', JSON.stringify(orders));
-          renderProducts(); renderAdminProducts(); renderOrdersList();
-          alert(lang==='en' ? 'Restored' : 'تم الاستعادة');
-        } catch(err){ alert('Invalid JSON'); }
-      };
-      r.readAsText(f);
-    });
-
-    // Export orders excel wrapper bound to button (if exists)
-    function exportOrdersExcelWrapper(){ exportOrdersExcel(); }
-
-    // Open admin panel after password OK
-    function openAdminPanel(){
-      $('adminPanelModal').style.display = 'flex';
-      renderAdminProducts();
-      renderOrdersList();
-    }
-
-    // Save current order as order object (used on export earlier)
-    // Already implemented in saveCurrentOrder inside export flow
-
-    // Event: language toggle
-    $('toggleLang').addEventListener('click', ()=>{ lang = (lang==='ar'?'en':'ar'); applyLang(); });
-
-    // Tabs
-    qsa('.tab').forEach(t=> t.addEventListener('click', ()=>{
-      qsa('.tab').forEach(x=>x.classList.remove('active'));
-      t.classList.add('active');
-      activeTab = t.getAttribute('data-tab');
-      localStorage.setItem('tab', activeTab);
-      renderProducts();
-    }));
-
-    // Close modals when clicking outside
-    window.addEventListener('click', (e)=>{
-      if(e.target === $('adminPanelModal')) $('adminPanelModal').style.display = 'none';
-      if(e.target === $('invoiceModal')) $('invoiceModal').style.display = 'none';
-    });
-
-    // init
-    applyLang();
-    renderProducts();
-    renderCart();
-    renderAdminProducts();
-    renderOrdersList();
-
-    // small UX: admin open shortcut
-    $('openAdminBtn').addEventListener('click', ()=> $('adminPasswordModal').style.display = 'flex');
-
-    // Utility: expose render functions for debug (optional)
-    window._lib_render = { renderProducts, renderCart, renderAdminProducts, renderOrdersList };
-
-  })();
-  </script>
-
+/* ---------- End of script ---------- */
+</script>
 </body>
 </html>
+
