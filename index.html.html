@@ -31,7 +31,7 @@
     .cart-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee}
     .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000}
     .modal.show{display:flex}
-    .modal-content{background:#fff;padding:16px;border-radius:8px;max-width:800px;width:100%;max-height:90vh;overflow:auto;position:relative}
+    .modal-content{background:#fff;padding:16px;border-radius:8px;max-width:900px;width:100%;max-height:90vh;overflow:auto;position:relative}
     .close{position:absolute;top:8px;left:8px;cursor:pointer;background:none;border:none;font-size:20px;color:red}
     .settings-tabs{display:flex;gap:6px;margin-bottom:10px}
     .settings-tab{flex:1;padding:8px;border:0;cursor:pointer;border-radius:6px}
@@ -39,12 +39,8 @@
     .settings-panel{display:none}
     .settings-panel.active{display:block}
     .xy-thumb{width:60px;height:40px;object-fit:cover;border-radius:6px;margin-top:4px}
-/* --- تحسينات الموبايل (Mobile First) --- */
-/* --- تحسينات الموبايل بشكل احترافي --- */
-/* --- ثيم جولد × بيانو بلاك (شامل الفورمات + الأسعار) --- */
-
-/* خلفية الصفحة */
-  /* أنماط CSS المعدلة للون الأسود والذهبي */
+    .small-field{display:flex;gap:6px;align-items:center;margin-top:6px}
+/* أنماط CSS المعدلة للون الأسود والذهبي */
     :root {
       --gold: #D4AF37;
       --dark-gold: #B8860B;
@@ -459,7 +455,10 @@
       <div class="settings-tabs">
         <button class="settings-tab active" data-tab="productsPanel">المنتجات</button>
         <button class="settings-tab" data-tab="discountPanel">الخصم</button>
+        <button class="settings-tab" data-tab="filtersPanel">الفلاتر</button>
       </div>
+
+      <!-- المنتجات -->
       <div id="productsPanel" class="settings-panel active">
         <h4>قائمة المنتجات</h4>
         <div id="productsList"></div>
@@ -478,6 +477,8 @@
           <button id="updateProductBtn" class="btn btn-accent" style="flex:1">تحديث</button>
         </div>
       </div>
+
+      <!-- الخصم -->
       <div id="discountPanel" class="settings-panel">
         <h4>إعداد الخصم</h4>
         <label>نسبة الخصم %</label>
@@ -486,9 +487,50 @@
         <input id="depositRate" type="number" class="filter-input">
         <button id="saveDiscountBtn" class="btn btn-primary" style="margin-top:6px">حفظ</button>
       </div>
+
+      <!-- الفلاتر -->
+      <div id="filtersPanel" class="settings-panel">
+        <h4>إدارة الفلاتر</h4>
+
+        <div style="margin-top:8px">
+          <label>المراحل</label>
+          <div id="filtersStages"></div>
+          <div class="small-field">
+            <input id="newStage" class="filter-input" placeholder="أدخل مرحلة جديدة">
+            <button id="addStageBtn" class="btn btn-primary">إضافة مرحلة</button>
+          </div>
+        </div>
+
+        <div style="margin-top:8px">
+          <label>الصفوف</label>
+          <div id="filtersGrades"></div>
+          <div class="small-field">
+            <input id="newGrade" class="filter-input" placeholder="أدخل صف جديد">
+            <button id="addGradeBtn" class="btn btn-primary">إضافة صف</button>
+          </div>
+        </div>
+
+        <div style="margin-top:8px">
+          <label>المواد</label>
+          <div id="filtersSubjects"></div>
+          <div class="small-field">
+            <input id="newSubject" class="filter-input" placeholder="أدخل مادة جديدة">
+            <button id="addSubjectBtn" class="btn btn-primary">إضافة مادة</button>
+          </div>
+        </div>
+
+        <div style="margin-top:8px">
+          <label>السلاسل</label>
+          <div id="filtersSeries"></div>
+          <div class="small-field">
+            <input id="newSeries" class="filter-input" placeholder="أدخل سلسلة جديدة">
+            <button id="addSeriesBtn" class="btn btn-primary">إضافة سلسلة</button>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
-
   <!-- نافذة الفاتورة -->
   <div id="invoiceModal" class="modal">
     <div class="modal-content">
@@ -501,24 +543,22 @@
       </div>
     </div>
   </div>
+
 <script>
 /* =========================
-   XY System - JavaScript (Complete)
+   XY System - JavaScript (Complete with Filters Management)
    ========================= */
 
-/* ---------- CONFIG ---------- */
 const ADMIN = { email: "admin@example.com", password: "1234" };
 let currentLang = "ar"; // "ar" or "en"
 
 /* ---------- DATA (load from localStorage or default sample) ---------- */
 let products = JSON.parse(localStorage.getItem("xy_products_v2")) || [
-  // 5 books
   { id: 101, type: "book", name: "الرياضيات - الصف الأول", price: 50, stage: "الابتدائية", grade: "الصف الأول", subject: "الرياضيات", series: "سلسلة النجاح", image: "" },
   { id: 102, type: "book", name: "اللغة العربية - الصف الأول", price: 45, stage: "الابتدائية", grade: "الصف الأول", subject: "اللغة العربية", series: "سلسلة النجاح", image: "" },
   { id: 103, type: "book", name: "العلوم - الصف الثاني", price: 55, stage: "الابتدائية", grade: "الصف الثاني", subject: "العلوم", series: "سلسلة التميز", image: "" },
   { id: 104, type: "book", name: "الإنجليزية - الصف الثالث", price: 60, stage: "الابتدائية", grade: "الصف الثالث", subject: "الإنجليزية", series: "سلسلة التميز", image: "" },
   { id: 105, type: "book", name: "الرياضيات - الصف الرابع", price: 70, stage: "الابتدائية", grade: "الصف الرابع", subject: "الرياضيات", series: "سلسلة التفوق", image: "" },
-  // 5 stationery
   { id: 201, type: "stationery", name: "دفتر سادة A4", price: 15, category: "قرطاسية", image: "" },
   { id: 202, type: "stationery", name: "قلم رصاص HB", price: 5, category: "قرطاسية", image: "" },
   { id: 203, type: "stationery", name: "مسطرة 30 سم", price: 8, category: "قرطاسية", image: "" },
@@ -534,10 +574,9 @@ let filters = JSON.parse(localStorage.getItem("xy_filters_v2")) || {
 };
 
 let discountSettings = JSON.parse(localStorage.getItem("xy_discount_v2")) || { discountRate: 0, depositRate: 40 };
-
 let cart = []; // {id, qty, ...product}
 
-/* ---------- TRANSLATIONS (complete keys used) ---------- */
+/* ---------- TRANSLATIONS ---------- */
 const T = {
   ar: {
     pageTitle: "نظام XY لإدارة الطلبات",
@@ -589,7 +628,10 @@ const T = {
     confirmClearCart: "هل تريد تفريغ السلة؟",
     increase: "+",
     decrease: "-",
-    deleted: "تم الحذف"
+    deleted: "تم الحذف",
+    enterPhone: "أدخل رقم الموبايل",
+    enterProdName: "ادخل اسم المنتج",
+    noEdit: "لا توجد عملية تعديل",
   },
   en: {
     pageTitle: "XY Order System",
@@ -641,7 +683,10 @@ const T = {
     confirmClearCart: "Clear cart?",
     increase: "+",
     decrease: "-",
-    deleted: "Deleted"
+    deleted: "Deleted",
+    enterPhone: "Enter phone number",
+    enterProdName: "Enter product name",
+    noEdit: "No product selected",
   }
 };
 
@@ -702,7 +747,21 @@ const refs = {
   invoiceModal: document.getElementById("invoiceModal"),
   invoiceBody: document.getElementById("invoiceBody"),
   printInvoiceBtn: document.getElementById("printInvoiceBtn"),
-  sendWhatsBtn: document.getElementById("sendWhatsBtn")
+  sendWhatsBtn: document.getElementById("sendWhatsBtn"),
+
+  // filters admin elements
+  filtersStages: document.getElementById("filtersStages"),
+  filtersGrades: document.getElementById("filtersGrades"),
+  filtersSubjects: document.getElementById("filtersSubjects"),
+  filtersSeries: document.getElementById("filtersSeries"),
+  newStage: document.getElementById("newStage"),
+  newGrade: document.getElementById("newGrade"),
+  newSubject: document.getElementById("newSubject"),
+  newSeries: document.getElementById("newSeries"),
+  addStageBtn: document.getElementById("addStageBtn"),
+  addGradeBtn: document.getElementById("addGradeBtn"),
+  addSubjectBtn: document.getElementById("addSubjectBtn"),
+  addSeriesBtn: document.getElementById("addSeriesBtn")
 };
 
 /* ---------- UTILITIES ---------- */
@@ -735,7 +794,6 @@ function applyTranslations() {
   if (refs.tabBooks) refs.tabBooks.textContent = t.booksTab;
   if (refs.tabStationery) refs.tabStationery.textContent = t.stationeryTab;
   if (refs.cartTitle) refs.cartTitle.textContent = t.cartTitle;
-  // summary labels (we put elements with ids for labels in HTML)
   document.getElementById("lblSubtotalBooks").textContent = t.subtotalBooks;
   document.getElementById("lblSubtotalStationery").textContent = t.subtotalStationery;
   document.getElementById("lblSubtotalAll").textContent = t.subtotalAll;
@@ -746,10 +804,8 @@ function applyTranslations() {
   if (refs.btnInvoice) refs.btnInvoice.textContent = t.invoice;
   if (refs.btnExport) refs.btnExport.textContent = t.export;
   if (refs.btnClear) refs.btnClear.textContent = t.clearCart;
-  // settings / invoice texts
   document.getElementById("loginTitle").textContent = t.loginTitle;
   document.getElementById("settingsTitle").textContent = t.settingsTitle;
-  // settings tabs
   if (refs.settingsTabs && refs.settingsTabs.length >= 2) {
     refs.settingsTabs[0].textContent = t.productsTab;
     refs.settingsTabs[1].textContent = t.discountTab;
@@ -768,7 +824,8 @@ applyTranslations();
 function populateFilterSelects() {
   function fill(selectEl, arr) {
     if (!selectEl) return;
-    selectEl.innerHTML = `<option value="">${currentLang === "ar" ? "الكل" : "All"}</option>` + arr.map(v => `<option value="${v}">${v}</option>`).join("");
+    const allText = currentLang === "ar" ? "الكل" : "All";
+    selectEl.innerHTML = `<option value="">${allText}</option>` + arr.map(v => `<option value="${v}">${v}</option>`).join("");
   }
   fill(refs.stageSelect, filters.stages);
   fill(refs.gradeSelect, filters.grades);
@@ -788,9 +845,7 @@ function renderProducts() {
   const subject = refs.subjectSelect.value;
   const seriesSel = refs.seriesSelect.value;
 
-  // iterate products and add cards
   products.forEach(p => {
-    // filter
     if (search && !p.name.toLowerCase().includes(search)) return;
     if (p.type === "book") {
       if ((stage && p.stage !== stage) || (grade && p.grade !== grade) || (subject && p.subject !== subject) || (seriesSel && p.series !== seriesSel)) return;
@@ -814,13 +869,8 @@ function renderProducts() {
       </div>
     `;
 
-    // attach listeners
-    card.querySelector(".btn-increase").addEventListener("click", (e) => {
-      addToCart(p.id);
-    });
-    card.querySelector(".btn-decrease").addEventListener("click", (e) => {
-      decreaseCartQty(p.id);
-    });
+    card.querySelector(".btn-increase").addEventListener("click", (e) => { addToCart(p.id); });
+    card.querySelector(".btn-decrease").addEventListener("click", (e) => { decreaseCartQty(p.id); });
 
     if (p.type === "book") refs.booksGrid.appendChild(card); else refs.stationeryGrid.appendChild(card);
   });
@@ -886,7 +936,6 @@ function renderCart() {
   refs.grandTotal.textContent = formatCurrency(afterDiscount);
   refs.remainAmount.textContent = formatCurrency(remain);
 
-  // disable/enable invoice button
   refs.btnInvoice.disabled = cart.length === 0;
 }
 
@@ -929,34 +978,28 @@ refs.btnClear.addEventListener("click", () => {
 });
 refs.btnExport.addEventListener("click", exportCSV);
 
-refs.btnInvoice.addEventListener("click", () => {
-  openInvoiceModal();
-});
+refs.btnInvoice.addEventListener("click", () => { openInvoiceModal(); });
 
 refs.btnInvoice.disabled = true; // initially
 
-// open login modal
 document.getElementById("btnSettings").addEventListener("click", () => {
   refs.adminEmail.value = "";
   refs.adminPassword.value = "";
   refs.loginModal.classList.add("show");
 });
 
-// login submit
 refs.loginSubmit.addEventListener("click", () => {
   const e = (refs.adminEmail.value || "").trim();
   const p = (refs.adminPassword.value || "").trim();
   if (e === ADMIN.email && p === ADMIN.password) {
     refs.loginModal.classList.remove("show");
     refs.settingsModal.classList.add("show");
-    // when settings open, populate admin data
     onSettingsOpen();
   } else {
     showToast(T[currentLang].loginWrong, "error");
   }
 });
 
-// settings tabs
 refs.settingsTabs.forEach(btn => {
   btn.addEventListener("click", () => {
     refs.settingsTabs.forEach(b => b.classList.remove("active"));
@@ -968,7 +1011,12 @@ refs.settingsTabs.forEach(btn => {
   });
 });
 
-// close settings when clicking X (X uses inline onclick in HTML to remove show class)
+document.querySelectorAll(".modal .close").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    const modal = btn.closest(".modal");
+    if (modal) modal.classList.remove("show");
+  });
+});
 
 /* ---------- ADMIN: Products management (add / edit / delete + image upload) ---------- */
 let editingProductId = null;
@@ -1010,7 +1058,6 @@ function startEditProduct(id) {
   refs.newProdPrice.value = p.price || 0;
   refs.newProdSeries.value = p.series || p.category || "";
   if (p.image) { refs.newProdPreview.src = p.image; refs.newProdPreview.style.display = "block"; } else { refs.newProdPreview.style.display = "none"; }
-  // switch settings tab to products (already active on open)
 }
 
 refs.newProdImage.addEventListener("change", (e) => {
@@ -1030,18 +1077,16 @@ refs.addProductBtn.addEventListener("click", () => {
   const price = parseFloat(refs.newProdPrice.value) || 0;
   const seriesOrCat = (refs.newProdSeries.value || "").trim();
   let imageData = "";
-  // if preview exists use it
   if (refs.newProdPreview.src && refs.newProdPreview.style.display !== "none") {
     imageData = refs.newProdPreview.src;
   }
-  if (!name) { showToast(currentLang === "ar" ? "ادخل اسم المنتج" : "Enter product name", "error"); return; }
+  if (!name) { showToast(currentLang === "ar" ? T.ar.enterProdName : T.en.enterProdName, "error"); return; }
   const id = Date.now();
   const item = type === "book" ? { id, type: "book", name, price, stage: filters.stages[0] || "", grade: filters.grades[0] || "", subject: filters.subjects[0] || "", series: seriesOrCat, image: imageData } : { id, type: "stationery", name, price, category: seriesOrCat, image: imageData };
   products.push(item);
   saveAll();
   renderProducts();
   renderProductsAdmin();
-  // clear inputs
   refs.newProdName.value = "";
   refs.newProdPrice.value = "";
   refs.newProdSeries.value = "";
@@ -1052,7 +1097,7 @@ refs.addProductBtn.addEventListener("click", () => {
 });
 
 refs.updateProductBtn.addEventListener("click", () => {
-  if (!editingProductId) { showToast(currentLang === "ar" ? "لا توجد عملية تعديل" : "No product selected", "error"); return; }
+  if (!editingProductId) { showToast(currentLang === "ar" ? T.ar.noEdit : T.en.noEdit, "error"); return; }
   const p = products.find(x => x.id === editingProductId);
   if (!p) return;
   p.name = (refs.newProdName.value || "").trim();
@@ -1068,9 +1113,62 @@ refs.updateProductBtn.addEventListener("click", () => {
   showToast(T[currentLang].productUpdated, "success");
 });
 
-/* ---------- ADMIN: Filters management (quick add) ---------- */
-// For simplicity we use existing inputs in settings if you'd like to expand later.
-// You can add more UI to add filters; currently filters are in 'filters' variable and are used in populateFilterSelects()
+/* ---------- ADMIN: Filters management (add / delete) ---------- */
+function renderFiltersAdmin() {
+  function renderList(containerEl, arr, type) {
+    containerEl.innerHTML = "";
+    arr.forEach((item, i) => {
+      const div = document.createElement("div");
+      div.style = "display:flex;justify-content:space-between;align-items:center;margin:6px 0;padding:6px;border:1px solid #eee;border-radius:6px";
+      div.innerHTML = `<span>${item}</span><button class="btn btn-outline" data-del="${type}-${i}"><i class="fas fa-trash"></i></button>`;
+      containerEl.appendChild(div);
+      div.querySelector("[data-del]").addEventListener("click", () => {
+        filters[type].splice(i, 1);
+        saveAll();
+        renderFiltersAdmin();
+        populateFilterSelects();
+        showToast(T[currentLang].filtersSaved, "success");
+      });
+    });
+  }
+  renderList(refs.filtersStages, filters.stages, "stages");
+  renderList(refs.filtersGrades, filters.grades, "grades");
+  renderList(refs.filtersSubjects, filters.subjects, "subjects");
+  renderList(refs.filtersSeries, filters.series, "series");
+}
+
+refs.addStageBtn.addEventListener("click", () => {
+  const val = (refs.newStage.value || "").trim();
+  if (!val) return;
+  if (!filters.stages.includes(val)) filters.stages.push(val);
+  refs.newStage.value = "";
+  saveAll(); renderFiltersAdmin(); populateFilterSelects();
+  showToast(T[currentLang].filtersSaved, "success");
+});
+refs.addGradeBtn.addEventListener("click", () => {
+  const val = (refs.newGrade.value || "").trim();
+  if (!val) return;
+  if (!filters.grades.includes(val)) filters.grades.push(val);
+  refs.newGrade.value = "";
+  saveAll(); renderFiltersAdmin(); populateFilterSelects();
+  showToast(T[currentLang].filtersSaved, "success");
+});
+refs.addSubjectBtn.addEventListener("click", () => {
+  const val = (refs.newSubject.value || "").trim();
+  if (!val) return;
+  if (!filters.subjects.includes(val)) filters.subjects.push(val);
+  refs.newSubject.value = "";
+  saveAll(); renderFiltersAdmin(); populateFilterSelects();
+  showToast(T[currentLang].filtersSaved, "success");
+});
+refs.addSeriesBtn.addEventListener("click", () => {
+  const val = (refs.newSeries.value || "").trim();
+  if (!val) return;
+  if (!filters.series.includes(val)) filters.series.push(val);
+  refs.newSeries.value = "";
+  saveAll(); renderFiltersAdmin(); populateFilterSelects();
+  showToast(T[currentLang].filtersSaved, "success");
+});
 
 /* ---------- ADMIN: Discount save ---------- */
 refs.saveDiscountBtn.addEventListener("click", () => {
@@ -1084,7 +1182,6 @@ refs.saveDiscountBtn.addEventListener("click", () => {
 /* ---------- INVOICE / PRINT / WHATSAPP ---------- */
 function openInvoiceModal() {
   if (cart.length === 0) { showToast(T[currentLang].cartEmpty, "info"); return; }
-  // build invoice HTML
   let html = `<p><strong>${T[currentLang].invoiceTitle}</strong></p>`;
   html += `<p><strong>${T[currentLang].parentName || "Client"}:</strong> ${refs.custName.value || "-" }<br>`;
   html += `<strong>${T[currentLang].phone || "Phone"}:</strong> ${refs.custPhone.value || "-" }<br>`;
@@ -1103,12 +1200,10 @@ function openInvoiceModal() {
   refs.invoiceBody.innerHTML = html;
   refs.invoiceModal.classList.add("show");
 }
-refs.printInvoiceBtn.addEventListener("click", () => {
-  window.print();
-});
+refs.printInvoiceBtn.addEventListener("click", () => { window.print(); });
 refs.sendWhatsBtn.addEventListener("click", () => {
   const phone = (refs.custPhone.value || "").replace(/\D/g, "");
-  if (!phone) { showToast(currentLang === "ar" ? "أدخل رقم الموبايل" : "Enter phone number", "error"); return; }
+  if (!phone) { showToast(T[currentLang].enterPhone, "error"); return; }
   let msg = `${T[currentLang].invoiceTitle}\n`;
   cart.forEach(i => msg += `${i.name} x${i.qty} = ${i.qty * i.price}\n`);
   msg += `${T[currentLang].grandTotal} ${refs.grandTotal.textContent}`;
@@ -1122,7 +1217,6 @@ function exportCSV() {
     const extra = p.type === "book" ? `${p.stage||""}|${p.grade||""}|${p.subject||""}|${p.series||""}` : (p.category || "");
     rows.push([p.id, p.name, p.type, p.price, extra]);
   });
-  // add filters
   rows.push([]);
   rows.push(["Filters"]);
   rows.push(["Stages", ...filters.stages]);
@@ -1145,10 +1239,10 @@ function exportCSV() {
 
 /* ---------- SETTINGS OPEN initial sync ---------- */
 function onSettingsOpen() {
-  // populate admin product list and discount inputs
   renderProductsAdmin();
   refs.discountRate.value = discountSettings.discountRate;
   refs.depositRate.value = discountSettings.depositRate;
+  renderFiltersAdmin();
 }
 
 /* ---------- INITIALIZATION ---------- */
@@ -1157,24 +1251,16 @@ function init() {
   populateFilterSelects();
   renderProducts();
   renderCart();
-  // safety: ensure settings modal close buttons remove show
   document.querySelectorAll(".modal .close").forEach(btn => {
     btn.addEventListener("click", (e) => {
       const modal = btn.closest(".modal");
       if (modal) modal.classList.remove("show");
     });
   });
-  // refresh admin list on add/update
-  refs.addProductBtn.addEventListener("click", () => {
-    // handled above
-  });
-  refs.updateProductBtn.addEventListener("click", () => {
-    // handled above
-  });
 }
 init();
 
-/* ---------- expose some helpers for inline onclicks if needed (safe) ---------- */
+/* ---------- expose some helpers for inline onclicks if needed ---------- */
 window.addToCart = addToCart;
 window.decreaseQty = decreaseCartQty;
 
