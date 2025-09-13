@@ -1282,12 +1282,25 @@ refs.downloadPdfBtn.addEventListener("click", () => {
       heightLeft -= pageHeight;
     }
 
-    // ✅ FileSaver.js بيخليها تشتغل على الموبايل والكمبيوتر
-    pdf.output("blob").then(function(blob) {
-      saveAs(blob, "invoice.pdf");
-    });
+    // 👇 هنا تحط الكود الجديد
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    if (isIOS) {
+      // iPhone / iPad → يفتح PDF في Safari
+      const pdfUrl = pdf.output("bloburl");
+      window.open(pdfUrl, "_blank");
+    } else {
+      // Android / PC → ينزل PDF مباشر
+      const pdfBlob = pdf.output("blob");
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(pdfBlob);
+      link.download = "invoice.pdf";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
   });
 });
+
 
 
 /* ---------- SETTINGS OPEN initial sync ---------- */
