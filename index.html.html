@@ -409,15 +409,23 @@
 
     <!-- السلة -->
     <aside class="sidebar panel">
-      <h3 id="cartTitle">سلة المشتريات</h3>
-      <div class="panel" style="margin-bottom:10px">
-        <label>اسم ولي الأمر</label>
-        <input id="custName" class="filter-input" placeholder="أدخل الاسم الكامل">
-        <label>رقم الهاتف</label>
-        <input id="custPhone" class="filter-input" placeholder="مثال: 20123456789">
-        <label>العنوان</label>
-        <input id="custAddress" class="filter-input" placeholder="المدينة / المنطقة">
-      </div>
+     <h3 id="cartTitle"></h3>
+  <div class="panel" style="margin-bottom:10px">
+    <label for="custName"></label>
+    <input id="custName" class="filter-input">
+
+    <label for="custPhone"></label>
+    <input id="custPhone" class="filter-input">
+
+    <label for="custAddress"></label>
+    <input id="custAddress" class="filter-input">
+
+    <label for="paymentMethod"></label>
+    <select id="paymentMethod" class="filter-input">
+      <option value="instapay"></option>
+      <option value="cod"></option>
+    </select>
+  </div>
       <div id="cartItems" class="cart-items"></div>
       <div class="summary">
         <div class="summary-item"><span id="lblSubtotalBooks">إجمالي الكتب:</span><span id="subtotalBooks">0 ج.م</span></div>
@@ -430,7 +438,6 @@
       </div>
       <div style="margin-top:8px;display:flex;gap:6px">
         <button id="btnInvoice" class="btn btn-primary" style="flex:1">فاتورة</button>
-        <button id="btnExport" class="btn btn-outline" style="flex:1">تصدير</button>
         <button id="btnClear" class="btn btn-danger" style="flex:1">تفريغ</button>
       </div>
     </aside>
@@ -539,8 +546,8 @@
       <div id="invoiceBody"></div>
       <div style="margin-top:8px;display:flex;gap:6px">
         <button id="printInvoiceBtn" class="btn btn-primary">طباعة</button>
-        <button id="sendWhatsBtn" class="btn btn-accent"><i class="fab fa-whatsapp"></i> واتساب</button>
-      </div>
+        <button id="downloadPdfBtn" class="btn btn-primary"></button>
+            </div>
     </div>
   </div>
 
@@ -597,6 +604,9 @@ const T = {
     phoneEx: "مثال: 20123456789",
     address: "العنوان",
     addressEx: "المدينة / المنطقة",
+    payment: "طريقة الدفع",
+    paymentInstapay: "انستاباي",
+    paymentCOD: "عند الاستلام",
     subtotalBooks: "إجمالي الكتب:",
     subtotalStationery: "إجمالي الأدوات:",
     subtotalAll: "المجموع قبل الخصم:",
@@ -623,6 +633,7 @@ const T = {
     csvSaved: "تم تنزيل CSV",
     invoiceTitle: "فاتورة الطلب",
     print: "طباعة",
+pdf: "تحميل pdf",
     whatsapp: "إرسال واتساب",
     cartEmpty: "السلة فارغة",
     confirmClearCart: "هل تريد تفريغ السلة؟",
@@ -652,6 +663,9 @@ const T = {
     phoneEx: "Example: 20123456789",
     address: "Address",
     addressEx: "City / Area",
+      payment: "Payment Method",
+      paymentInstapay: "Instapay",
+  paymentCOD: "Cash on Delivery",
     subtotalBooks: "Books Total:",
     subtotalStationery: "Stationery Total:",
     subtotalAll: "Subtotal:",
@@ -678,6 +692,7 @@ const T = {
     csvSaved: "CSV downloaded",
     invoiceTitle: "Order Invoice",
     print: "Print",
+pdf: "download pdf",
     whatsapp: "Send WhatsApp",
     cartEmpty: "Cart is empty",
     confirmClearCart: "Clear cart?",
@@ -719,7 +734,6 @@ const refs = {
   remainAmount: document.getElementById("remainAmount"),
 
   btnInvoice: document.getElementById("btnInvoice"),
-  btnExport: document.getElementById("btnExport"),
   btnClear: document.getElementById("btnClear"),
 
   loginModal: document.getElementById("loginModal"),
@@ -747,7 +761,9 @@ const refs = {
   invoiceModal: document.getElementById("invoiceModal"),
   invoiceBody: document.getElementById("invoiceBody"),
   printInvoiceBtn: document.getElementById("printInvoiceBtn"),
-  sendWhatsBtn: document.getElementById("sendWhatsBtn"),
+downloadPdfBtn: document.getElementById("downloadPdfBtn"),
+
+
 
   // filters admin elements
   filtersStages: document.getElementById("filtersStages"),
@@ -783,42 +799,83 @@ function formatCurrency(n) { return `${Number(n).toFixed(2)} ج.م`; }
 /* ---------- TRANSLATION APPLY ---------- */
 function applyTranslations() {
   const t = T[currentLang];
-  document.title = t.pageTitle;
-  if (refs.mainTitle) refs.mainTitle.textContent = `${t.mainTitle}`;
+
+  // Main titles
+  if (refs.mainTitle) refs.mainTitle.textContent = t.mainTitle;
   if (refs.filterTitle) refs.filterTitle.textContent = t.filterTitle;
   if (refs.searchInput) refs.searchInput.placeholder = t.searchPlaceholder;
+
+  // Filter labels
   if (document.getElementById("stageLbl")) document.getElementById("stageLbl").textContent = t.stageLbl;
   if (document.getElementById("gradeLbl")) document.getElementById("gradeLbl").textContent = t.gradeLbl;
   if (document.getElementById("subjectLbl")) document.getElementById("subjectLbl").textContent = t.subjectLbl;
   if (document.getElementById("seriesLbl")) document.getElementById("seriesLbl").textContent = t.seriesLbl;
+
+  // Tabs (Books / Stationery)
   if (refs.tabBooks) refs.tabBooks.textContent = t.booksTab;
   if (refs.tabStationery) refs.tabStationery.textContent = t.stationeryTab;
+
+  // Cart section
   if (refs.cartTitle) refs.cartTitle.textContent = t.cartTitle;
-  document.getElementById("lblSubtotalBooks").textContent = t.subtotalBooks;
-  document.getElementById("lblSubtotalStationery").textContent = t.subtotalStationery;
-  document.getElementById("lblSubtotalAll").textContent = t.subtotalAll;
-  document.getElementById("lblTotalDiscount").textContent = t.totalDiscount;
-  document.getElementById("lblDepositAmount").textContent = t.depositAmount;
-  document.getElementById("lblGrandTotal").textContent = t.grandTotal;
-  document.getElementById("lblRemainAmount").textContent = t.remainAmount;
+  if (document.getElementById("lblSubtotalBooks")) document.getElementById("lblSubtotalBooks").textContent = t.subtotalBooks;
+  if (document.getElementById("lblSubtotalStationery")) document.getElementById("lblSubtotalStationery").textContent = t.subtotalStationery;
+  if (document.getElementById("lblSubtotalAll")) document.getElementById("lblSubtotalAll").textContent = t.subtotalAll;
+  if (document.getElementById("lblTotalDiscount")) document.getElementById("lblTotalDiscount").textContent = t.totalDiscount;
+  if (document.getElementById("lblDepositAmount")) document.getElementById("lblDepositAmount").textContent = t.depositAmount;
+  if (document.getElementById("lblGrandTotal")) document.getElementById("lblGrandTotal").textContent = t.grandTotal;
+  if (document.getElementById("lblRemainAmount")) document.getElementById("lblRemainAmount").textContent = t.remainAmount;
+
   if (refs.btnInvoice) refs.btnInvoice.textContent = t.invoice;
-  if (refs.btnExport) refs.btnExport.textContent = t.export;
   if (refs.btnClear) refs.btnClear.textContent = t.clearCart;
-  document.getElementById("loginTitle").textContent = t.loginTitle;
-  document.getElementById("settingsTitle").textContent = t.settingsTitle;
-  if (refs.settingsTabs && refs.settingsTabs.length >= 2) {
-    refs.settingsTabs[0].textContent = t.productsTab;
-    refs.settingsTabs[1].textContent = t.discountTab;
-  }
+
+  // Login + Settings
+  if (document.getElementById("loginTitle")) document.getElementById("loginTitle").textContent = t.loginTitle;
+  if (document.getElementById("settingsTitle")) document.getElementById("settingsTitle").textContent = t.settingsTitle;
+
+  // Settings Tabs (Products / Filters / Discount)
+  if (document.getElementById("productsTabBtn")) document.getElementById("productsTabBtn").textContent = t.productsTab;
+  if (document.getElementById("filtersTabBtn")) document.getElementById("filtersTabBtn").textContent = t.filtersTab;
+  if (document.getElementById("discountTabBtn")) document.getElementById("discountTabBtn").textContent = t.discountTab;
+
+  // Discount labels
+  if (document.getElementById("discountLbl")) document.getElementById("discountLbl").textContent = t.totalDiscount;
+  if (document.getElementById("depositLbl")) document.getElementById("depositLbl").textContent = t.depositAmount;
+  if (document.getElementById("saveDiscountBtn")) document.getElementById("saveDiscountBtn").textContent = t.saveDiscount;
+
+  // Invoice section
   if (document.getElementById("invoiceTitle")) document.getElementById("invoiceTitle").textContent = t.invoiceTitle;
   if (refs.printInvoiceBtn) refs.printInvoiceBtn.textContent = t.print;
-  if (refs.sendWhatsBtn) refs.sendWhatsBtn.innerHTML = `<i class="fab fa-whatsapp"></i> ${t.whatsapp}`;
+  if (refs.downloadPdfBtn) refs.downloadPdfBtn.innerHTML = `<i class="fas fa-file-pdf"></i> ${t.pdf}`;
+
+  // Customer form (labels + placeholders)
+  if (document.querySelector("label[for='custName']")) document.querySelector("label[for='custName']").textContent = t.parentName;
+  if (document.querySelector("label[for='custPhone']")) document.querySelector("label[for='custPhone']").textContent = t.phone;
+  if (document.querySelector("label[for='custAddress']")) document.querySelector("label[for='custAddress']").textContent = t.address;
+  if (document.querySelector("label[for='paymentMethod']")) document.querySelector("label[for='paymentMethod']").textContent = t.payment;
+
+  if (refs.custName) refs.custName.placeholder = t.enterName;
+  if (refs.custPhone) refs.custPhone.placeholder = t.phoneEx;
+  if (refs.custAddress) refs.custAddress.placeholder = t.addressEx;
+
+  // Payment options
+  const paySel = document.getElementById("paymentMethod");
+  if (paySel) {
+    const instapayOpt = paySel.querySelector("option[value='instapay']");
+    const codOpt = paySel.querySelector("option[value='cod']");
+    if (instapayOpt) instapayOpt.textContent = t.paymentInstapay;
+    if (codOpt) codOpt.textContent = t.paymentCOD;
+  }
 }
+
+/* ---------- Language toggle ---------- */
 refs.langToggle.addEventListener("click", () => {
   currentLang = currentLang === "ar" ? "en" : "ar";
   applyTranslations();
 });
+
+/* First call */
 applyTranslations();
+
 
 /* ---------- POPULATE FILTER SELECTS ---------- */
 function populateFilterSelects() {
@@ -976,7 +1033,6 @@ refs.btnClear.addEventListener("click", () => {
   cart = [];
   renderCart();
 });
-refs.btnExport.addEventListener("click", exportCSV);
 
 refs.btnInvoice.addEventListener("click", () => { openInvoiceModal(); });
 
@@ -1201,41 +1257,34 @@ function openInvoiceModal() {
   refs.invoiceModal.classList.add("show");
 }
 refs.printInvoiceBtn.addEventListener("click", () => { window.print(); });
-refs.sendWhatsBtn.addEventListener("click", () => {
-  const phone = (refs.custPhone.value || "").replace(/\D/g, "");
-  if (!phone) { showToast(T[currentLang].enterPhone, "error"); return; }
-  let msg = `${T[currentLang].invoiceTitle}\n`;
-  cart.forEach(i => msg += `${i.name} x${i.qty} = ${i.qty * i.price}\n`);
-  msg += `${T[currentLang].grandTotal} ${refs.grandTotal.textContent}`;
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
-});
+refs.downloadPdfBtn.addEventListener("click", () => {
+  const { jsPDF } = window.jspdf;
+  const invoiceElement = document.getElementById("invoiceModal");
 
-/* ---------- EXPORT CSV ---------- */
-function exportCSV() {
-  const rows = [["id", "name", "type", "price", "extra"]];
-  products.forEach(p => {
-    const extra = p.type === "book" ? `${p.stage||""}|${p.grade||""}|${p.subject||""}|${p.series||""}` : (p.category || "");
-    rows.push([p.id, p.name, p.type, p.price, extra]);
+  html2canvas(invoiceElement, { scale: 2 }).then(canvas => {
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "pt", "a4");
+
+    const imgWidth = 595;
+    const pageHeight = 842;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save("invoice.pdf");
   });
-  rows.push([]);
-  rows.push(["Filters"]);
-  rows.push(["Stages", ...filters.stages]);
-  rows.push(["Grades", ...filters.grades]);
-  rows.push(["Subjects", ...filters.subjects]);
-  rows.push(["Series", ...filters.series]);
-
-  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "xy_export.csv";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  showToast(T[currentLang].csvSaved, "success");
-}
+});
 
 /* ---------- SETTINGS OPEN initial sync ---------- */
 function onSettingsOpen() {
@@ -1266,5 +1315,7 @@ window.decreaseQty = decreaseCartQty;
 
 /* ---------- End of script ---------- */
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
