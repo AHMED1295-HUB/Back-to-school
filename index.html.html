@@ -1282,17 +1282,11 @@ refs.downloadPdfBtn.addEventListener("click", () => {
       heightLeft -= pageHeight;
     }
 
-    // ✅ إنزال الملف إجباري على كل الأجهزة
-    const pdfBlob = pdf.output("blob");
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(pdfBlob);
-    link.download = "invoice.pdf";  // اسم الملف
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
+    // ✅ إنزال الملف مباشرة (أضمن على الموبايل)
+    pdf.save("invoice.pdf");
   });
 });
+
 
 
 /* ---------- SETTINGS OPEN initial sync ---------- */
