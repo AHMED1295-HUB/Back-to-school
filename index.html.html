@@ -213,6 +213,41 @@
       border-radius: 6px;
       background: var(--dark-gray);
     }
+       
+
+      .preview-thumb {
+  width: 60px;      /* عرض الصورة المصغرة */
+  height: 40px;     /* ارتفاع الصورة المصغرة */
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--light-gray);
+  margin: 4px 2px;  /* مسافة بسيطة بين الصور */
+}
+      .preview-container {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap; /* خلي الصور في صف واحد */
+  overflow-x: auto;  /* يسمح بالتمرير أفقياً */
+  padding: 4px 0;
+}
+
+.preview-container::-webkit-scrollbar {
+  height: 6px; /* سمك شريط التمرير */
+}
+
+.preview-container::-webkit-scrollbar-thumb {
+  background-color: var(--gold);
+  border-radius: 3px;
+}
+
+.preview-container img.preview-thumb {
+  width: 80px;   /* حجم مصغر للصورة */
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--light-gray);
+  flex-shrink: 0; /* يمنع الصورة من الانكماش */
+}
     
     .product-footer {
       margin-top: auto;
@@ -408,24 +443,22 @@
     </div>
 
     <!-- السلة -->
-    <aside class="sidebar panel">
-     <h3 id="cartTitle"></h3>
-  <div class="panel" style="margin-bottom:10px">
-    <label for="custName"></label>
-    <input id="custName" class="filter-input">
+   <aside class="sidebar panel">
+      <h3 id="cartTitle">سلة المشتريات</h3>
 
-    <label for="custPhone"></label>
-    <input id="custPhone" class="filter-input">
-
-    <label for="custAddress"></label>
-    <input id="custAddress" class="filter-input">
-
-    <label for="paymentMethod"></label>
-    <select id="paymentMethod" class="filter-input">
-      <option value="instapay"></option>
-      <option value="cod"></option>
-    </select>
-  </div>
+      <div class="panel" style="margin-bottom:10px">
+        <label for="custName">اسم ولي الأمر</label>
+        <input id="custName" class="filter-input">
+        <label for="custPhone">رقم الهاتف</label>
+        <input id="custPhone" class="filter-input">
+        <label for="custAddress">العنوان</label>
+        <input id="custAddress" class="filter-input">
+        <label for="paymentMethod">طريقة الدفع</label>
+        <select id="paymentMethod" class="filter-input">
+          <option value="instapay">انستاباي</option>
+          <option value="cod">الدفع عند الاستلام</option>
+        </select>
+      </div>
       <div id="cartItems" class="cart-items"></div>
       <div class="summary">
         <div class="summary-item"><span id="lblSubtotalBooks">إجمالي الكتب:</span><span id="subtotalBooks">0 ج.م</span></div>
@@ -475,15 +508,21 @@
           <option value="book">كتاب</option>
           <option value="stationery">أداة مكتبية</option>
         </select>
-        <input id="newProdPrice" type="number" placeholder="السعر" class="filter-input">
-        <input id="newProdSeries" placeholder="السلسلة/الفئة" class="filter-input">
-        <input id="newProdImage" type="file" accept="image/*" class="filter-input">
-        <img id="newProdPreview" class="xy-thumb" style="display:none">
-        <div style="margin-top:6px;display:flex;gap:6px">
-          <button id="addProductBtn" class="btn btn-primary" style="flex:1">إضافة</button>
-          <button id="updateProductBtn" class="btn btn-accent" style="flex:1">تحديث</button>
-        </div>
-      </div>
+          <input id="newProdPrice" type="number" placeholder="السعر" class="filter-input">
+
+  <!-- 👇 اضفت السيريـز أو التصنيف -->
+  <input id="newProdSeries" placeholder="السلسلة / التصنيف" class="filter-input">
+
+  <!-- رفع عدة صور -->
+  <input id="newProdImages" type="file" accept="image/*" multiple class="filter-input">
+  <div id="newProdPreviewList" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+   <div id="newProdPreviewList" class="preview-container"></div>
+
+  <div style="margin-top:6px;display:flex;gap:6px">
+    <button id="addProductBtn" class="btn btn-primary" style="flex:1">إضافة</button>
+    <button id="updateProductBtn" class="btn btn-accent" style="flex:1">تحديث</button>
+  </div>
+</div>
 
       <!-- الخصم -->
       <div id="discountPanel" class="settings-panel">
@@ -550,6 +589,11 @@
             </div>
     </div>
   </div>
+  <!-- روابط للسكربتات الخارجية (تحت جزء الـ JS) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
 
 <script>
 /* =========================
@@ -741,18 +785,18 @@ const refs = {
   adminEmail: document.getElementById("adminEmail"),
   adminPassword: document.getElementById("adminPassword"),
 
-  settingsModal: document.getElementById("settingsModal"),
-  settingsTabs: document.querySelectorAll(".settings-tab"),
-  settingsPanels: document.querySelectorAll(".settings-panel"),
-  productsList: document.getElementById("productsList"),
-  newProdName: document.getElementById("newProdName"),
-  newProdType: document.getElementById("newProdType"),
-  newProdPrice: document.getElementById("newProdPrice"),
-  newProdSeries: document.getElementById("newProdSeries"),
-  newProdImage: document.getElementById("newProdImage"),
-  newProdPreview: document.getElementById("newProdPreview"),
-  addProductBtn: document.getElementById("addProductBtn"),
-  updateProductBtn: document.getElementById("updateProductBtn"),
+ settingsModal: document.getElementById("settingsModal"),
+settingsTabs: document.querySelectorAll(".settings-tab"),
+settingsPanels: document.querySelectorAll(".settings-panel"),
+productsList: document.getElementById("productsList"),
+newProdName: document.getElementById("newProdName"),
+newProdType: document.getElementById("newProdType"),
+newProdPrice: document.getElementById("newProdPrice"),
+newProdSeries: document.getElementById("newProdSeries"),
+newProdImages: document.getElementById("newProdImages"),   // ✅ الجديد
+newProdPreviewList: document.getElementById("newProdPreviewList"), // ✅ الجديد
+addProductBtn: document.getElementById("addProductBtn"),
+updateProductBtn: document.getElementById("updateProductBtn"),
 
   discountRate: document.getElementById("discountRate"),
   depositRate: document.getElementById("depositRate"),
@@ -762,7 +806,6 @@ const refs = {
   invoiceBody: document.getElementById("invoiceBody"),
   printInvoiceBtn: document.getElementById("printInvoiceBtn"),
 downloadPdfBtn: document.getElementById("downloadPdfBtn"),
-
 
 
   // filters admin elements
@@ -910,7 +953,7 @@ function renderProducts() {
 
     const card = document.createElement("div");
     card.className = "product-card";
-    const imgSrc = p.image && p.image.length ? p.image : "https://via.placeholder.com/300x200?text=No+Image";
+    const imgSrc = (p.images && p.images.length) ? p.images[0] : "https://via.placeholder.com/300x200?text=No+Image";
     card.innerHTML = `
       <img class="product-image" src="${imgSrc}" alt="${p.name}">
       <div style="margin-top:8px;font-weight:800">${p.name}</div>
@@ -1077,14 +1120,22 @@ document.querySelectorAll(".modal .close").forEach(btn => {
 /* ---------- ADMIN: Products management (add / edit / delete + image upload) ---------- */
 let editingProductId = null;
 
+// render admin list
 function renderProductsAdmin() {
   refs.productsList.innerHTML = "";
   products.forEach(p => {
     const row = document.createElement("div");
-    row.style = "display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid #f0f0f0";
-    row.innerHTML = `<div style="display:flex;gap:8px;align-items:center">
-        <img src="${p.image && p.image.length ? p.image : 'https://via.placeholder.com/80'}" class="xy-thumb" alt="">
-        <div><strong>${p.name}</strong><div style="font-size:12px;color:#666">${p.type === 'book' ? (p.stage ? p.stage + " | " : "") + (p.grade ? p.grade + " | " : "") + (p.subject ? p.subject : "") : (p.category || "")}</div></div>
+    row.style = "display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid #444";
+    const firstImage = (p.images && p.images.length) ? p.images[0] : "https://via.placeholder.com/80";
+    row.innerHTML = `
+      <div style="display:flex;gap:8px;align-items:center">
+        <img src="${firstImage}" class="xy-thumb" alt="">
+        <div>
+          <strong>${p.name}</strong>
+          <div style="font-size:12px;color:#aaa">
+            ${p.type === 'book' ? (p.stage ? p.stage + " | " : "") + (p.grade ? p.grade + " | " : "") + (p.subject ? p.subject : "") : (p.category || "")}
+          </div>
+        </div>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
         <div style="font-weight:800">${formatCurrency(p.price)}</div>
@@ -1093,81 +1144,123 @@ function renderProductsAdmin() {
       </div>`;
     refs.productsList.appendChild(row);
 
-    row.querySelector("[data-edit]").addEventListener("click", () => { startEditProduct(p.id); });
+    row.querySelector("[data-edit]").addEventListener("click", () => startEditProduct(p.id));
     row.querySelector("[data-del]").addEventListener("click", () => {
       if (!confirm(T[currentLang].deleted + "؟")) return;
       products = products.filter(x => x.id !== p.id);
-      saveAll();
-      renderProducts();
-      renderProductsAdmin();
-      showToast(T[currentLang].productRemoved, "success");
+      saveAll(); renderProducts(); renderProductsAdmin(); showToast(T[currentLang].productRemoved, "success");
     });
   });
 }
 
+// start editing product
 function startEditProduct(id) {
-  const p = products.find(x => x.id === id);
-  if (!p) return;
+  const p = products.find(x => x.id === id); if (!p) return;
   editingProductId = id;
   refs.newProdName.value = p.name || "";
   refs.newProdType.value = p.type || "book";
   refs.newProdPrice.value = p.price || 0;
   refs.newProdSeries.value = p.series || p.category || "";
-  if (p.image) { refs.newProdPreview.src = p.image; refs.newProdPreview.style.display = "block"; } else { refs.newProdPreview.style.display = "none"; }
+
+  refs.newProdPreviewList.innerHTML = "";
+  if (p.images && p.images.length) {
+    p.images.forEach(imgSrc => {
+      const img = document.createElement("img");
+      img.src = imgSrc;
+ img.classList.add("preview-thumb");
+      refs.newProdPreviewList.appendChild(img);
+    });
+  }
+  // show settings modal if not open
+  refs.settingsModal.classList.add("show");
 }
 
-refs.newProdImage.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (!file) { refs.newProdPreview.style.display = "none"; refs.newProdPreview.src = ""; return; }
-  const reader = new FileReader();
-  reader.onload = () => {
-    refs.newProdPreview.src = reader.result;
-    refs.newProdPreview.style.display = "block";
-  };
-  reader.readAsDataURL(file);
+// preview new images immediately when selected (before saving)
+refs.newProdImages.addEventListener("change", (e) => {
+  refs.newProdPreviewList.innerHTML = "";
+  const files = e.target.files;
+  for (let file of files) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = document.createElement("img");
+      img.src = reader.result;
+      img.classList.add("preview-thumb");
+      refs.newProdPreviewList.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  }
 });
 
-refs.addProductBtn.addEventListener("click", () => {
+
+// helper convert file -> base64
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// add product (wait for all images converted)
+refs.addProductBtn.addEventListener("click", async () => {
   const name = (refs.newProdName.value || "").trim();
   const type = refs.newProdType.value;
   const price = parseFloat(refs.newProdPrice.value) || 0;
   const seriesOrCat = (refs.newProdSeries.value || "").trim();
-  let imageData = "";
-  if (refs.newProdPreview.src && refs.newProdPreview.style.display !== "none") {
-    imageData = refs.newProdPreview.src;
+
+  if (!name) { showToast(T[currentLang].enterProdName, "error"); return; }
+
+  let imagesData = [];
+  if (refs.newProdImages.files.length > 0) {
+    imagesData = await Promise.all(Array.from(refs.newProdImages.files).map(file => fileToBase64(file)));
   }
-  if (!name) { showToast(currentLang === "ar" ? T.ar.enterProdName : T.en.enterProdName, "error"); return; }
+
   const id = Date.now();
-  const item = type === "book" ? { id, type: "book", name, price, stage: filters.stages[0] || "", grade: filters.grades[0] || "", subject: filters.subjects[0] || "", series: seriesOrCat, image: imageData } : { id, type: "stationery", name, price, category: seriesOrCat, image: imageData };
+  const item = type === "book"
+    ? { id, type: "book", name, price, stage: filters.stages[0] || "", grade: filters.grades[0] || "", subject: filters.subjects[0] || "", series: seriesOrCat, images: imagesData }
+    : { id, type: "stationery", name, price, category: seriesOrCat, images: imagesData };
+
   products.push(item);
   saveAll();
-  renderProducts();
+  renderProducts();      // show on client immediately
   renderProductsAdmin();
+
+  // reset form
   refs.newProdName.value = "";
   refs.newProdPrice.value = "";
   refs.newProdSeries.value = "";
-  refs.newProdImage.value = "";
-  refs.newProdPreview.style.display = "none";
-  refs.newProdPreview.src = "";
+  refs.newProdImages.value = "";
+  refs.newProdPreviewList.innerHTML = "";
   showToast(T[currentLang].productAdded, "success");
 });
 
-refs.updateProductBtn.addEventListener("click", () => {
-  if (!editingProductId) { showToast(currentLang === "ar" ? T.ar.noEdit : T.en.noEdit, "error"); return; }
-  const p = products.find(x => x.id === editingProductId);
-  if (!p) return;
+// update product
+refs.updateProductBtn.addEventListener("click", async () => {
+  if (!editingProductId) { showToast(T[currentLang].noEdit, "error"); return; }
+  const p = products.find(x => x.id === editingProductId); if (!p) return;
+
   p.name = (refs.newProdName.value || "").trim();
   p.type = refs.newProdType.value;
   p.price = parseFloat(refs.newProdPrice.value) || 0;
   p.series = (refs.newProdSeries.value || "").trim();
-  if (refs.newProdPreview.src && refs.newProdPreview.style.display !== "none") p.image = refs.newProdPreview.src;
+
+  if (refs.newProdImages.files.length > 0) {
+    p.images = await Promise.all(Array.from(refs.newProdImages.files).map(file => fileToBase64(file)));
+  }
+
   saveAll();
-  renderProducts();
-  renderProductsAdmin();
+  renderProducts(); renderProductsAdmin();
+
   editingProductId = null;
-  refs.newProdName.value = ""; refs.newProdPrice.value = ""; refs.newProdSeries.value = ""; refs.newProdImage.value = ""; refs.newProdPreview.style.display = "none";
+  refs.newProdName.value = "";
+  refs.newProdPrice.value = "";
+  refs.newProdSeries.value = "";
+  refs.newProdImages.value = "";
+  refs.newProdPreviewList.innerHTML = "";
   showToast(T[currentLang].productUpdated, "success");
 });
+
 
 /* ---------- ADMIN: Filters management (add / delete) ---------- */
 function renderFiltersAdmin() {
@@ -1235,7 +1328,8 @@ refs.saveDiscountBtn.addEventListener("click", () => {
   showToast(T[currentLang].saveDiscount, "success");
 });
 
-/* ---------- INVOICE / PRINT / WHATSAPP ---------- */
+/* ---------- INVOICE / PDF ---------- */
+
 function openInvoiceModal() {
   if (cart.length === 0) { showToast(T[currentLang].cartEmpty, "info"); return; }
   let html = `<p><strong>${T[currentLang].invoiceTitle}</strong></p>`;
@@ -1256,52 +1350,42 @@ function openInvoiceModal() {
   refs.invoiceBody.innerHTML = html;
   refs.invoiceModal.classList.add("show");
 }
-refs.printInvoiceBtn.addEventListener("click", () => { window.print(); });
+refs.printInvoiceBtn.addEventListener("click", () => window.print());
 refs.downloadPdfBtn.addEventListener("click", () => {
   const { jsPDF } = window.jspdf;
   const invoiceElement = document.getElementById("invoiceModal");
-
   html2canvas(invoiceElement, { scale: 2 }).then(canvas => {
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "pt", "a4");
-
     const imgWidth = 595;
     const pageHeight = 842;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
     let heightLeft = imgHeight;
     let position = 0;
-
     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
     heightLeft -= pageHeight;
-
     while (heightLeft > 0) {
       position = heightLeft - imgHeight;
       pdf.addPage();
       pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
     }
-
-    // 👇 هنا تحط الكود الجديد
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
     if (isIOS) {
-      // iPhone / iPad → يفتح PDF في Safari
       const pdfUrl = pdf.output("bloburl");
       window.open(pdfUrl, "_blank");
     } else {
-      // Android / PC → ينزل PDF مباشر
       const pdfBlob = pdf.output("blob");
       const link = document.createElement("a");
       link.href = URL.createObjectURL(pdfBlob);
       link.download = "invoice.pdf";
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       URL.revokeObjectURL(link.href);
     }
   });
 });
-
-
 
 /* ---------- SETTINGS OPEN initial sync ---------- */
 function onSettingsOpen() {
@@ -1332,9 +1416,5 @@ window.decreaseQty = decreaseCartQty;
 
 /* ---------- End of script ---------- */
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<!-- لازم تحمل FileSaver -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </body>
 </html>
