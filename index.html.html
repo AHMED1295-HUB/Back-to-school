@@ -249,6 +249,27 @@
   flex-shrink: 0; /* يمنع الصورة من الانكماش */
 }
     
+.product-details-images {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+.product-details-images img {
+  height: 150px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid #444;
+}
+.product-info {
+  margin-top: 10px;
+}
+.product-info h3 {
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
     .product-footer {
       margin-top: auto;
       display: flex;
@@ -589,6 +610,13 @@
             </div>
     </div>
   </div>
+<div class="modal" id="productModal">
+  <div class="modal-content">
+    <button class="close" id="closeProductModal">&times;</button>
+    <div id="productDetails"></div>
+  </div>
+</div>
+
   <!-- روابط للسكربتات الخارجية (تحت جزء الـ JS) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1126,14 +1154,28 @@ function renderProductsAdmin() {
   products.forEach(p => {
     const row = document.createElement("div");
     row.style = "display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid #444";
-    const firstImage = (p.images && p.images.length) ? p.images[0] : "https://via.placeholder.com/80";
+
+    // لو فيه صور، نعرضهم في Scroll صغير
+    let imagesHTML = "";
+    if (p.images && p.images.length) {
+      imagesHTML = `
+        <div style="display:flex;gap:4px;overflow-x:auto;max-width:150px;padding:2px">
+          ${p.images.map(img => `<img src="${img}" class="xy-thumb" alt="">`).join("")}
+        </div>
+      `;
+    } else {
+      imagesHTML = `<img src="https://via.placeholder.com/80" class="xy-thumb" alt="">`;
+    }
+
     row.innerHTML = `
       <div style="display:flex;gap:8px;align-items:center">
-        <img src="${firstImage}" class="xy-thumb" alt="">
+        ${imagesHTML}
         <div>
           <strong>${p.name}</strong>
           <div style="font-size:12px;color:#aaa">
-            ${p.type === 'book' ? (p.stage ? p.stage + " | " : "") + (p.grade ? p.grade + " | " : "") + (p.subject ? p.subject : "") : (p.category || "")}
+            ${p.type === 'book' 
+              ? (p.stage ? p.stage + " | " : "") + (p.grade ? p.grade + " | " : "") + (p.subject ? p.subject : "") 
+              : (p.category || "")}
           </div>
         </div>
       </div>
@@ -1142,16 +1184,21 @@ function renderProductsAdmin() {
         <button class="btn btn-outline" data-edit="${p.id}"><i class="fas fa-edit"></i></button>
         <button class="btn btn-outline" data-del="${p.id}"><i class="fas fa-trash"></i></button>
       </div>`;
+
     refs.productsList.appendChild(row);
 
     row.querySelector("[data-edit]").addEventListener("click", () => startEditProduct(p.id));
     row.querySelector("[data-del]").addEventListener("click", () => {
       if (!confirm(T[currentLang].deleted + "؟")) return;
       products = products.filter(x => x.id !== p.id);
-      saveAll(); renderProducts(); renderProductsAdmin(); showToast(T[currentLang].productRemoved, "success");
+      saveAll(); 
+      renderProducts(); 
+      renderProductsAdmin(); 
+      showToast(T[currentLang].productRemoved, "success");
     });
   });
 }
+
 
 // start editing product
 function startEditProduct(id) {
@@ -1260,6 +1307,49 @@ refs.updateProductBtn.addEventListener("click", async () => {
   refs.newProdPreviewList.innerHTML = "";
   showToast(T[currentLang].productUpdated, "success");
 });
+function renderProducts() {
+  const grid = document.querySelector(".products-grid");
+  grid.innerHTML = "";
+
+  products.forEach(p => {
+    // صور المنتج (Scrollable)
+    let imagesHTML = "";
+    if (p.images && p.images.length) {
+      imagesHTML = `
+        <div style="display:flex;gap:4px;overflow-x:auto;max-width:100%;padding:2px">
+          ${p.images.map(img => `<img src="${img}" class="product-image" style="width:120px;height:80px;object-fit:cover;border-radius:6px">`).join("")}
+        </div>
+      `;
+    } else {
+      imagesHTML = `<img src="https://via.placeholder.com/300x200?text=No+Image" class="product-image">`;
+    }
+
+    const card = document.createElement("div");
+    card.className = "product-card";
+    card.innerHTML = `
+      ${imagesHTML}
+      <h3>${p.name}</h3>
+      <div class="product-footer">
+        <div>${formatCurrency(p.price)}</div>
+        <button class="btn btn-primary" data-add="${p.id}"><i class="fas fa-cart-plus"></i></button>
+      </div>
+    `;
+
+    // عند الضغط على الكارت يفتح تفاصيل المنتج (Modal)
+    card.addEventListener("click", (e) => {
+      if (!e.target.closest("button")) { // عشان ما يتداخلش مع زرار الإضافة
+        openProductDetails(p);
+      }
+    });
+
+    grid.appendChild(card);
+
+    // زر إضافة للسلة
+    card.querySelector("[data-add]").addEventListener("click", () => {
+      addToCart(p.id);
+    });
+  });
+}
 
 
 /* ---------- ADMIN: Filters management (add / delete) ---------- */
