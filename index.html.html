@@ -581,7 +581,6 @@
       <div style="margin-top:8px;display:flex;gap:6px">
         <button id="printInvoiceBtn" class="btn btn-primary">طباعة</button>
         <button id="downloadPdfBtn" class="btn btn-primary">تحميل PDF</button>
-             <button id="copyLinkBtn" class="btn btn-outline"><i class="fas fa-link"></i> نسخ الرابط</button>
       </div>
     </div>
   </div>
@@ -1614,51 +1613,29 @@
     
     refs.printInvoiceBtn.addEventListener("click", () => window.print());
     
-   let lastInvoiceUrl = ""; // نخزن آخر لينك تم إنشاؤه
+    refs.downloadPdfBtn.addEventListener("click", () => {
+  const pdf = new jspdf.jsPDF("p", "pt", "a4");
+  pdf.html(refs.invoiceBody, {
+    callback: function (pdf) {
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-refs.downloadPdfBtn?.addEventListener("click", async () => {
-  const { jsPDF } = window.jspdf;
-  const invoiceElement = document.getElementById("invoiceModal");
-
-  html2canvas(invoiceElement, { scale: 2 }).then(async (canvas) => {
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "pt", "a4");
-    const imgWidth = 595;
-    const pageHeight = 842;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-
-    const pdfBlob = pdf.output("blob");
-
-    // رفع الفاتورة على Firebase Storage
-    const storageRef = firebase.storage().ref();
-    const fileName = `invoices/invoice_${Date.now()}.pdf`;
-    const fileRef = storageRef.child(fileName);
-
-    await fileRef.put(pdfBlob);
-    lastInvoiceUrl = await fileRef.getDownloadURL();
-
-    showToast("تم رفع الفاتورة بنجاح ✅", "success");
-
-    // فتح الفاتورة مباشرة
-    window.open(lastInvoiceUrl, "_blank");
+      if (isMobile) {
+        // افتح الفاتورة في نافذة جديدة للموبايل
+        const pdfUrl = pdf.output("bloburl");
+        window.open(pdfUrl, "_blank");
+      } else {
+        // تنزيل مباشر للكمبيوتر
+        const pdfBlob = pdf.output("blob");
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(pdfBlob);
+        link.download = "invoice.pdf";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      }
+    }
   });
-});
-
-// زر نسخ الرابط
-document.getElementById("copyLinkBtn")?.addEventListener("click", async () => {
-  if (!lastInvoiceUrl) {
-    showToast("من فضلك أنشئ فاتورة أولاً", "error");
-    return;
-  }
-  try {
-    await navigator.clipboard.writeText(lastInvoiceUrl);
-    showToast("تم نسخ رابط الفاتورة 📋", "success");
-  } catch (err) {
-    console.error(err);
-    showToast("تعذر نسخ الرابط", "error");
-  }
 });
 
     /* ---------- SETTINGS OPEN initial sync ---------- */
