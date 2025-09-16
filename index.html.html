@@ -1614,44 +1614,29 @@
     refs.printInvoiceBtn.addEventListener("click", () => window.print());
     
     refs.downloadPdfBtn.addEventListener("click", () => {
-      const { jsPDF } = window.jspdf;
-      const invoiceElement = document.getElementById("invoiceModal");
-      html2canvas(invoiceElement, { scale: 2 }).then(canvas => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "pt", "a4");
-        const imgWidth = 595;
-        const pageHeight = 842;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
-       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-const isMobile = /Android/i.test(navigator.userAgent);
+  const pdf = new jspdf.jsPDF("p", "pt", "a4");
+  pdf.html(refs.invoiceBody, {
+    callback: function (pdf) {
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-if (isIOS || isMobile) {
-  // افتح الفاتورة في نافذة جديدة
-  const pdfUrl = pdf.output("bloburl");
-  window.open(pdfUrl, "_blank");
-} else {
-  // تحميل مباشر على الكمبيوتر
-  const pdfBlob = pdf.output("blob");
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(pdfBlob);
-  link.download = "invoice.pdf";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(link.href);
-}
-      });
-    });
+      if (isMobile) {
+        // افتح الفاتورة في نافذة جديدة للموبايل
+        const pdfUrl = pdf.output("bloburl");
+        window.open(pdfUrl, "_blank");
+      } else {
+        // تنزيل مباشر للكمبيوتر
+        const pdfBlob = pdf.output("blob");
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(pdfBlob);
+        link.download = "invoice.pdf";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      }
+    }
+  });
+});
 
     /* ---------- SETTINGS OPEN initial sync ---------- */
     function onSettingsOpen() {
