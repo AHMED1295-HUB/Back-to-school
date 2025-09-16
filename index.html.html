@@ -6,41 +6,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- إضافة Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <style>
-    body{font-family:'Cairo',sans-serif;margin:0;background:#f6f8fb;color:#222;direction:rtl}
-    header{background:#2c3e50;color:#fff;padding:12px;display:flex;justify-content:space-between;align-items:center}
-    header h1{margin:0;font-size:18px}
-    .btn{padding:6px 12px;border-radius:6px;cursor:pointer;border:0;font-weight:bold}
-    .btn-primary{background:#3498db;color:#fff}
-    .btn-accent{background:#27ae60;color:#fff}
-    .btn-outline{background:#fff;border:1px solid #ccc}
-    .btn-danger{background:#e74c3c;color:#fff}
-    .container{display:grid;grid-template-columns:1fr 340px;gap:14px;padding:14px}
-    .panel{background:#fff;border-radius:8px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
-    .filter-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:8px 0}
-    .filter-input,.filter-select{width:100%;padding:6px;border:1px solid #ccc;border-radius:6px}
-    .tabs{display:flex;gap:6px;margin:8px 0}
-    .tab{flex:1;padding:8px;border:0;cursor:pointer;border-radius:6px}
-    .tab.active{background:#2c3e50;color:#fff}
-    .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:8px}
-    .product-card{border:1px solid #eee;border-radius:6px;padding:8px;display:flex;flex-direction:column}
-    .product-image{height:100px;object-fit:cover;border-radius:6px}
-    .product-footer{margin-top:auto;display:flex;justify-content:space-between;align-items:center}
-    .sidebar .summary-item{display:flex;justify-content:space-between;margin:4px 0}
-    .cart-items{max-height:220px;overflow:auto;margin:8px 0}
-    .cart-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee}
-    .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000}
-    .modal.show{display:flex}
-    .modal-content{background:#fff;padding:16px;border-radius:8px;max-width:900px;width:100%;max-height:90vh;overflow:auto;position:relative}
-    .close{position:absolute;top:8px;left:8px;cursor:pointer;background:none;border:none;font-size:20px;color:red}
-    .settings-tabs{display:flex;gap:6px;margin-bottom:10px}
-    .settings-tab{flex:1;padding:8px;border:0;cursor:pointer;border-radius:6px}
-    .settings-tab.active{background:#2c3e50;color:#fff}
-    .settings-panel{display:none}
-    .settings-panel.active{display:block}
-    .xy-thumb{width:60px;height:40px;object-fit:cover;border-radius:6px;margin-top:4px}
-    .small-field{display:flex;gap:6px;align-items:center;margin-top:6px}
-/* أنماط CSS المعدلة للون الأسود والذهبي */
+    /* أنماط CSS المعدلة للون الأسود والذهبي */
     :root {
       --gold: #D4AF37;
       --dark-gold: #B8860B;
@@ -213,62 +185,65 @@
       border-radius: 6px;
       background: var(--dark-gray);
     }
-       
-
-      .preview-thumb {
-  width: 60px;      /* عرض الصورة المصغرة */
-  height: 40px;     /* ارتفاع الصورة المصغرة */
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid var(--light-gray);
-  margin: 4px 2px;  /* مسافة بسيطة بين الصور */
-}
-      .preview-container {
-  display: flex;
-  gap: 6px;
-  flex-wrap: nowrap; /* خلي الصور في صف واحد */
-  overflow-x: auto;  /* يسمح بالتمرير أفقياً */
-  padding: 4px 0;
-}
-
-.preview-container::-webkit-scrollbar {
-  height: 6px; /* سمك شريط التمرير */
-}
-
-.preview-container::-webkit-scrollbar-thumb {
-  background-color: var(--gold);
-  border-radius: 3px;
-}
-
-.preview-container img.preview-thumb {
-  width: 80px;   /* حجم مصغر للصورة */
-  height: 60px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid var(--light-gray);
-  flex-shrink: 0; /* يمنع الصورة من الانكماش */
-}
     
-.product-details-images {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 10px 0;
-}
-.product-details-images img {
-  height: 150px;
-  border-radius: 8px;
-  object-fit: cover;
-  flex-shrink: 0;
-  border: 1px solid #444;
-}
-.product-info {
-  margin-top: 10px;
-}
-.product-info h3 {
-  color: var(--gold);
-  margin-bottom: 8px;
-}
+    .preview-thumb {
+      width: 60px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--light-gray);
+      margin: 4px 2px;
+    }
+
+    .preview-container {
+      display: flex;
+      gap: 6px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding: 4px 0;
+    }
+
+    .preview-container::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .preview-container::-webkit-scrollbar-thumb {
+      background-color: var(--gold);
+      border-radius: 3px;
+    }
+
+    .preview-container img.preview-thumb {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--light-gray);
+      flex-shrink: 0;
+    }
+    
+    .product-details-images {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+    
+    .product-details-images img {
+      height: 150px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid #444;
+    }
+    
+    .product-info {
+      margin-top: 10px;
+    }
+    
+    .product-info h3 {
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
 
     .product-footer {
       margin-top: auto;
@@ -500,7 +475,7 @@
   <!-- نافذة تسجيل الدخول -->
   <div id="loginModal" class="modal">
     <div class="modal-content">
-      <button class="close" onclick="loginModal.classList.remove('show')">&times;</button>
+      <button class="close" onclick="document.getElementById('loginModal').classList.remove('show')">&times;</button>
       <h3 id="loginTitle">تسجيل الدخول</h3>
       <input id="adminEmail" placeholder="Email" class="filter-input">
       <input id="adminPassword" type="password" placeholder="Password" class="filter-input">
@@ -511,7 +486,7 @@
   <!-- نافذة الإعدادات -->
   <div id="settingsModal" class="modal">
     <div class="modal-content">
-      <button class="close" onclick="settingsModal.classList.remove('show')">&times;</button>
+      <button class="close" onclick="document.getElementById('settingsModal').classList.remove('show')">&times;</button>
       <h3 id="settingsTitle">إعدادات الإدارة</h3>
       <div class="settings-tabs">
         <button class="settings-tab active" data-tab="productsPanel">المنتجات</button>
@@ -536,8 +511,7 @@
 
   <!-- رفع عدة صور -->
   <input id="newProdImages" type="file" accept="image/*" multiple class="filter-input">
-  <div id="newProdPreviewList" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
-   <div id="newProdPreviewList" class="preview-container"></div>
+  <div id="newProdPreviewList" class="preview-container"></div>
 
   <div style="margin-top:6px;display:flex;gap:6px">
     <button id="addProductBtn" class="btn btn-primary" style="flex:1">إضافة</button>
@@ -601,437 +575,634 @@
   <!-- نافذة الفاتورة -->
   <div id="invoiceModal" class="modal">
     <div class="modal-content">
-      <button class="close" onclick="invoiceModal.classList.remove('show')">&times;</button>
+      <button class="close" onclick="document.getElementById('invoiceModal').classList.remove('show')">&times;</button>
       <h3 id="invoiceTitle">فاتورة الطلب</h3>
       <div id="invoiceBody"></div>
       <div style="margin-top:8px;display:flex;gap:6px">
         <button id="printInvoiceBtn" class="btn btn-primary">طباعة</button>
-        <button id="downloadPdfBtn" class="btn btn-primary"></button>
-            </div>
+        <button id="downloadPdfBtn" class="btn btn-primary">تحميل PDF</button>
+      </div>
     </div>
   </div>
-<div class="modal" id="productModal">
-  <div class="modal-content">
-    <button class="close" id="closeProductModal">&times;</button>
-    <div id="productDetails"></div>
+  
+  <div class="modal" id="productModal">
+    <div class="modal-content">
+      <button class="close" id="closeProductModal">&times;</button>
+      <div id="productDetails"></div>
+    </div>
   </div>
-</div>
 
   <!-- روابط للسكربتات الخارجية (تحت جزء الـ JS) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-
 <script>
-/* =========================
-   XY System - JavaScript (Complete with Filters Management)
-   ========================= */
+    /* =========================
+       تهيئة Firebase
+       ========================= */
+    const firebaseConfig = {
+      apiKey: "AIzaSyDWsDR3WlS2JXi-Xp5Tp-70lioa5saroII",
+      authDomain: "online-store-e2c20.firebaseapp.com",
+      projectId: "online-store-e2c20",
+      storageBucket: "online-store-e2c20.firebasestorage.app",
+      messagingSenderId: "176583372373",
+      appId: "1:176583372373:web:68594825749587b6446edc"
+    };
 
-const ADMIN = { email: "admin@example.com", password: "1234" };
-let currentLang = "ar"; // "ar" or "en"
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
 
-/* ---------- DATA (load from localStorage or default sample) ---------- */
-let products = JSON.parse(localStorage.getItem("xy_products_v2")) || [
-  { id: 101, type: "book", name: "الرياضيات - الصف الأول", price: 50, stage: "الابتدائية", grade: "الصف الأول", subject: "الرياضيات", series: "سلسلة النجاح", image: "" },
-  { id: 102, type: "book", name: "اللغة العربية - الصف الأول", price: 45, stage: "الابتدائية", grade: "الصف الأول", subject: "اللغة العربية", series: "سلسلة النجاح", image: "" },
-  { id: 103, type: "book", name: "العلوم - الصف الثاني", price: 55, stage: "الابتدائية", grade: "الصف الثاني", subject: "العلوم", series: "سلسلة التميز", image: "" },
-  { id: 104, type: "book", name: "الإنجليزية - الصف الثالث", price: 60, stage: "الابتدائية", grade: "الصف الثالث", subject: "الإنجليزية", series: "سلسلة التميز", image: "" },
-  { id: 105, type: "book", name: "الرياضيات - الصف الرابع", price: 70, stage: "الابتدائية", grade: "الصف الرابع", subject: "الرياضيات", series: "سلسلة التفوق", image: "" },
-  { id: 201, type: "stationery", name: "دفتر سادة A4", price: 15, category: "قرطاسية", image: "" },
-  { id: 202, type: "stationery", name: "قلم رصاص HB", price: 5, category: "قرطاسية", image: "" },
-  { id: 203, type: "stationery", name: "مسطرة 30 سم", price: 8, category: "قرطاسية", image: "" },
-  { id: 204, type: "stationery", name: "ممحاة", price: 3, category: "قرطاسية", image: "" },
-  { id: 205, type: "stationery", name: "علبة ألوان", price: 40, category: "قرطاسية", image: "" }
-];
+    /* =========================
+       XY System - JavaScript مع دعم Firebase
+       ========================= */
 
-let filters = JSON.parse(localStorage.getItem("xy_filters_v2")) || {
-  stages: ["الابتدائية", "الإعدادية", "الثانوية"],
-  grades: ["الصف الأول", "الصف الثاني", "الصف الثالث", "الصف الرابع", "الصف الخامس"],
-  subjects: ["اللغة العربية", "الرياضيات", "العلوم", "الإنجليزية"],
-  series: ["سلسلة النجاح", "سلسلة التميز", "سلسلة التفوق"]
-};
+    const ADMIN = { email: "admin@example.com", password: "1234" };
+    let currentLang = "ar";
 
-let discountSettings = JSON.parse(localStorage.getItem("xy_discount_v2")) || { discountRate: 0, depositRate: 40 };
-let cart = []; // {id, qty, ...product}
+    /* ---------- البيانات (سيتم تحميلها من Firebase) ---------- */
+    let products = [];
+    let filters = {
+      stages: ["الابتدائية", "الإعدادية", "الثانوية"],
+      grades: ["الصف الأول", "الصف الثاني", "الصف الثالث", "الصف الرابع", "الصف الخامس"],
+      subjects: ["اللغة العربية", "الرياضيات", "العلوم", "الإنجليزية"],
+      series: ["سلسلة النجاح", "سلسلة التميز", "سلسلة التفوق"]
+    };
+    let discountSettings = { discountRate: 0, depositRate: 40 };
+    let cart = [];
+    let editingProductId = null;
 
-/* ---------- TRANSLATIONS ---------- */
-const T = {
-  ar: {
-    pageTitle: "نظام XY لإدارة الطلبات",
-    mainTitle: "نظام XY",
-    langText: "English",
-    filterTitle: "خيارات البحث والتصفية",
-    searchPlaceholder: "ابحث باسم المنتج...",
-    stageLbl: "المرحلة",
-    gradeLbl: "الصف",
-    subjectLbl: "المادة",
-    seriesLbl: "السلسلة",
-    booksTab: "كتب خارجية",
-    stationeryTab: "أدوات مكتبية",
-    cartTitle: "سلة المشتريات",
-    parentName: "اسم ولي الأمر",
-    enterName: "أدخل الاسم الكامل",
-    phone: "رقم الهاتف",
-    phoneEx: "مثال: 20123456789",
-    address: "العنوان",
-    addressEx: "المدينة / المنطقة",
-    payment: "طريقة الدفع",
-    paymentInstapay: "انستاباي",
-    paymentCOD: "عند الاستلام",
-    subtotalBooks: "إجمالي الكتب:",
-    subtotalStationery: "إجمالي الأدوات:",
-    subtotalAll: "المجموع قبل الخصم:",
-    totalDiscount: "قيمة الخصم:",
-    depositAmount: "المقدم:",
-    grandTotal: "الإجمالي النهائي:",
-    remainAmount: "المتبقي عند الاستلام:",
-    invoice: "فاتورة",
-    export: "تصدير CSV",
-    clearCart: "تفريغ",
-    loginTitle: "تسجيل الدخول",
-    settingsTitle: "إعدادات الإدارة",
-    productsTab: "المنتجات",
-    discountTab: "الخصم",
-    addProd: "إضافة",
-    updateProd: "تحديث",
-    refreshProd: "تحديث العرض",
-    saveDiscount: "حفظ",
-    loginWrong: "بيانات الدخول غير صحيحة",
-    productAdded: "تم إضافة المنتج",
-    productUpdated: "تم تحديث المنتج",
-    productRemoved: "تم حذف المنتج",
-    filtersSaved: "تم حفظ الفلاتر",
-    csvSaved: "تم تنزيل CSV",
-    invoiceTitle: "فاتورة الطلب",
-    print: "طباعة",
-pdf: "تحميل pdf",
-    whatsapp: "إرسال واتساب",
-    cartEmpty: "السلة فارغة",
-    confirmClearCart: "هل تريد تفريغ السلة؟",
-    increase: "+",
-    decrease: "-",
-    deleted: "تم الحذف",
-    enterPhone: "أدخل رقم الموبايل",
-    enterProdName: "ادخل اسم المنتج",
-    noEdit: "لا توجد عملية تعديل",
-  },
-  en: {
-    pageTitle: "XY Order System",
-    mainTitle: "XY System",
-    langText: "العربية",
-    filterTitle: "Search & Filters",
-    searchPlaceholder: "Search product name...",
-    stageLbl: "Stage",
-    gradeLbl: "Grade",
-    subjectLbl: "Subject",
-    seriesLbl: "Series",
-    booksTab: "Books",
-    stationeryTab: "Stationery",
-    cartTitle: "Shopping Cart",
-    parentName: "Parent Name",
-    enterName: "Enter full name",
-    phone: "Phone",
-    phoneEx: "Example: 20123456789",
-    address: "Address",
-    addressEx: "City / Area",
-      payment: "Payment Method",
-      paymentInstapay: "Instapay",
-  paymentCOD: "Cash on Delivery",
-    subtotalBooks: "Books Total:",
-    subtotalStationery: "Stationery Total:",
-    subtotalAll: "Subtotal:",
-    totalDiscount: "Discount:",
-    depositAmount: "Deposit:",
-    grandTotal: "Final Total:",
-    remainAmount: "Remaining:",
-    invoice: "Invoice",
-    export: "Export CSV",
-    clearCart: "Clear",
-    loginTitle: "Login",
-    settingsTitle: "Admin Settings",
-    productsTab: "Products",
-    discountTab: "Discount",
-    addProd: "Add",
-    updateProd: "Update",
-    refreshProd: "Refresh",
-    saveDiscount: "Save",
-    loginWrong: "Credentials incorrect",
-    productAdded: "Product added",
-    productUpdated: "Product updated",
-    productRemoved: "Product removed",
-    filtersSaved: "Filters saved",
-    csvSaved: "CSV downloaded",
-    invoiceTitle: "Order Invoice",
-    print: "Print",
-pdf: "download pdf",
-    whatsapp: "Send WhatsApp",
-    cartEmpty: "Cart is empty",
-    confirmClearCart: "Clear cart?",
-    increase: "+",
-    decrease: "-",
-    deleted: "Deleted",
-    enterPhone: "Enter phone number",
-    enterProdName: "Enter product name",
-    noEdit: "No product selected",
-  }
-};
-
-/* ---------- DOM refs ---------- */
-const refs = {
-  langToggle: document.getElementById("langToggle"),
-  mainTitle: document.getElementById("mainTitle"),
-  filterTitle: document.getElementById("filterTitle"),
-  searchInput: document.getElementById("searchInput"),
-  stageSelect: document.getElementById("stageSelect"),
-  gradeSelect: document.getElementById("gradeSelect"),
-  subjectSelect: document.getElementById("subjectSelect"),
-  seriesSelect: document.getElementById("seriesSelect"),
-  tabBooks: document.getElementById("tabBooks"),
-  tabStationery: document.getElementById("tabStationery"),
-  booksGrid: document.getElementById("booksGrid"),
-  stationeryGrid: document.getElementById("stationeryGrid"),
-
-  cartTitle: document.getElementById("cartTitle"),
-  custName: document.getElementById("custName"),
-  custPhone: document.getElementById("custPhone"),
-  custAddress: document.getElementById("custAddress"),
-  cartItems: document.getElementById("cartItems"),
-  subtotalBooks: document.getElementById("subtotalBooks"),
-  subtotalStationery: document.getElementById("subtotalStationery"),
-  subtotalAll: document.getElementById("subtotalAll"),
-  totalDiscount: document.getElementById("totalDiscount"),
-  depositAmount: document.getElementById("depositAmount"),
-  grandTotal: document.getElementById("grandTotal"),
-  remainAmount: document.getElementById("remainAmount"),
-
-  btnInvoice: document.getElementById("btnInvoice"),
-  btnClear: document.getElementById("btnClear"),
-
-  loginModal: document.getElementById("loginModal"),
-  loginSubmit: document.getElementById("loginSubmit"),
-  adminEmail: document.getElementById("adminEmail"),
-  adminPassword: document.getElementById("adminPassword"),
-
- settingsModal: document.getElementById("settingsModal"),
-settingsTabs: document.querySelectorAll(".settings-tab"),
-settingsPanels: document.querySelectorAll(".settings-panel"),
-productsList: document.getElementById("productsList"),
-newProdName: document.getElementById("newProdName"),
-newProdType: document.getElementById("newProdType"),
-newProdPrice: document.getElementById("newProdPrice"),
-newProdSeries: document.getElementById("newProdSeries"),
-newProdImages: document.getElementById("newProdImages"),   // ✅ الجديد
-newProdPreviewList: document.getElementById("newProdPreviewList"), // ✅ الجديد
-addProductBtn: document.getElementById("addProductBtn"),
-updateProductBtn: document.getElementById("updateProductBtn"),
-
-  discountRate: document.getElementById("discountRate"),
-  depositRate: document.getElementById("depositRate"),
-  saveDiscountBtn: document.getElementById("saveDiscountBtn"),
-
-  invoiceModal: document.getElementById("invoiceModal"),
-  invoiceBody: document.getElementById("invoiceBody"),
-  printInvoiceBtn: document.getElementById("printInvoiceBtn"),
-downloadPdfBtn: document.getElementById("downloadPdfBtn"),
-
-
-  // filters admin elements
-  filtersStages: document.getElementById("filtersStages"),
-  filtersGrades: document.getElementById("filtersGrades"),
-  filtersSubjects: document.getElementById("filtersSubjects"),
-  filtersSeries: document.getElementById("filtersSeries"),
-  newStage: document.getElementById("newStage"),
-  newGrade: document.getElementById("newGrade"),
-  newSubject: document.getElementById("newSubject"),
-  newSeries: document.getElementById("newSeries"),
-  addStageBtn: document.getElementById("addStageBtn"),
-  addGradeBtn: document.getElementById("addGradeBtn"),
-  addSubjectBtn: document.getElementById("addSubjectBtn"),
-  addSeriesBtn: document.getElementById("addSeriesBtn")
-};
-
-/* ---------- UTILITIES ---------- */
-function saveAll() {
-  localStorage.setItem("xy_products_v2", JSON.stringify(products));
-  localStorage.setItem("xy_filters_v2", JSON.stringify(filters));
-  localStorage.setItem("xy_discount_v2", JSON.stringify(discountSettings));
-}
-function showToast(msg, type = "info") {
-  const el = document.createElement("div");
-  el.textContent = msg;
-  el.style.cssText = "position:fixed;bottom:18px;left:18px;padding:10px 14px;border-radius:8px;color:#fff;z-index:99999";
-  el.style.background = type === "error" ? "#e74c3c" : (type === "success" ? "#27ae60" : "#3498db");
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 2200);
-}
-function formatCurrency(n) { return `${Number(n).toFixed(2)} ج.م`; }
-
-/* ---------- TRANSLATION APPLY ---------- */
-function applyTranslations() {
-  const t = T[currentLang];
-
-  // Main titles
-  if (refs.mainTitle) refs.mainTitle.textContent = t.mainTitle;
-  if (refs.filterTitle) refs.filterTitle.textContent = t.filterTitle;
-  if (refs.searchInput) refs.searchInput.placeholder = t.searchPlaceholder;
-
-  // Filter labels
-  if (document.getElementById("stageLbl")) document.getElementById("stageLbl").textContent = t.stageLbl;
-  if (document.getElementById("gradeLbl")) document.getElementById("gradeLbl").textContent = t.gradeLbl;
-  if (document.getElementById("subjectLbl")) document.getElementById("subjectLbl").textContent = t.subjectLbl;
-  if (document.getElementById("seriesLbl")) document.getElementById("seriesLbl").textContent = t.seriesLbl;
-
-  // Tabs (Books / Stationery)
-  if (refs.tabBooks) refs.tabBooks.textContent = t.booksTab;
-  if (refs.tabStationery) refs.tabStationery.textContent = t.stationeryTab;
-
-  // Cart section
-  if (refs.cartTitle) refs.cartTitle.textContent = t.cartTitle;
-  if (document.getElementById("lblSubtotalBooks")) document.getElementById("lblSubtotalBooks").textContent = t.subtotalBooks;
-  if (document.getElementById("lblSubtotalStationery")) document.getElementById("lblSubtotalStationery").textContent = t.subtotalStationery;
-  if (document.getElementById("lblSubtotalAll")) document.getElementById("lblSubtotalAll").textContent = t.subtotalAll;
-  if (document.getElementById("lblTotalDiscount")) document.getElementById("lblTotalDiscount").textContent = t.totalDiscount;
-  if (document.getElementById("lblDepositAmount")) document.getElementById("lblDepositAmount").textContent = t.depositAmount;
-  if (document.getElementById("lblGrandTotal")) document.getElementById("lblGrandTotal").textContent = t.grandTotal;
-  if (document.getElementById("lblRemainAmount")) document.getElementById("lblRemainAmount").textContent = t.remainAmount;
-
-  if (refs.btnInvoice) refs.btnInvoice.textContent = t.invoice;
-  if (refs.btnClear) refs.btnClear.textContent = t.clearCart;
-
-  // Login + Settings
-  if (document.getElementById("loginTitle")) document.getElementById("loginTitle").textContent = t.loginTitle;
-  if (document.getElementById("settingsTitle")) document.getElementById("settingsTitle").textContent = t.settingsTitle;
-
-  // Settings Tabs (Products / Filters / Discount)
-  if (document.getElementById("productsTabBtn")) document.getElementById("productsTabBtn").textContent = t.productsTab;
-  if (document.getElementById("filtersTabBtn")) document.getElementById("filtersTabBtn").textContent = t.filtersTab;
-  if (document.getElementById("discountTabBtn")) document.getElementById("discountTabBtn").textContent = t.discountTab;
-
-  // Discount labels
-  if (document.getElementById("discountLbl")) document.getElementById("discountLbl").textContent = t.totalDiscount;
-  if (document.getElementById("depositLbl")) document.getElementById("depositLbl").textContent = t.depositAmount;
-  if (document.getElementById("saveDiscountBtn")) document.getElementById("saveDiscountBtn").textContent = t.saveDiscount;
-
-  // Invoice section
-  if (document.getElementById("invoiceTitle")) document.getElementById("invoiceTitle").textContent = t.invoiceTitle;
-  if (refs.printInvoiceBtn) refs.printInvoiceBtn.textContent = t.print;
-  if (refs.downloadPdfBtn) refs.downloadPdfBtn.innerHTML = `<i class="fas fa-file-pdf"></i> ${t.pdf}`;
-
-  // Customer form (labels + placeholders)
-  if (document.querySelector("label[for='custName']")) document.querySelector("label[for='custName']").textContent = t.parentName;
-  if (document.querySelector("label[for='custPhone']")) document.querySelector("label[for='custPhone']").textContent = t.phone;
-  if (document.querySelector("label[for='custAddress']")) document.querySelector("label[for='custAddress']").textContent = t.address;
-  if (document.querySelector("label[for='paymentMethod']")) document.querySelector("label[for='paymentMethod']").textContent = t.payment;
-
-  if (refs.custName) refs.custName.placeholder = t.enterName;
-  if (refs.custPhone) refs.custPhone.placeholder = t.phoneEx;
-  if (refs.custAddress) refs.custAddress.placeholder = t.addressEx;
-
-  // Payment options
-  const paySel = document.getElementById("paymentMethod");
-  if (paySel) {
-    const instapayOpt = paySel.querySelector("option[value='instapay']");
-    const codOpt = paySel.querySelector("option[value='cod']");
-    if (instapayOpt) instapayOpt.textContent = t.paymentInstapay;
-    if (codOpt) codOpt.textContent = t.paymentCOD;
-  }
-}
-
-/* ---------- Language toggle ---------- */
-refs.langToggle.addEventListener("click", () => {
-  currentLang = currentLang === "ar" ? "en" : "ar";
-  applyTranslations();
-});
-
-/* First call */
-applyTranslations();
-
-
-/* ---------- POPULATE FILTER SELECTS ---------- */
-function populateFilterSelects() {
-  function fill(selectEl, arr) {
-    if (!selectEl) return;
-    const allText = currentLang === "ar" ? "الكل" : "All";
-    selectEl.innerHTML = `<option value="">${allText}</option>` + arr.map(v => `<option value="${v}">${v}</option>`).join("");
-  }
-  fill(refs.stageSelect, filters.stages);
-  fill(refs.gradeSelect, filters.grades);
-  fill(refs.subjectSelect, filters.subjects);
-  fill(refs.seriesSelect, filters.series);
-}
-populateFilterSelects();
-
-/* ---------- RENDER PRODUCTS (with + / - buttons) ---------- */
-function renderProducts() {
-  refs.booksGrid.innerHTML = "";
-  refs.stationeryGrid.innerHTML = "";
-
-  const search = (refs.searchInput.value || "").trim().toLowerCase();
-  const stage = refs.stageSelect.value;
-  const grade = refs.gradeSelect.value;
-  const subject = refs.subjectSelect.value;
-  const seriesSel = refs.seriesSelect.value;
-
-  products.forEach(p => {
-    if (search && !p.name.toLowerCase().includes(search)) return;
-    if (p.type === "book") {
-      if ((stage && p.stage !== stage) || (grade && p.grade !== grade) || (subject && p.subject !== subject) || (seriesSel && p.series !== seriesSel)) return;
+    /* ---------- دوال Firebase ---------- */
+    async function loadDataFromFirebase() {
+      try {
+        // تحميل المنتجات
+        const productsSnapshot = await db.collection("products").get();
+        products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // تحميل الفلاتر
+        const filtersDoc = await db.collection("settings").doc("filters").get();
+        if (filtersDoc.exists) {
+          filters = filtersDoc.data();
+        }
+        
+        // تحميل إعدادات الخصم
+        const discountDoc = await db.collection("settings").doc("discount").get();
+        if (discountDoc.exists) {
+          discountSettings = discountDoc.data();
+        }
+        
+        // بعد تحميل البيانات، نحدث الواجهة
+        renderProducts();
+        populateFilterSelects();
+        renderCart();
+        
+        console.log("تم تحميل البيانات من Firebase");
+      } catch (error) {
+        console.error("خطأ في تحميل البيانات من Firebase:", error);
+        // في حالة الخطأ، نستخدم البيانات المحلية
+        loadFromLocalStorage();
+      }
     }
 
-    const card = document.createElement("div");
-    card.className = "product-card";
-    const imgSrc = (p.images && p.images.length) ? p.images[0] : "https://via.placeholder.com/300x200?text=No+Image";
-    card.innerHTML = `
-      <img class="product-image" src="${imgSrc}" alt="${p.name}">
-      <div style="margin-top:8px;font-weight:800">${p.name}</div>
-      <div class="product-meta" style="font-size:13px;color:#666;margin-top:6px">
-        ${p.type === "book" ? `${p.stage || ""} ${p.grade ? " | " + p.grade : ""} ${p.subject ? " | " + p.subject : ""}` : (p.category || "")}
-      </div>
-      <div class="product-footer">
-        <div style="font-weight:800">${formatCurrency(p.price)}</div>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-outline btn-decrease" data-id="${p.id}">${T[currentLang].decrease}</button>
-          <button class="btn btn-primary btn-increase" data-id="${p.id}">${T[currentLang].increase}</button>
-        </div>
-      </div>
-    `;
+    async function saveAllToFirebase() {
+      try {
+        // حفظ المنتجات
+        const batch = db.batch();
+        const productsRef = db.collection("products");
+        
+        // حذف جميع المنتجات الحالية أولاً
+        const snapshot = await productsRef.get();
+        snapshot.docs.forEach(doc => {
+          batch.delete(doc.ref);
+        });
+        
+        // إضافة المنتجات الجديدة
+        products.forEach(product => {
+          // تأكد من أن ال id هو نص وليس رقم
+          const docRef = productsRef.doc(product.id.toString());
+          
+          // إنشاء نسخة من المنتج بدون خاصية id
+          const { id, ...productData } = product;
+          batch.set(docRef, productData);
+        });
+        
+        await batch.commit();
+        
+        // حفظ الفلاتر
+        await db.collection("settings").doc("filters").set(filters);
+        
+        // حفظ إعدادات الخصم
+        await db.collection("settings").doc("discount").set(discountSettings);
+        
+        console.log("تم حفظ البيانات في Firebase");
+        showToast("تم حفظ البيانات في السحابة", "success");
+        return true;
+      } catch (error) {
+        console.error("خطأ في حفظ البيانات في Firebase:", error);
+        showToast("خطأ في الحفظ على السحابة", "error");
+        throw error;
+      }
+    }
 
-    card.querySelector(".btn-increase").addEventListener("click", (e) => { addToCart(p.id); });
-    card.querySelector(".btn-decrease").addEventListener("click", (e) => { decreaseCartQty(p.id); });
+    function setupRealtimeListeners() {
+      // الاستماع لتحديثات المنتجات
+      db.collection("products").onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+          if (change.type === "added" || change.type === "modified") {
+            const productData = { id: change.doc.id, ...change.doc.data() };
+            const index = products.findIndex(p => p.id == productData.id);
+            
+            if (index !== -1) {
+              products[index] = productData;
+            } else {
+              products.push(productData);
+            }
+          } else if (change.type === "removed") {
+            products = products.filter(p => p.id != change.doc.id);
+          }
+        });
+        
+        renderProducts();
+      });
 
-    if (p.type === "book") refs.booksGrid.appendChild(card); else refs.stationeryGrid.appendChild(card);
-  });
-}
+      // الاستماع لتحديثات الفلاتر
+      db.collection("settings").doc("filters").onSnapshot(doc => {
+        if (doc.exists) {
+          filters = doc.data();
+          populateFilterSelects();
+        }
+      });
 
-/* ---------- CART FUNCTIONS & CALCULATIONS ---------- */
-function addToCart(id) {
-  const prod = products.find(x => x.id === id);
-  if (!prod) return;
-  const it = cart.find(c => c.id === id);
-  if (it) it.qty += 1; else cart.push({ ...prod, qty: 1 });
-  renderCart();
-}
-function decreaseCartQty(id) {
-  const it = cart.find(c => c.id === id);
-  if (!it) return;
-  it.qty -= 1;
-  if (it.qty <= 0) cart = cart.filter(c => c.id !== id);
-  renderCart();
-}
-function removeFromCart(id) {
-  cart = cart.filter(c => c.id !== id);
-  renderCart();
-}
+      // الاستماع لتحديثات إعدادات الخصم
+      db.collection("settings").doc("discount").onSnapshot(doc => {
+        if (doc.exists) {
+          discountSettings = doc.data();
+          renderCart();
+        }
+      });
+    }
 
-function renderCart() {
-  refs.cartItems.innerHTML = "";
+    // دوال النسخ الاحتياطي المحلي
+    function saveToLocalStorage() {
+      localStorage.setItem("xy_products_v2", JSON.stringify(products));
+      localStorage.setItem("xy_filters_v2", JSON.stringify(filters));
+      localStorage.setItem("xy_discount_v2", JSON.stringify(discountSettings));
+    }
+
+    function loadFromLocalStorage() {
+      const savedProducts = JSON.parse(localStorage.getItem("xy_products_v2"));
+      const savedFilters = JSON.parse(localStorage.getItem("xy_filters_v2"));
+      const savedDiscount = JSON.parse(localStorage.getItem("xy_discount_v2"));
+      
+      if (savedProducts) products = savedProducts;
+      if (savedFilters) filters = savedFilters;
+      if (savedDiscount) discountSettings = savedDiscount;
+      
+      renderProducts();
+      populateFilterSelects();
+      renderCart();
+    }
+
+    // تعديل دالة saveAll لاستخدام Firebase
+    function saveAll() {
+      // حفظ في Firebase أولاً
+      saveAllToFirebase().then(() => {
+        // ثم حفظ نسخة احتياطية محلياً
+        saveToLocalStorage();
+      }).catch(error => {
+        console.error("خطأ في الحفظ على Firebase:", error);
+        // في حالة الخطأ، نحفظ محلياً فقط
+        saveToLocalStorage();
+      });
+    }
+    /* ---------- TRANSLATIONS ---------- */
+    const T = {
+      ar: {
+        pageTitle: "نظام XY لإدارة الطلبات",
+        mainTitle: "نظام XY",
+        langText: "English",
+        filterTitle: "خيارات البحث والتصفية",
+        searchPlaceholder: "ابحث باسم المنتج...",
+        stageLbl: "المرحلة",
+        gradeLbl: "الصف",
+        subjectLbl: "المادة",
+        seriesLbl: "السلسلة",
+        booksTab: "كتب خارجية",
+        stationeryTab: "أدوات مكتبية",
+        cartTitle: "سلة المشتريات",
+        parentName: "اسم ولي الأمر",
+        enterName: "أدخل الاسم الكامل",
+        phone: "رقم الهاتف",
+        phoneEx: "مثال: 20123456789",
+        address: "العنوان",
+        addressEx: "المدينة / المنطقة",
+        payment: "طريقة الدفع",
+        paymentInstapay: "انستاباي",
+        paymentCOD: "عند الاستلام",
+        subtotalBooks: "إجمالي الكتب:",
+        subtotalStationery: "إجمالي الأدوات:",
+        subtotalAll: "المجموع قبل الخصم:",
+        totalDiscount: "قيمة الخصم:",
+        depositAmount: "المقدم:",
+        grandTotal: "الإجمالي النهائي:",
+        remainAmount: "المتبقي عند الاستلام:",
+        invoice: "فاتورة",
+        export: "تصدير CSV",
+        clearCart: "تفريغ",
+        loginTitle: "تسجيل الدخول",
+        settingsTitle: "إعدادات الإدارة",
+        productsTab: "المنتجات",
+        discountTab: "الخصم",
+        addProd: "إضافة",
+        updateProd: "تحديث",
+        refreshProd: "تحديث العرض",
+        saveDiscount: "حفظ",
+        loginWrong: "بيانات الدخول غير صحيحة",
+        productAdded: "تم إضافة المنتج",
+        productUpdated: "تم تحديث المنتج",
+        productRemoved: "تم حذف المنتج",
+        filtersSaved: "تم حفظ الفلاتر",
+        csvSaved: "تم تنزيل CSV",
+        invoiceTitle: "فاتورة الطلب",
+        print: "طباعة",
+        pdf: "تحميل pdf",
+        whatsapp: "إرسال واتساب",
+        cartEmpty: "السلة فارغة",
+        confirmClearCart: "هل تريد تفريغ السلة؟",
+        increase: "+",
+        decrease: "-",
+        deleted: "تم الحذف",
+        enterPhone: "أدخل رقم الموبايل",
+        enterProdName: "ادخل اسم المنتج",
+        noEdit: "لا توجد عملية تعديل",
+      },
+      en: {
+        pageTitle: "XY Order System",
+        mainTitle: "XY System",
+        langText: "العربية",
+        filterTitle: "Search & Filters",
+        searchPlaceholder: "Search product name...",
+        stageLbl: "Stage",
+        gradeLbl: "Grade",
+        subjectLbl: "Subject",
+        seriesLbl: "Series",
+        booksTab: "Books",
+        stationeryTab: "Stationery",
+        cartTitle: "Shopping Cart",
+        parentName: "Parent Name",
+        enterName: "Enter full name",
+        phone: "Phone",
+        phoneEx: "Example: 20123456789",
+        address: "Address",
+        addressEx: "City / Area",
+        payment: "Payment Method",
+        paymentInstapay: "Instapay",
+        paymentCOD: "Cash on Delivery",
+        subtotalBooks: "Books Total:",
+        subtotalStationery: "Stationery Total:",
+        subtotalAll: "Subtotal:",
+        totalDiscount: "Discount:",
+        depositAmount: "Deposit:",
+        grandTotal: "Final Total:",
+        remainAmount: "Remaining:",
+        invoice: "Invoice",
+        export: "Export CSV",
+        clearCart: "Clear",
+        loginTitle: "Login",
+        settingsTitle: "Admin Settings",
+        productsTab: "Products",
+        discountTab: "Discount",
+        addProd: "Add",
+        updateProd: "Update",
+        refreshProd: "Refresh",
+        saveDiscount: "Save",
+        loginWrong: "Credentials incorrect",
+        productAdded: "Product added",
+        productUpdated: "Product updated",
+        productRemoved: "Product removed",
+        filtersSaved: "Filters saved",
+        csvSaved: "CSV downloaded",
+        invoiceTitle: "Order Invoice",
+        print: "Print",
+        pdf: "download pdf",
+        whatsapp: "Send WhatsApp",
+        cartEmpty: "Cart is empty",
+        confirmClearCart: "Clear cart?",
+        increase: "+",
+        decrease: "-",
+        deleted: "Deleted",
+        enterPhone: "Enter phone number",
+        enterProdName: "Enter product name",
+        noEdit: "No product selected",
+      }
+    };
+
+    /* ---------- DOM refs ---------- */
+    const refs = {
+      langToggle: document.getElementById("langToggle"),
+      mainTitle: document.getElementById("mainTitle"),
+      filterTitle: document.getElementById("filterTitle"),
+      searchInput: document.getElementById("searchInput"),
+      stageSelect: document.getElementById("stageSelect"),
+      gradeSelect: document.getElementById("gradeSelect"),
+      subjectSelect: document.getElementById("subjectSelect"),
+      seriesSelect: document.getElementById("seriesSelect"),
+      tabBooks: document.getElementById("tabBooks"),
+      tabStationery: document.getElementById("tabStationery"),
+      booksGrid: document.getElementById("booksGrid"),
+      stationeryGrid: document.getElementById("stationeryGrid"),
+
+      cartTitle: document.getElementById("cartTitle"),
+      custName: document.getElementById("custName"),
+      custPhone: document.getElementById("custPhone"),
+      custAddress: document.getElementById("custAddress"),
+      cartItems: document.getElementById("cartItems"),
+      subtotalBooks: document.getElementById("subtotalBooks"),
+      subtotalStationery: document.getElementById("subtotalStationery"),
+      subtotalAll: document.getElementById("subtotalAll"),
+      totalDiscount: document.getElementById("totalDiscount"),
+      depositAmount: document.getElementById("depositAmount"),
+      grandTotal: document.getElementById("grandTotal"),
+      remainAmount: document.getElementById("remainAmount"),
+
+      btnInvoice: document.getElementById("btnInvoice"),
+      btnClear: document.getElementById("btnClear"),
+
+      loginModal: document.getElementById("loginModal"),
+      loginSubmit: document.getElementById("loginSubmit"),
+      adminEmail: document.getElementById("adminEmail"),
+      adminPassword: document.getElementById("adminPassword"),
+
+      settingsModal: document.getElementById("settingsModal"),
+      settingsTabs: document.querySelectorAll(".settings-tab"),
+      settingsPanels: document.querySelectorAll(".settings-panel"),
+      productsList: document.getElementById("productsList"),
+      newProdName: document.getElementById("newProdName"),
+      newProdType: document.getElementById("newProdType"),
+      newProdPrice: document.getElementById("newProdPrice"),
+      newProdSeries: document.getElementById("newProdSeries"),
+      newProdImages: document.getElementById("newProdImages"),
+      newProdPreviewList: document.getElementById("newProdPreviewList"),
+      addProductBtn: document.getElementById("addProductBtn"),
+      updateProductBtn: document.getElementById("updateProductBtn"),
+
+      discountRate: document.getElementById("discountRate"),
+      depositRate: document.getElementById("depositRate"),
+      saveDiscountBtn: document.getElementById("saveDiscountBtn"),
+
+      invoiceModal: document.getElementById("invoiceModal"),
+      invoiceBody: document.getElementById("invoiceBody"),
+      printInvoiceBtn: document.getElementById("printInvoiceBtn"),
+      downloadPdfBtn: document.getElementById("downloadPdfBtn"),
+
+      // filters admin elements
+      filtersStages: document.getElementById("filtersStages"),
+      filtersGrades: document.getElementById("filtersGrades"),
+      filtersSubjects: document.getElementById("filtersSubjects"),
+      filtersSeries: document.getElementById("filtersSeries"),
+      newStage: document.getElementById("newStage"),
+      newGrade: document.getElementById("newGrade"),
+      newSubject: document.getElementById("newSubject"),
+      newSeries: document.getElementById("newSeries"),
+      addStageBtn: document.getElementById("addStageBtn"),
+      addGradeBtn: document.getElementById("addGradeBtn"),
+      addSubjectBtn: document.getElementById("addSubjectBtn"),
+      addSeriesBtn: document.getElementById("addSeriesBtn")
+    };
+
+    /* ---------- UTILITIES ---------- */
+    function showToast(msg, type = "info") {
+      const el = document.createElement("div");
+      el.textContent = msg;
+      el.style.cssText = "position:fixed;bottom:18px;left:18px;padding:10px 14px;border-radius:8px;color:#fff;z-index:99999";
+      el.style.background = type === "error" ? "#e74c3c" : (type === "success" ? "#27ae60" : "#3498db");
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2200);
+    }
+    
+    function formatCurrency(n) { 
+      return `${Number(n).toFixed(2)} ج.م`; 
+    }
+
+    // helper convert file -> base64
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    /* ---------- DEBOUNCE helper ---------- */
+    function debounce(fn, wait) {
+      let t;
+      return function (...args) {
+        clearTimeout(t);
+        t = setTimeout(() => fn.apply(this, args), wait);
+      };
+    }
+
+    /* ---------- TRANSLATION APPLY ---------- */
+    function applyTranslations() {
+      const t = T[currentLang];
+
+      // Main titles
+      if (refs.mainTitle) refs.mainTitle.textContent = t.mainTitle;
+      if (refs.filterTitle) refs.filterTitle.textContent = t.filterTitle;
+      if (refs.searchInput) refs.searchInput.placeholder = t.searchPlaceholder;
+
+      // Filter labels
+      if (document.getElementById("stageLbl")) document.getElementById("stageLbl").textContent = t.stageLbl;
+      if (document.getElementById("gradeLbl")) document.getElementById("gradeLbl").textContent = t.gradeLbl;
+      if (document.getElementById("subjectLbl")) document.getElementById("subjectLbl").textContent = t.subjectLbl;
+      if (document.getElementById("seriesLbl")) document.getElementById("seriesLbl").textContent = t.seriesLbl;
+
+      // Tabs (Books / Stationery)
+      if (refs.tabBooks) refs.tabBooks.textContent = t.booksTab;
+      if (refs.tabStationery) refs.tabStationery.textContent = t.stationeryTab;
+
+      // Cart section
+      if (refs.cartTitle) refs.cartTitle.textContent = t.cartTitle;
+      if (document.getElementById("lblSubtotalBooks")) document.getElementById("lblSubtotalBooks").textContent = t.subtotalBooks;
+      if (document.getElementById("lblSubtotalStationery")) document.getElementById("lblSubtotalStationery").textContent = t.subtotalStationery;
+      if (document.getElementById("lblSubtotalAll")) document.getElementById("lblSubtotalAll").textContent = t.subtotalAll;
+      if (document.getElementById("lblTotalDiscount")) document.getElementById("lblTotalDiscount").textContent = t.totalDiscount;
+      if (document.getElementById("lblDepositAmount")) document.getElementById("lblDepositAmount").textContent = t.depositAmount;
+      if (document.getElementById("lblGrandTotal")) document.getElementById("lblGrandTotal").textContent = t.grandTotal;
+      if (document.getElementById("lblRemainAmount")) document.getElementById("lblRemainAmount").textContent = t.remainAmount;
+
+      if (refs.btnInvoice) refs.btnInvoice.textContent = t.invoice;
+      if (refs.btnClear) refs.btnClear.textContent = t.clearCart;
+
+      // Login + Settings
+      if (document.getElementById("loginTitle")) document.getElementById("loginTitle").textContent = t.loginTitle;
+      if (document.getElementById("settingsTitle")) document.getElementById("settingsTitle").textContent = t.settingsTitle;
+
+      // Settings Tabs (Products / Filters / Discount)
+      const settingsTabs = document.querySelectorAll(".settings-tab");
+      if (settingsTabs[0]) settingsTabs[0].textContent = t.productsTab;
+      if (settingsTabs[1]) settingsTabs[1].textContent = t.discountTab;
+
+      // Discount labels
+      if (refs.saveDiscountBtn) refs.saveDiscountBtn.textContent = t.saveDiscount;
+
+      // Invoice section
+      if (document.getElementById("invoiceTitle")) document.getElementById("invoiceTitle").textContent = t.invoiceTitle;
+      if (refs.printInvoiceBtn) refs.printInvoiceBtn.textContent = t.print;
+      if (refs.downloadPdfBtn) refs.downloadPdfBtn.innerHTML = `<i class="fas fa-file-pdf"></i> ${t.pdf}`;
+
+      // Customer form (labels + placeholders)
+      if (document.querySelector("label[for='custName']")) document.querySelector("label[for='custName']").textContent = t.parentName;
+      if (document.querySelector("label[for='custPhone']")) document.querySelector("label[for='custPhone']").textContent = t.phone;
+      if (document.querySelector("label[for='custAddress']")) document.querySelector("label[for='custAddress']").textContent = t.address;
+      if (document.querySelector("label[for='paymentMethod']")) document.querySelector("label[for='paymentMethod']").textContent = t.payment;
+
+      if (refs.custName) refs.custName.placeholder = t.enterName;
+      if (refs.custPhone) refs.custPhone.placeholder = t.phoneEx;
+      if (refs.custAddress) refs.custAddress.placeholder = t.addressEx;
+
+      // Payment options
+      const paySel = document.getElementById("paymentMethod");
+      if (paySel) {
+        const instapayOpt = paySel.querySelector("option[value='instapay']");
+        const codOpt = paySel.querySelector("option[value='cod']");
+        if (instapayOpt) instapayOpt.textContent = t.paymentInstapay;
+        if (codOpt) codOpt.textContent = t.paymentCOD;
+      }
+    }
+
+    /* ---------- Language toggle ---------- */
+    refs.langToggle.addEventListener("click", () => {
+      currentLang = currentLang === "ar" ? "en" : "ar";
+      applyTranslations();
+    });
+
+    /* First call */
+    applyTranslations();
+
+    /* ---------- POPULATE FILTER SELECTS ---------- */
+    function populateFilterSelects() {
+      function fill(selectEl, arr) {
+        if (!selectEl) return;
+        const allText = currentLang === "ar" ? "الكل" : "All";
+        selectEl.innerHTML = `<option value="">${allText}</option>` + arr.map(v => `<option value="${v}">${v}</option>`).join("");
+      }
+      fill(refs.stageSelect, filters.stages);
+      fill(refs.gradeSelect, filters.grades);
+      fill(refs.subjectSelect, filters.subjects);
+      fill(refs.seriesSelect, filters.series);
+    }
+    /* ---------- RENDER PRODUCTS (with + / - buttons) ---------- */
+    function renderProducts() {
+      const booksGrid = document.getElementById("booksGrid");
+      const stationeryGrid = document.getElementById("stationeryGrid");
+      
+      if (!booksGrid || !stationeryGrid) {
+        console.error("عناصر الشبكة غير موجودة في DOM");
+        return;
+      }
+      
+      booksGrid.innerHTML = "";
+      stationeryGrid.innerHTML = "";
+
+      const search = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+      const stage = document.getElementById("stageSelect").value;
+      const grade = document.getElementById("gradeSelect").value;
+      const subject = document.getElementById("subjectSelect").value;
+      const seriesSel = document.getElementById("seriesSelect").value;
+
+      products.forEach(p => {
+        if (search && !p.name.toLowerCase().includes(search)) return;
+        if (p.type === "book") {
+          if ((stage && p.stage !== stage) || (grade && p.grade !== grade) || 
+              (subject && p.subject !== subject) || (seriesSel && p.series !== seriesSel)) return;
+        }
+
+        const card = document.createElement("div");
+        card.className = "product-card";
+        
+        // استخدام الصورة الأولى إذا كانت متاحة
+        const imgSrc = (p.images && p.images.length > 0) ? p.images[0] : "https://via.placeholder.com/300x200?text=No+Image";
+        
+        card.innerHTML = `
+          <img class="product-image" src="${imgSrc}" alt="${p.name}">
+          <div style="margin-top:8px;font-weight:800">${p.name}</div>
+          <div class="product-meta" style="font-size:13px;color:#666;margin-top:6px">
+            ${p.type === "book" ? `${p.stage || ""} ${p.grade ? " | " + p.grade : ""} ${p.subject ? " | " + p.subject : ""}` : (p.category || "")}
+          </div>
+          <div class="product-footer">
+            <div style="font-weight:800">${formatCurrency(p.price)}</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-outline btn-decrease" data-id="${p.id}">-</button>
+              <button class="btn btn-primary btn-increase" data-id="${p.id}">+</button>
+            </div>
+          </div>
+        `;
+
+        // إضافة مستمعي الأحداث للأزرار
+        card.querySelector(".btn-increase").addEventListener("click", (e) => { 
+          e.stopPropagation();
+          addToCart(p.id); 
+        });
+        
+        card.querySelector(".btn-decrease").addEventListener("click", (e) => { 
+          e.stopPropagation();
+          decreaseCartQty(p.id); 
+        });
+
+        // إضافة مستمع للنقر على البطاقة لعرض التفاصيل
+        card.addEventListener("click", () => {
+          showProductDetails(p);
+        });
+
+        if (p.type === "book") {
+          booksGrid.appendChild(card);
+        } else {
+          stationeryGrid.appendChild(card);
+        }
+      });
+    }
+
+    /* ---------- CART FUNCTIONS & CALCULATIONS ---------- */
+    function addToCart(id) {
+      const prod = products.find(x => x.id === id);
+      if (!prod) return;
+      const it = cart.find(c => c.id === id);
+      if (it) it.qty += 1; else cart.push({ ...prod, qty: 1 });
+      renderCart();
+    }
+    
+    function decreaseCartQty(id) {
+      const it = cart.find(c => c.id === id);
+      if (!it) return;
+      it.qty -= 1;
+      if (it.qty <= 0) cart = cart.filter(c => c.id !== id);
+      renderCart();
+    }
+    
+    function removeFromCart(id) {
+      cart = cart.filter(c => c.id !== id);
+      renderCart();
+    }
+
+   function renderCart() {
+  const cartItems = document.getElementById("cartItems");
+  if (!cartItems) return;
+
+  cartItems.innerHTML = "";
   let booksTotal = 0, stationeryTotal = 0;
+
   cart.forEach(item => {
     const row = document.createElement("div");
     row.className = "cart-item";
     row.innerHTML = `
-      <div style="max-width:60%"><strong>${item.name}</strong><div style="color:#666;font-size:13px">${item.qty} × ${formatCurrency(item.price)}</div></div>
+      <div style="max-width:60%"><strong>${item.name}</strong>
+        <div style="color:#666;font-size:13px">${item.qty} × ${formatCurrency(item.price)}</div>
+      </div>
       <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
         <div style="font-weight:800">${formatCurrency(item.qty * item.price)}</div>
         <div style="display:flex;gap:6px">
@@ -1041,470 +1212,513 @@ function renderCart() {
         </div>
       </div>
     `;
-    refs.cartItems.appendChild(row);
+    cartItems.appendChild(row);
 
     row.querySelector(".small-inc").addEventListener("click", () => { addToCart(item.id); });
     row.querySelector(".small-dec").addEventListener("click", () => { decreaseCartQty(item.id); });
     row.querySelector("[data-del]").addEventListener("click", () => { removeFromCart(item.id); });
 
-    if (item.type === "book") booksTotal += item.qty * item.price; else stationeryTotal += item.qty * item.price;
+    if (item.type === "book") booksTotal += item.qty * item.price;
+    else stationeryTotal += item.qty * item.price;
   });
 
+  // --- الحسابات ---
   const subtotal = booksTotal + stationeryTotal;
-  const discountValue = subtotal * (discountSettings.discountRate / 100);
+  const discountRate = parseFloat(discountSettings.discountRate) || 0;
+  const depositRate = parseFloat(discountSettings.depositRate) || 0;
+
+  const discountValue = subtotal > 0 ? subtotal * (discountRate / 100) : 0;
   const afterDiscount = Math.max(0, subtotal - discountValue);
-  const deposit = afterDiscount * (discountSettings.depositRate / 100);
+  const deposit = afterDiscount * (depositRate / 100);
   const remain = Math.max(0, afterDiscount - deposit);
 
-  refs.subtotalBooks.textContent = formatCurrency(booksTotal);
-  refs.subtotalStationery.textContent = formatCurrency(stationeryTotal);
-  refs.subtotalAll.textContent = formatCurrency(subtotal);
-  refs.totalDiscount.textContent = formatCurrency(discountValue);
-  refs.depositAmount.textContent = formatCurrency(deposit);
-  refs.grandTotal.textContent = formatCurrency(afterDiscount);
-  refs.remainAmount.textContent = formatCurrency(remain);
+  // --- تحديث الواجهة ---
+  document.getElementById("subtotalBooks").textContent = formatCurrency(booksTotal);
+  document.getElementById("subtotalStationery").textContent = formatCurrency(stationeryTotal);
+  document.getElementById("subtotalAll").textContent = formatCurrency(subtotal);
+  document.getElementById("totalDiscount").textContent = formatCurrency(discountValue);
+  document.getElementById("depositAmount").textContent = formatCurrency(deposit);
+  document.getElementById("grandTotal").textContent = formatCurrency(afterDiscount);
+  document.getElementById("remainAmount").textContent = formatCurrency(remain);
 
-  refs.btnInvoice.disabled = cart.length === 0;
+  const btnInvoice = document.getElementById("btnInvoice");
+  if (btnInvoice) btnInvoice.disabled = cart.length === 0;
 }
 
-/* ---------- TAB NAVIGATION (Books / Stationery) ---------- */
-refs.tabBooks.addEventListener("click", () => {
-  refs.tabBooks.classList.add("active");
-  refs.tabStationery.classList.remove("active");
-  refs.booksGrid.style.display = "grid";
-  refs.stationeryGrid.style.display = "none";
-});
-refs.tabStationery.addEventListener("click", () => {
-  refs.tabStationery.classList.add("active");
-  refs.tabBooks.classList.remove("active");
-  refs.stationeryGrid.style.display = "grid";
-  refs.booksGrid.style.display = "none";
-});
 
-/* ---------- SEARCH / FILTER LISTENERS ---------- */
-[refs.searchInput, refs.stageSelect, refs.gradeSelect, refs.subjectSelect, refs.seriesSelect].forEach(el => {
-  if (!el) return;
-  el.addEventListener("input", debounce(renderProducts, 180));
-  el.addEventListener("change", renderProducts);
-});
-
-/* ---------- DEBOUNCE helper ---------- */
-function debounce(fn, wait) {
-  let t;
-  return function (...args) {
-    clearTimeout(t);
-    t = setTimeout(() => fn.apply(this, args), wait);
-  };
-}
-
-/* ---------- LOGIN & SETTINGS ---------- */
-refs.btnClear.addEventListener("click", () => {
-  if (cart.length === 0) { showToast(T[currentLang].cartEmpty, "info"); return; }
-  if (!confirm(T[currentLang].confirmClearCart)) return;
-  cart = [];
-  renderCart();
-});
-
-refs.btnInvoice.addEventListener("click", () => { openInvoiceModal(); });
-
-refs.btnInvoice.disabled = true; // initially
-
-document.getElementById("btnSettings").addEventListener("click", () => {
-  refs.adminEmail.value = "";
-  refs.adminPassword.value = "";
-  refs.loginModal.classList.add("show");
-});
-
-refs.loginSubmit.addEventListener("click", () => {
-  const e = (refs.adminEmail.value || "").trim();
-  const p = (refs.adminPassword.value || "").trim();
-  if (e === ADMIN.email && p === ADMIN.password) {
-    refs.loginModal.classList.remove("show");
-    refs.settingsModal.classList.add("show");
-    onSettingsOpen();
-  } else {
-    showToast(T[currentLang].loginWrong, "error");
-  }
-});
-
-refs.settingsTabs.forEach(btn => {
-  btn.addEventListener("click", () => {
-    refs.settingsTabs.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    refs.settingsPanels.forEach(p => p.classList.remove("active"));
-    const target = btn.dataset.tab;
-    const panel = document.getElementById(target);
-    if (panel) panel.classList.add("active");
-  });
-});
-
-document.querySelectorAll(".modal .close").forEach(btn => {
-  btn.addEventListener("click", (e) => {
-    const modal = btn.closest(".modal");
-    if (modal) modal.classList.remove("show");
-  });
-});
-
-/* ---------- ADMIN: Products management (add / edit / delete + image upload) ---------- */
-let editingProductId = null;
-
-// render admin list
-function renderProductsAdmin() {
-  refs.productsList.innerHTML = "";
-  products.forEach(p => {
-    const row = document.createElement("div");
-    row.style = "display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid #444";
-
-    // لو فيه صور، نعرضهم في Scroll صغير
-    let imagesHTML = "";
-    if (p.images && p.images.length) {
-      imagesHTML = `
-        <div style="display:flex;gap:4px;overflow-x:auto;max-width:150px;padding:2px">
-          ${p.images.map(img => `<img src="${img}" class="xy-thumb" alt="">`).join("")}
-        </div>
-      `;
-    } else {
-      imagesHTML = `<img src="https://via.placeholder.com/80" class="xy-thumb" alt="">`;
-    }
-
-    row.innerHTML = `
-      <div style="display:flex;gap:8px;align-items:center">
-        ${imagesHTML}
-        <div>
-          <strong>${p.name}</strong>
-          <div style="font-size:12px;color:#aaa">
-            ${p.type === 'book' 
-              ? (p.stage ? p.stage + " | " : "") + (p.grade ? p.grade + " | " : "") + (p.subject ? p.subject : "") 
-              : (p.category || "")}
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <div style="font-weight:800">${formatCurrency(p.price)}</div>
-        <button class="btn btn-outline" data-edit="${p.id}"><i class="fas fa-edit"></i></button>
-        <button class="btn btn-outline" data-del="${p.id}"><i class="fas fa-trash"></i></button>
-      </div>`;
-
-    refs.productsList.appendChild(row);
-
-    row.querySelector("[data-edit]").addEventListener("click", () => startEditProduct(p.id));
-    row.querySelector("[data-del]").addEventListener("click", () => {
-      if (!confirm(T[currentLang].deleted + "؟")) return;
-      products = products.filter(x => x.id !== p.id);
-      saveAll(); 
-      renderProducts(); 
-      renderProductsAdmin(); 
-      showToast(T[currentLang].productRemoved, "success");
+    /* ---------- TAB NAVIGATION (Books / Stationery) ---------- */
+    refs.tabBooks.addEventListener("click", () => {
+      refs.tabBooks.classList.add("active");
+      refs.tabStationery.classList.remove("active");
+      refs.booksGrid.style.display = "grid";
+      refs.stationeryGrid.style.display = "none";
     });
-  });
-}
-
-
-// start editing product
-function startEditProduct(id) {
-  const p = products.find(x => x.id === id); if (!p) return;
-  editingProductId = id;
-  refs.newProdName.value = p.name || "";
-  refs.newProdType.value = p.type || "book";
-  refs.newProdPrice.value = p.price || 0;
-  refs.newProdSeries.value = p.series || p.category || "";
-
-  refs.newProdPreviewList.innerHTML = "";
-  if (p.images && p.images.length) {
-    p.images.forEach(imgSrc => {
-      const img = document.createElement("img");
-      img.src = imgSrc;
- img.classList.add("preview-thumb");
-      refs.newProdPreviewList.appendChild(img);
+    
+    refs.tabStationery.addEventListener("click", () => {
+      refs.tabStationery.classList.add("active");
+      refs.tabBooks.classList.remove("active");
+      refs.stationeryGrid.style.display = "grid";
+      refs.booksGrid.style.display = "none";
     });
-  }
-  // show settings modal if not open
-  refs.settingsModal.classList.add("show");
-}
 
-// preview new images immediately when selected (before saving)
-refs.newProdImages.addEventListener("change", (e) => {
-  refs.newProdPreviewList.innerHTML = "";
-  const files = e.target.files;
-  for (let file of files) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = document.createElement("img");
-      img.src = reader.result;
-      img.classList.add("preview-thumb");
-      refs.newProdPreviewList.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-  }
-});
+    /* ---------- SEARCH / FILTER LISTENERS ---------- */
+    [refs.searchInput, refs.stageSelect, refs.gradeSelect, refs.subjectSelect, refs.seriesSelect].forEach(el => {
+      if (!el) return;
+      el.addEventListener("input", debounce(renderProducts, 180));
+      el.addEventListener("change", renderProducts);
+    });
 
+    /* ---------- LOGIN & SETTINGS ---------- */
+    refs.btnClear.addEventListener("click", () => {
+      if (cart.length === 0) { showToast(T[currentLang].cartEmpty, "info"); return; }
+      if (!confirm(T[currentLang].confirmClearCart)) return;
+      cart = [];
+      renderCart();
+    });
 
-// helper convert file -> base64
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
+    refs.btnInvoice.addEventListener("click", () => { openInvoiceModal(); });
 
-// add product (wait for all images converted)
-refs.addProductBtn.addEventListener("click", async () => {
-  const name = (refs.newProdName.value || "").trim();
-  const type = refs.newProdType.value;
-  const price = parseFloat(refs.newProdPrice.value) || 0;
-  const seriesOrCat = (refs.newProdSeries.value || "").trim();
+    refs.btnInvoice.disabled = true; // initially
 
-  if (!name) { showToast(T[currentLang].enterProdName, "error"); return; }
+    document.getElementById("btnSettings").addEventListener("click", () => {
+      refs.adminEmail.value = "";
+      refs.adminPassword.value = "";
+      refs.loginModal.classList.add("show");
+    });
 
-  let imagesData = [];
-  if (refs.newProdImages.files.length > 0) {
-    imagesData = await Promise.all(Array.from(refs.newProdImages.files).map(file => fileToBase64(file)));
-  }
-
-  const id = Date.now();
-  const item = type === "book"
-    ? { id, type: "book", name, price, stage: filters.stages[0] || "", grade: filters.grades[0] || "", subject: filters.subjects[0] || "", series: seriesOrCat, images: imagesData }
-    : { id, type: "stationery", name, price, category: seriesOrCat, images: imagesData };
-
-  products.push(item);
-  saveAll();
-  renderProducts();      // show on client immediately
-  renderProductsAdmin();
-
-  // reset form
-  refs.newProdName.value = "";
-  refs.newProdPrice.value = "";
-  refs.newProdSeries.value = "";
-  refs.newProdImages.value = "";
-  refs.newProdPreviewList.innerHTML = "";
-  showToast(T[currentLang].productAdded, "success");
-});
-
-// update product
-refs.updateProductBtn.addEventListener("click", async () => {
-  if (!editingProductId) { showToast(T[currentLang].noEdit, "error"); return; }
-  const p = products.find(x => x.id === editingProductId); if (!p) return;
-
-  p.name = (refs.newProdName.value || "").trim();
-  p.type = refs.newProdType.value;
-  p.price = parseFloat(refs.newProdPrice.value) || 0;
-  p.series = (refs.newProdSeries.value || "").trim();
-
-  if (refs.newProdImages.files.length > 0) {
-    p.images = await Promise.all(Array.from(refs.newProdImages.files).map(file => fileToBase64(file)));
-  }
-
-  saveAll();
-  renderProducts(); renderProductsAdmin();
-
-  editingProductId = null;
-  refs.newProdName.value = "";
-  refs.newProdPrice.value = "";
-  refs.newProdSeries.value = "";
-  refs.newProdImages.value = "";
-  refs.newProdPreviewList.innerHTML = "";
-  showToast(T[currentLang].productUpdated, "success");
-});
-function renderProducts() {
-  const grid = document.querySelector(".products-grid");
-  grid.innerHTML = "";
-
-  products.forEach(p => {
-    // صور المنتج (Scrollable)
-    let imagesHTML = "";
-    if (p.images && p.images.length) {
-      imagesHTML = `
-        <div style="display:flex;gap:4px;overflow-x:auto;max-width:100%;padding:2px">
-          ${p.images.map(img => `<img src="${img}" class="product-image" style="width:120px;height:80px;object-fit:cover;border-radius:6px">`).join("")}
-        </div>
-      `;
-    } else {
-      imagesHTML = `<img src="https://via.placeholder.com/300x200?text=No+Image" class="product-image">`;
-    }
-
-    const card = document.createElement("div");
-    card.className = "product-card";
-    card.innerHTML = `
-      ${imagesHTML}
-      <h3>${p.name}</h3>
-      <div class="product-footer">
-        <div>${formatCurrency(p.price)}</div>
-        <button class="btn btn-primary" data-add="${p.id}"><i class="fas fa-cart-plus"></i></button>
-      </div>
-    `;
-
-    // عند الضغط على الكارت يفتح تفاصيل المنتج (Modal)
-    card.addEventListener("click", (e) => {
-      if (!e.target.closest("button")) { // عشان ما يتداخلش مع زرار الإضافة
-        openProductDetails(p);
+    refs.loginSubmit.addEventListener("click", () => {
+      const e = (refs.adminEmail.value || "").trim();
+      const p = (refs.adminPassword.value || "").trim();
+      if (e === ADMIN.email && p === ADMIN.password) {
+        refs.loginModal.classList.remove("show");
+        refs.settingsModal.classList.add("show");
+        onSettingsOpen();
+      } else {
+        showToast(T[currentLang].loginWrong, "error");
       }
     });
 
-    grid.appendChild(card);
-
-    // زر إضافة للسلة
-    card.querySelector("[data-add]").addEventListener("click", () => {
-      addToCart(p.id);
-    });
-  });
-}
-
-
-/* ---------- ADMIN: Filters management (add / delete) ---------- */
-function renderFiltersAdmin() {
-  function renderList(containerEl, arr, type) {
-    containerEl.innerHTML = "";
-    arr.forEach((item, i) => {
-      const div = document.createElement("div");
-      div.style = "display:flex;justify-content:space-between;align-items:center;margin:6px 0;padding:6px;border:1px solid #eee;border-radius:6px";
-      div.innerHTML = `<span>${item}</span><button class="btn btn-outline" data-del="${type}-${i}"><i class="fas fa-trash"></i></button>`;
-      containerEl.appendChild(div);
-      div.querySelector("[data-del]").addEventListener("click", () => {
-        filters[type].splice(i, 1);
-        saveAll();
-        renderFiltersAdmin();
-        populateFilterSelects();
-        showToast(T[currentLang].filtersSaved, "success");
+    refs.settingsTabs.forEach(btn => {
+      btn.addEventListener("click", () => {
+        refs.settingsTabs.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        refs.settingsPanels.forEach(p => p.classList.remove("active"));
+        const target = btn.dataset.tab;
+        const panel = document.getElementById(target);
+        if (panel) panel.classList.add("active");
       });
     });
-  }
-  renderList(refs.filtersStages, filters.stages, "stages");
-  renderList(refs.filtersGrades, filters.grades, "grades");
-  renderList(refs.filtersSubjects, filters.subjects, "subjects");
-  renderList(refs.filtersSeries, filters.series, "series");
-}
 
-refs.addStageBtn.addEventListener("click", () => {
-  const val = (refs.newStage.value || "").trim();
-  if (!val) return;
-  if (!filters.stages.includes(val)) filters.stages.push(val);
-  refs.newStage.value = "";
-  saveAll(); renderFiltersAdmin(); populateFilterSelects();
-  showToast(T[currentLang].filtersSaved, "success");
-});
-refs.addGradeBtn.addEventListener("click", () => {
-  const val = (refs.newGrade.value || "").trim();
-  if (!val) return;
-  if (!filters.grades.includes(val)) filters.grades.push(val);
-  refs.newGrade.value = "";
-  saveAll(); renderFiltersAdmin(); populateFilterSelects();
-  showToast(T[currentLang].filtersSaved, "success");
-});
-refs.addSubjectBtn.addEventListener("click", () => {
-  const val = (refs.newSubject.value || "").trim();
-  if (!val) return;
-  if (!filters.subjects.includes(val)) filters.subjects.push(val);
-  refs.newSubject.value = "";
-  saveAll(); renderFiltersAdmin(); populateFilterSelects();
-  showToast(T[currentLang].filtersSaved, "success");
-});
-refs.addSeriesBtn.addEventListener("click", () => {
-  const val = (refs.newSeries.value || "").trim();
-  if (!val) return;
-  if (!filters.series.includes(val)) filters.series.push(val);
-  refs.newSeries.value = "";
-  saveAll(); renderFiltersAdmin(); populateFilterSelects();
-  showToast(T[currentLang].filtersSaved, "success");
-});
-
-/* ---------- ADMIN: Discount save ---------- */
-refs.saveDiscountBtn.addEventListener("click", () => {
-  discountSettings.discountRate = parseFloat(refs.discountRate.value) || 0;
-  discountSettings.depositRate = parseFloat(refs.depositRate.value) || 0;
-  saveAll();
-  renderCart();
-  showToast(T[currentLang].saveDiscount, "success");
-});
-
-/* ---------- INVOICE / PDF ---------- */
-
-function openInvoiceModal() {
-  if (cart.length === 0) { showToast(T[currentLang].cartEmpty, "info"); return; }
-  let html = `<p><strong>${T[currentLang].invoiceTitle}</strong></p>`;
-  html += `<p><strong>${T[currentLang].parentName || "Client"}:</strong> ${refs.custName.value || "-" }<br>`;
-  html += `<strong>${T[currentLang].phone || "Phone"}:</strong> ${refs.custPhone.value || "-" }<br>`;
-  html += `<strong>${T[currentLang].address || "Address"}:</strong> ${refs.custAddress.value || "-" }</p>`;
-  html += `<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f0f0f0"><th style="padding:6px;border:1px solid #eee">المنتج</th><th style="padding:6px;border:1px solid #eee">الكمية</th><th style="padding:6px;border:1px solid #eee">السعر</th><th style="padding:6px;border:1px solid #eee">الإجمالي</th></tr></thead><tbody>`;
-  cart.forEach(i => {
-    html += `<tr><td style="padding:6px;border:1px solid #eee">${i.name}</td><td style="padding:6px;border:1px solid #eee">${i.qty}</td><td style="padding:6px;border:1px solid #eee">${formatCurrency(i.price)}</td><td style="padding:6px;border:1px solid #eee">${formatCurrency(i.qty * i.price)}</td></tr>`;
-  });
-  html += `</tbody></table>`;
-  html += `<p><strong>${T[currentLang].subtotalAll}</strong> ${refs.subtotalAll.textContent}<br>`;
-  html += `<strong>${T[currentLang].totalDiscount}</strong> ${refs.totalDiscount.textContent}<br>`;
-  html += `<strong>${T[currentLang].grandTotal}</strong> ${refs.grandTotal.textContent}<br>`;
-  html += `<strong>${T[currentLang].depositAmount}</strong> ${refs.depositAmount.textContent}<br>`;
-  html += `<strong>${T[currentLang].remainAmount}</strong> ${refs.remainAmount.textContent}</p>`;
-
-  refs.invoiceBody.innerHTML = html;
-  refs.invoiceModal.classList.add("show");
-}
-refs.printInvoiceBtn.addEventListener("click", () => window.print());
-refs.downloadPdfBtn.addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const invoiceElement = document.getElementById("invoiceModal");
-  html2canvas(invoiceElement, { scale: 2 }).then(canvas => {
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "pt", "a4");
-    const imgWidth = 595;
-    const pageHeight = 842;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-    }
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    if (isIOS) {
-      const pdfUrl = pdf.output("bloburl");
-      window.open(pdfUrl, "_blank");
-    } else {
-      const pdfBlob = pdf.output("blob");
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(pdfBlob);
-      link.download = "invoice.pdf";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-    }
-  });
-});
-
-/* ---------- SETTINGS OPEN initial sync ---------- */
-function onSettingsOpen() {
-  renderProductsAdmin();
-  refs.discountRate.value = discountSettings.discountRate;
-  refs.depositRate.value = discountSettings.depositRate;
-  renderFiltersAdmin();
-}
-
-/* ---------- INITIALIZATION ---------- */
-function init() {
-  applyTranslations();
-  populateFilterSelects();
-  renderProducts();
-  renderCart();
-  document.querySelectorAll(".modal .close").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      const modal = btn.closest(".modal");
-      if (modal) modal.classList.remove("show");
+    document.querySelectorAll(".modal .close").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const modal = btn.closest(".modal");
+        if (modal) modal.classList.remove("show");
+      });
     });
-  });
-}
-init();
 
-/* ---------- expose some helpers for inline onclicks if needed ---------- */
-window.addToCart = addToCart;
-window.decreaseQty = decreaseCartQty;
+    /* ---------- ADMIN: Products management (add / edit / delete + image upload) ---------- */
 
-/* ---------- End of script ---------- */
-</script>
+    // =============================
+    // Render Admin List
+    // =============================
+    function renderProductsAdmin() {
+      const productsList = document.getElementById("productsList");
+      if (!productsList) return;
+      
+      productsList.innerHTML = "";
+
+      products.forEach(p => {
+        const item = document.createElement("div");
+        item.style.cssText = "padding:10px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center";
+        
+        item.innerHTML = `
+          <div>
+            <strong>${p.name}</strong> - ${formatCurrency(p.price)}
+            <div style="font-size:12px;color:#666">${p.type === 'book' ? 'كتاب' : 'أداة مكتبية'}</div>
+          </div>
+          <div>
+            <button class="btn btn-outline" data-edit="${p.id}">تعديل</button>
+            <button class="btn btn-danger" data-delete="${p.id}">حذف</button>
+          </div>
+        `;
+        
+        productsList.appendChild(item);
+
+        item.querySelector(`[data-edit="${p.id}"]`).addEventListener("click", () => {
+          startEditProduct(p.id);
+        });
+        
+        item.querySelector(`[data-delete="${p.id}"]`).addEventListener("click", () => {
+          if (confirm("هل تريد حذف هذا المنتج؟")) {
+            products = products.filter(prod => prod.id !== p.id);
+            saveAll();
+            renderProductsAdmin();
+            showToast(T[currentLang].productRemoved, "success");
+          }
+        });
+      });
+    }
+
+    // =============================
+    // Start Editing Product
+    // =============================
+    function startEditProduct(id) {
+      const p = products.find(x => x.id === id); 
+      if (!p) return;
+
+      editingProductId = id;
+      refs.newProdName.value = p.name || "";
+      refs.newProdType.value = p.type || "book";
+      refs.newProdPrice.value = p.price || 0;
+
+      if (p.type === "book") {
+        refs.newProdSeries.value = p.series || "";
+      } else if (p.type === "stationery") {
+        refs.newProdSeries.value = p.category || "";
+      } else {
+        refs.newProdSeries.value = "";
+      }
+
+      refs.newProdPreviewList.innerHTML = "";
+      if (p.images && p.images.length) {
+        p.images.forEach(imgSrc => {
+          const img = document.createElement("img");
+          img.src = imgSrc;
+          img.classList.add("preview-thumb");
+          refs.newProdPreviewList.appendChild(img);
+        });
+      }
+
+      refs.settingsModal.classList.add("show");
+    }
+
+    // =============================
+    // Preview new images immediately
+    // =============================
+    refs.newProdImages.addEventListener("change", (e) => {
+      refs.newProdPreviewList.innerHTML = "";
+      const files = e.target.files;
+      for (let file of files) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = document.createElement("img");
+          img.src = reader.result;
+          img.classList.add("preview-thumb");
+          refs.newProdPreviewList.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // =============================
+    // Product Details Modal
+    // =============================
+    function showProductDetails(product) {
+      const container = document.getElementById("productDetails");
+      container.innerHTML = `
+        <h2>${product.name}</h2>
+        <div class="product-details-images">
+          ${(product.images || []).map(img => `<img src="${img}">`).join("")}
+        </div>
+        <div class="product-info">
+          <p><strong>السعر:</strong> ${formatCurrency(product.price)}</p>
+          ${product.type === "book" ? `
+            <p><strong>المرحلة:</strong> ${product.stage || ""}</p>
+            <p><strong>الصف:</strong> ${product.grade || ""}</p>
+            <p><strong>المادة:</strong> ${product.subject || ""}</p>
+            <p><strong>السلسلة:</strong> ${product.series || ""}</p>
+          ` : `
+            <p><strong>التصنيف:</strong> ${product.category || ""}</p>
+          `}
+        </div>
+      `;
+      document.getElementById("productModal").classList.add("show");
+    }
+
+    document.getElementById("closeProductModal").addEventListener("click", () => {
+      document.getElementById("productModal").classList.remove("show");
+    });
+
+    // =============================
+    // Add Product
+    // =============================
+    refs.addProductBtn.addEventListener("click", async () => {
+      const name = (refs.newProdName.value || "").trim();
+      const type = refs.newProdType.value;
+      const price = parseFloat(refs.newProdPrice.value) || 0;
+      const seriesOrCat = (refs.newProdSeries.value || "").trim();
+
+      if (!name) { showToast(T[currentLang].enterProdName, "error"); return; }
+
+      let imagesData = [];
+      if (refs.newProdImages.files.length > 0) {
+        imagesData = await Promise.all(Array.from(refs.newProdImages.files).map(file => fileToBase64(file)));
+      }
+
+      const id = Date.now().toString();
+      const item = type === "book"
+        ? { id, type: "book", name, price, stage: filters.stages[0] || "", grade: filters.grades[0] || "", subject: filters.subjects[0] || "", series: seriesOrCat, images: imagesData }
+        : { id, type: "stationery", name, price, category: seriesOrCat, images: imagesData };
+
+      products.push(item);
+      saveAll();
+      renderProducts();      
+      renderProductsAdmin();
+
+      refs.newProdName.value = "";
+      refs.newProdPrice.value = "";
+      refs.newProdSeries.value = "";
+      refs.newProdImages.value = "";
+      refs.newProdPreviewList.innerHTML = "";
+      showToast(T[currentLang].productAdded, "success");
+    });
+
+    // =============================
+    // Update Product
+    // =============================
+    refs.updateProductBtn.addEventListener("click", async () => {
+      if (!editingProductId) { showToast(T[currentLang].noEdit, "error"); return; }
+      const p = products.find(x => x.id === editingProductId); 
+      if (!p) return;
+
+      p.name = (refs.newProdName.value || "").trim();
+      p.type = refs.newProdType.value;
+      p.price = parseFloat(refs.newProdPrice.value) || 0;
+
+      if (p.type === "book") {
+        p.series = (refs.newProdSeries.value || "").trim();
+      } else if (p.type === "stationery") {
+        p.category = (refs.newProdSeries.value || "").trim();
+      }
+
+      if (refs.newProdImages.files.length > 0) {
+        p.images = await Promise.all(Array.from(refs.newProdImages.files).map(file => fileToBase64(file)));
+      }
+
+      saveAll();
+      renderProducts(); 
+      renderProductsAdmin();
+
+      editingProductId = null;
+      refs.newProdName.value = "";
+      refs.newProdPrice.value = "";
+      refs.newProdSeries.value = "";
+      refs.newProdImages.value = "";
+      refs.newProdPreviewList.innerHTML = "";
+      showToast(T[currentLang].productUpdated, "success");
+    });
+
+    /* ---------- ADMIN: Filters management (add / delete) ---------- */
+    function renderFiltersAdmin() {
+      function renderList(containerEl, arr, type) {
+        containerEl.innerHTML = "";
+        arr.forEach((item, i) => {
+          const div = document.createElement("div");
+          div.style = "display:flex;justify-content:space-between;align-items:center;margin:6px 0;padding:6px;border:1px solid #eee;border-radius:6px";
+          div.innerHTML = `<span>${item}</span><button class="btn btn-outline" data-del="${type}-${i}"><i class="fas fa-trash"></i></button>`;
+          containerEl.appendChild(div);
+          div.querySelector("[data-del]").addEventListener("click", () => {
+            filters[type].splice(i, 1);
+            saveAll();
+            renderFiltersAdmin();
+            populateFilterSelects();
+            showToast(T[currentLang].filtersSaved, "success");
+          });
+        });
+      }
+      renderList(refs.filtersStages, filters.stages, "stages");
+      renderList(refs.filtersGrades, filters.grades, "grades");
+      renderList(refs.filtersSubjects, filters.subjects, "subjects");
+      renderList(refs.filtersSeries, filters.series, "series");
+    }
+
+    refs.addStageBtn.addEventListener("click", () => {
+      const val = (refs.newStage.value || "").trim();
+      if (!val) return;
+      if (!filters.stages.includes(val)) filters.stages.push(val);
+      refs.newStage.value = "";
+      saveAll(); 
+      renderFiltersAdmin(); 
+      populateFilterSelects();
+      showToast(T[currentLang].filtersSaved, "success");
+    });
+    
+    refs.addGradeBtn.addEventListener("click", () => {
+      const val = (refs.newGrade.value || "").trim();
+      if (!val) return;
+      if (!filters.grades.includes(val)) filters.grades.push(val);
+      refs.newGrade.value = "";
+      saveAll(); 
+      renderFiltersAdmin(); 
+      populateFilterSelects();
+      showToast(T[currentLang].filtersSaved, "success");
+    });
+    
+    refs.addSubjectBtn.addEventListener("click", () => {
+      const val = (refs.newSubject.value || "").trim();
+      if (!val) return;
+      if (!filters.subjects.includes(val)) filters.subjects.push(val);
+      refs.newSubject.value = "";
+      saveAll(); 
+      renderFiltersAdmin(); 
+      populateFilterSelects();
+      showToast(T[currentLang].filtersSaved, "success");
+    });
+    
+    refs.addSeriesBtn.addEventListener("click", () => {
+      const val = (refs.newSeries.value || "").trim();
+      if (!val) return;
+      if (!filters.series.includes(val)) filters.series.push(val);
+      refs.newSeries.value = "";
+      saveAll(); 
+      renderFiltersAdmin(); 
+      populateFilterSelects();
+      showToast(T[currentLang].filtersSaved, "success");
+    });
+
+    /* ---------- ADMIN: Discount save ---------- */
+    refs.saveDiscountBtn.addEventListener("click", () => {
+      discountSettings.discountRate = parseFloat(refs.discountRate.value) || 0;
+      discountSettings.depositRate = parseFloat(refs.depositRate.value) || 0;
+      saveAll();
+      renderCart();
+      showToast(T[currentLang].saveDiscount, "success");
+    });
+
+    /* ---------- INVOICE / PDF ---------- */
+    function openInvoiceModal() {
+      if (cart.length === 0) { showToast(T[currentLang].cartEmpty, "info"); return; }
+      let html = `<p><strong>${T[currentLang].invoiceTitle}</strong></p>`;
+      html += `<p><strong>${T[currentLang].parentName || "Client"}:</strong> ${refs.custName.value || "-" }<br>`;
+      html += `<strong>${T[currentLang].phone || "Phone"}:</strong> ${refs.custPhone.value || "-" }<br>`;
+      html += `<strong>${T[currentLang].address || "Address"}:</strong> ${refs.custAddress.value || "-" }</p>`;
+      html += `<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f0f0f0"><th style="padding:6px;border:1px solid #eee">المنتج</th><th style="padding:6px;border:1px solid #eee">الكمية</th><th style="padding:6px;border:1px solid #eee">السعر</th><th style="padding:6px;border:1px solid #eee">الإجمالي</th></tr></thead><tbody>`;
+      cart.forEach(i => {
+        html += `<tr><td style="padding:6px;border:1px solid #eee">${i.name}</td><td style="padding:6px;border:1px solid #eee">${i.qty}</td><td style="padding:6px;border:1px solid #eee">${formatCurrency(i.price)}</td><td style="padding:6px;border:1px solid #eee">${formatCurrency(i.qty * i.price)}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+      html += `<p><strong>${T[currentLang].subtotalAll}</strong> ${refs.subtotalAll.textContent}<br>`;
+      html += `<strong>${T[currentLang].totalDiscount}</strong> ${refs.totalDiscount.textContent}<br>`;
+      html += `<strong>${T[currentLang].grandTotal}</strong> ${refs.grandTotal.textContent}<br>`;
+      html += `<strong>${T[currentLang].depositAmount}</strong> ${refs.depositAmount.textContent}<br>`;
+      html += `<strong>${T[currentLang].remainAmount}</strong> ${refs.remainAmount.textContent}</p>`;
+
+      refs.invoiceBody.innerHTML = html;
+      refs.invoiceModal.classList.add("show");
+    }
+    
+    refs.printInvoiceBtn.addEventListener("click", () => window.print());
+    
+    refs.downloadPdfBtn.addEventListener("click", () => {
+      const { jsPDF } = window.jspdf;
+      const invoiceElement = document.getElementById("invoiceModal");
+      html2canvas(invoiceElement, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "pt", "a4");
+        const imgWidth = 595;
+        const pageHeight = 842;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        if (isIOS) {
+          const pdfUrl = pdf.output("bloburl");
+          window.open(pdfUrl, "_blank");
+        } else {
+          const pdfBlob = pdf.output("blob");
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(pdfBlob);
+          link.download = "invoice.pdf";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(link.href);
+        }
+      });
+    });
+
+    /* ---------- SETTINGS OPEN initial sync ---------- */
+    function onSettingsOpen() {
+      renderProductsAdmin();
+      refs.discountRate.value = discountSettings.discountRate;
+      refs.depositRate.value = discountSettings.depositRate;
+      renderFiltersAdmin();
+    }
+
+    /* ---------- INITIALIZATION ---------- */
+    async function init() {
+      applyTranslations();
+      populateFilterSelects();
+      
+      try {
+        // تحميل البيانات من Firebase
+        await loadDataFromFirebase();
+        console.log("تم التحميل من Firebase");
+      } catch (error) {
+        console.error("خطأ في التحميل من Firebase:", error);
+        // في حالة الخطأ، نستخدم البيانات المحلية
+        loadFromLocalStorage();
+        console.log("تم التحميل من التخزين المحلي");
+        showToast("يعمل في الوضع غير المتصل", "info");
+      }
+      
+      renderProducts();
+      renderCart();
+      
+      // إعداد مستمعي الأحداث
+      document.querySelectorAll(".modal .close").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const modal = btn.closest(".modal");
+          if (modal) modal.classList.remove("show");
+        });
+      });
+      
+      // إعداد مستمعي البحث والتصفية
+      const searchInput = document.getElementById("searchInput");
+      const stageSelect = document.getElementById("stageSelect");
+      const gradeSelect = document.getElementById("gradeSelect");
+      const subjectSelect = document.getElementById("subjectSelect");
+      const seriesSelect = document.getElementById("seriesSelect");
+      
+      if (searchInput) searchInput.addEventListener("input", debounce(renderProducts, 300));
+      if (stageSelect) stageSelect.addEventListener("change", renderProducts);
+      if (gradeSelect) gradeSelect.addEventListener("change", renderProducts);
+      if (subjectSelect) subjectSelect.addEventListener("change", renderProducts);
+      if (seriesSelect) seriesSelect.addEventListener("change", renderProducts);
+      
+      // إعداد تبويبات الكتب والأدوات المكتبية
+      const tabBooks = document.getElementById("tabBooks");
+      const tabStationery = document.getElementById("tabStationery");
+      
+      if (tabBooks && tabStationery) {
+        tabBooks.addEventListener("click", () => {
+          tabBooks.classList.add("active");
+          tabStationery.classList.remove("active");
+          document.getElementById("booksGrid").style.display = "grid";
+          document.getElementById("stationeryGrid").style.display = "none";
+        });
+        
+        tabStationery.addEventListener("click", () => {
+          tabStationery.classList.add("active");
+          tabBooks.classList.remove("active");
+          document.getElementById("stationeryGrid").style.display = "grid";
+          document.getElementById("booksGrid").style.display = "none";
+        });
+      }
+    }
+
+    // بدء التهيئة
+    init();
+
+    /* ---------- نهاية السكربت ---------- */
+  </script>
 </body>
 </html>
