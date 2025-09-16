@@ -620,7 +620,7 @@
        XY System - JavaScript مع دعم Firebase
        ========================= */
 
-    const ADMIN = { email: "admin@example.com", password: "1234" };
+
     let currentLang = "ar";
 
     /* ---------- البيانات (سيتم تحميلها من Firebase) ---------- */
@@ -1289,13 +1289,17 @@
     refs.loginSubmit.addEventListener("click", () => {
       const e = (refs.adminEmail.value || "").trim();
       const p = (refs.adminPassword.value || "").trim();
-      if (e === ADMIN.email && p === ADMIN.password) {
-        refs.loginModal.classList.remove("show");
-        refs.settingsModal.classList.add("show");
-        onSettingsOpen();
-      } else {
-        showToast(T[currentLang].loginWrong, "error");
-      }
+   firebase.auth().signInWithEmailAndPassword(e, p)
+  .then(userCred => {
+    refs.loginModal.classList.remove("show");
+    refs.settingsModal.classList.add("show");
+    onSettingsOpen();
+  })
+  .catch(err => {
+    showToast(T[currentLang].loginWrong, "error");
+    console.error(err);
+  });
+
     });
 
     refs.settingsTabs.forEach(btn => {
@@ -1628,20 +1632,24 @@
           pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
           heightLeft -= pageHeight;
         }
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        if (isIOS) {
-          const pdfUrl = pdf.output("bloburl");
-          window.open(pdfUrl, "_blank");
-        } else {
-          const pdfBlob = pdf.output("blob");
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(pdfBlob);
-          link.download = "invoice.pdf";
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(link.href);
-        }
+       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+const isMobile = /Android/i.test(navigator.userAgent);
+
+if (isIOS || isMobile) {
+  // افتح الفاتورة في نافذة جديدة
+  const pdfUrl = pdf.output("bloburl");
+  window.open(pdfUrl, "_blank");
+} else {
+  // تحميل مباشر على الكمبيوتر
+  const pdfBlob = pdf.output("blob");
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(pdfBlob);
+  link.download = "invoice.pdf";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
+}
       });
     });
 
