@@ -1614,29 +1614,53 @@
     }
     
     refs.printInvoiceBtn.addEventListener("click", () => window.print());
-    
-    refs.downloadPdfBtn.addEventListener("click", () => {
+refs.downloadPdfBtn.addEventListener("click", () => {
   const pdf = new jspdf.jsPDF("p", "pt", "a4");
+
   pdf.html(refs.invoiceBody, {
     callback: function (pdf) {
+      const pdfBlob = pdf.output("blob");
+      const file = new File([pdfBlob], "invoice.pdf", { type: "application/pdf" });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-      if (navigator.share) {
-      navigator.share({
-        title: "فاتورة الشراء",
-        text: "هذه نسخة الفاتورة الخاصة بك",
-        url: pdfUrl
-      }).catch(err => {
-        console.error("فشل في المشاركة:", err);
-        alert("لم يتم إرسال الفاتورة.");
-      });
-    } else {
-      // fallback لو جهاز قديم
-      window.open(pdfUrl, "_blank");
-    }
+      if (isMobile && navigator.share) {
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          // 📱 موبايلات حديثة → مشاركة كملف PDF
+          navigator.share({
+            title: "فاتورة الشراء",
+            text: "هذه نسخة الفاتورة الخاصة بك",
+            files: [file]
+          }).catch(err => {
+            console.error("فشل في المشاركة:", err);
+            window.open(pdfUrl, "_blank"); // fallback
+          });
+        } else {
+          // 📱 موبايلات قديمة → مشاركة اللينك فقط
+          navigator.share({
+            title: "فاتورة الشراء",
+            text: "رابط الفاتورة:",
+            url: pdfUrl
+          }).catch(err => {
+            console.error("فشل في المشاركة:", err);
+            window.open(pdfUrl, "_blank"); // fallback
+          });
+        }
+      } else {
+        // 🖥️ الكمبيوتر → تنزيل PDF
+        const link = document.createElement("a");
+        link.href = pdfUrl;
+        link.download = "invoice.pdf";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(pdfUrl);
+      }
     }
   });
 });
+
 
     /* ---------- SETTINGS OPEN initial sync ---------- */
     function onSettingsOpen() {
