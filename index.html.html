@@ -1654,32 +1654,30 @@
     // =============================
     // NEW: WhatsApp Sharing
     // =============================
-    refs.whatsappBtn.addEventListener("click", () => {
-      if (cart.length === 0) {
-        showToast(T[currentLang].cartEmpty, "info");
-        return;
+    refs.downloadPdfBtn.addEventListener("click", () => {
+  const pdf = new jspdf.jsPDF("p", "pt", "a4");
+  pdf.html(refs.invoiceBody, {
+    callback: function (pdf) {
+      const pdfBlob = pdf.output("blob");
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      // ✅ على الموبايل: افتح في نافذة جديدة
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        window.open(pdfUrl, "_blank");
+      } else {
+        // ✅ على الكمبيوتر: نزّل مباشرة
+        const link = document.createElement("a");
+        link.href = pdfUrl;
+        link.download = "invoice.pdf";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(pdfUrl);
       }
-      
-      const phone = refs.custPhone.value || "";
-      let message = `*${T[currentLang].invoiceTitle}*\n\n`;
-      message += `*${T[currentLang].parentName}:* ${refs.custName.value || "-"}\n`;
-      message += `*${T[currentLang].phone}:* ${phone}\n`;
-      message += `*${T[currentLang].address}:* ${refs.custAddress.value || "-"}\n\n`;
-      message += `*${T[currentLang].grandTotal}:* ${refs.grandTotal.textContent}\n`;
-      message += `*${T[currentLang].depositAmount}:* ${refs.depositAmount.textContent}\n`;
-      message += `*${T[currentLang].remainAmount}:* ${refs.remainAmount.textContent}\n\n`;
-      
-      // إضافة المنتجات
-      message += "*المنتجات:*\n";
-      cart.forEach(item => {
-        message += `- ${item.name} (${item.qty} × ${formatCurrency(item.price)})\n`;
-      });
-      
-      const encodedMessage = encodeURIComponent(message);
-      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-      
-      window.open(whatsappUrl, '_blank');
-    });
+    }
+  });
+});
+
 
     /* ---------- SETTINGS OPEN initial sync ---------- */
     function onSettingsOpen() {
