@@ -615,6 +615,38 @@
       firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.firestore();
+// كود الدولة الثابت
+const COUNTRY_CODE = "20"; // مصر
+
+// رقمك على واتساب مع كود الدولة
+const ADMIN_WHATSAPP = "201143717677"; // غيره برقمك الحقيقي
+
+// رفع الفاتورة إلى Firebase Storage
+async function uploadInvoiceToFirebase() {
+  const pdf = new jspdf.jsPDF("p", "pt", "a4");
+
+  return new Promise((resolve, reject) => {
+    pdf.html(refs.invoiceBody, {
+      callback: async function (pdf) {
+        try {
+          const pdfBlob = pdf.output("blob");
+          const storageRef = firebase.storage().ref();
+          const fileName = `invoices/invoice_${Date.now()}.pdf`;
+          const invoiceRef = storageRef.child(fileName);
+
+          // رفع الملف
+          await invoiceRef.put(pdfBlob);
+
+          // جلب رابط التحميل
+          const url = await invoiceRef.getDownloadURL();
+          resolve(url);
+        } catch (err) {
+          reject(err);
+        }
+      }
+    });
+  });
+}
 
     /* =========================
        XY System - JavaScript مع دعم Firebase
@@ -1612,102 +1644,55 @@
     }
     
     refs.printInvoiceBtn.addEventListener("click", () => window.print());
-    refs.downloadPdfBtn.addEventListener("click", async () => {
-  const { jsPDF } = window.jspdf;
-  
-  // إنشاء PDF مع محتوى نصي بدلاً من صورة (أفضل للهواتف)
-  const pdf = new jsPDF();
-  
-  // إضافة محتوى الفاتورة كنص
-  pdf.setFontSize(18);
-  pdf.text(T[currentLang].invoiceTitle, 105, 15, { align: 'center' });
-  
-  pdf.setFontSize(12);
-  pdf.text(`${T[currentLang].parentName}: ${refs.custName.value || "-"}`, 14, 25);
-  pdf.text(`${T[currentLang].phone}: ${refs.custPhone.value || "-"}`, 14, 32);
-  pdf.text(`${T[currentLang].address}: ${refs.custAddress.value || "-"}`, 14, 39);
-  
-  // إضافة جدول المنتجات
-  let yPosition = 50;
-  pdf.text("المنتج", 14, yPosition);
-  pdf.text("الكمية", 100, yPosition);
-  pdf.text("السعر", 130, yPosition);
-  pdf.text("الإجمالي", 160, yPosition);
-  
-  yPosition += 7;
-  cart.forEach(item => {
-    if (yPosition > 270) {
-      pdf.addPage();
-      yPosition = 20;
-    }
-    
-    pdf.text(item.name.substring(0, 20), 14, yPosition);
-    pdf.text(item.qty.toString(), 100, yPosition);
-    pdf.text(formatCurrency(item.price), 130, yPosition);
-    pdf.text(formatCurrency(item.qty * item.price), 160, yPosition);
-    yPosition += 7;
-  });
-  
-  yPosition += 7;
-  pdf.text(`${T[currentLang].subtotalAll}: ${refs.subtotalAll.textContent}`, 14, yPosition);
-  yPosition += 7;
-  pdf.text(`${T[currentLang].totalDiscount}: ${refs.totalDiscount.textContent}`, 14, yPosition);
-  yPosition += 7;
-  pdf.text(`${T[currentLang].grandTotal}: ${refs.grandTotal.textContent}`, 14, yPosition);
-  yPosition += 7;
-  pdf.text(`${T[currentLang].depositAmount}: ${refs.depositAmount.textContent}`, 14, yPosition);
-  yPosition += 7;
-  pdf.text(`${T[currentLang].remainAmount}: ${refs.remainAmount.textContent}`, 14, yPosition);
-  
-  // حفظ الملف مع معالجة خاصة للهواتف
-  try {
-    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-      // iOS - فتح في نافذة جديدة
-      const pdfBlob = pdf.output('blob');
-      const url = URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
-    } else {
-      // Android والأجهزة الأخرى - تحميل مباشر
-      pdf.save('invoice.pdf');
-    }
-  } catch (error) {
-    console.error("خطأ في إنشاء PDF:", error);
-    // بديل: استخدام html2canvas إذا فشل الطريقة الأولى
+  refs.printInvoiceBtn.addEventListener("click", () => window.print());
+
+// ⬇️ الكود الجديد هنا
+async function handleInvoiceAction() {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    // ====== على الموبايل → واتساب ======
     try {
-      const invoiceElement = document.getElementById("invoiceModal");
-      const canvas = await html2canvas(invoiceElement, { scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
-      
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 295; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      let heightLeft = imgHeight;
-      let position = 0;
-      
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+      const url = await uploadInvoiceToFirebase();
+
+      // تجهيز رقم العميل مع كود الدولة
+      let customerPhone = refs.custPhone.value.trim();
+      if (customerPhone.startsWith("0")) {
+        customerPhone = customerPhone.substring(1);
       }
-      
-      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-        const pdfUrl = pdf.output('bloburl');
-        window.open(pdfUrl, '_blank');
-      } else {
-        pdf.save('invoice.pdf');
-      }
-    } catch (fallbackError) {
-      console.error("خطأ في النسخ الاحتياطي لإنشاء PDF:", fallbackError);
-      showToast("تعذر إنشاء الفاتورة. حاول مرة أخرى.", "error");
+      customerPhone = COUNTRY_CODE + customerPhone;
+
+      const customerName = refs.custName.value || "عميل";
+
+      // الرسالة اللي هتتبعت
+      const msg = encodeURIComponent(
+        `📩 فاتورة جديدة من ${customerName}\nرقم العميل: ${customerPhone}\nرابط الفاتورة: ${url}`
+      );
+
+      // فتح واتساب مباشر على رقمك
+      window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`, "_blank");
+
+    } catch (err) {
+      console.error("خطأ في رفع الفاتورة:", err);
+      showToast("فشل إرسال الفاتورة", "error");
     }
+
+  } else {
+    // ====== على الكمبيوتر → تحميل PDF ======
+    const pdf = new jspdf.jsPDF("p", "pt", "a4");
+    pdf.html(refs.invoiceBody, {
+      callback: function (pdf) {
+        pdf.save("invoice.pdf");
+      }
+    });
   }
+}
+
+// ربط الزر
+refs.downloadPdfBtn.addEventListener("click", () => {
+  handleInvoiceAction();
 });
+
 
     /* ---------- SETTINGS OPEN initial sync ---------- */
     function onSettingsOpen() {
