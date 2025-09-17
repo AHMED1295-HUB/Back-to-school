@@ -1689,7 +1689,55 @@
         pdf.text(`${T[currentLang].depositAmount}: ${refs.depositAmount.textContent}`, 160, yPosition, { align: 'right' });
         yPosition += 10;
         pdf.text(`${T[currentLang].remainAmount}: ${refs.remainAmount.textContent}`, 160, yPosition, { align: 'right' });
-        
+
+        async function shareInvoiceOnWhatsApp() {
+  const { jsPDF } = window.jspdf;
+  const invoiceElement = document.getElementById("invoiceModal");
+
+  // نعمل Capture للفاتورة
+  const canvas = await html2canvas(invoiceElement, { scale: 2 });
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF("p", "pt", "a4");
+  const imgWidth = 595;
+  const pageHeight = 842;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  // نحوله Blob
+  const pdfBlob = pdf.output("blob");
+
+  try {
+    // رفع على Firebase
+    const storageRef = firebase.storage().ref();
+    const fileName = `invoices/invoice_${Date.now()}.pdf`;
+    const invoiceRef = storageRef.child(fileName);
+    await invoiceRef.put(pdfBlob);
+    const url = await invoiceRef.getDownloadURL();
+
+    // فتح واتساب باللينك
+    const msg = encodeURIComponent(`📄 دي فاتورتك بصيغة PDF:\n${url}`);
+    window.open(`https://wa.me/?text=${msg}`, "_blank");
+  } catch (err) {
+    console.error("خطأ في مشاركة الفاتورة:", err);
+    showToast("فشل إرسال الفاتورة", "error");
+  }
+}
+
+// اربطه بزرار واتساب للموبايل
+if (/Mobi|Android/i.test(navigator.userAgent)) {
+  refs.downloadPdfBtn.textContent = "إرسال واتس آب";
+  refs.downloadPdfBtn.onclick = shareInvoiceOnWhatsApp;
+}
+
         // حفظ الملف مع معالجة خاصة للهواتف
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
           // iOS - فتح في نافذة جديدة
