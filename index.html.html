@@ -581,6 +581,8 @@
       <div style="margin-top:8px;display:flex;gap:6px">
         <button id="printInvoiceBtn" class="btn btn-primary">طباعة</button>
         <button id="downloadPdfBtn" class="btn btn-primary">تحميل PDF</button>
+<button id="shareInvoiceBtn" class="btn btn-primary">📤 مشاركة/تحميل الفاتورة</button>
+
       </div>
     </div>
   </div>
@@ -1590,53 +1592,59 @@
     });
 
     /* ---------- INVOICE / PDF ---------- */
-    function openInvoiceModal() {
-      if (cart.length === 0) { showToast(T[currentLang].cartEmpty, "info"); return; }
-      let html = `<p><strong>${T[currentLang].invoiceTitle}</strong></p>`;
-      html += `<p><strong>${T[currentLang].parentName || "Client"}:</strong> ${refs.custName.value || "-" }<br>`;
-      html += `<strong>${T[currentLang].phone || "Phone"}:</strong> ${refs.custPhone.value || "-" }<br>`;
-      html += `<strong>${T[currentLang].address || "Address"}:</strong> ${refs.custAddress.value || "-" }</p>`;
-      html += `<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#f0f0f0"><th style="padding:6px;border:1px solid #eee">المنتج</th><th style="padding:6px;border:1px solid #eee">الكمية</th><th style="padding:6px;border:1px solid #eee">السعر</th><th style="padding:6px;border:1px solid #eee">الإجمالي</th></tr></thead><tbody>`;
-      cart.forEach(i => {
-        html += `<tr><td style="padding:6px;border:1px solid #eee">${i.name}</td><td style="padding:6px;border:1px solid #eee">${i.qty}</td><td style="padding:6px;border:1px solid #eee">${formatCurrency(i.price)}</td><td style="padding:6px;border:1px solid #eee">${formatCurrency(i.qty * i.price)}</td></tr>`;
-      });
-      html += `</tbody></table>`;
-      html += `<p><strong>${T[currentLang].subtotalAll}</strong> ${refs.subtotalAll.textContent}<br>`;
-      html += `<strong>${T[currentLang].totalDiscount}</strong> ${refs.totalDiscount.textContent}<br>`;
-      html += `<strong>${T[currentLang].grandTotal}</strong> ${refs.grandTotal.textContent}<br>`;
-      html += `<strong>${T[currentLang].depositAmount}</strong> ${refs.depositAmount.textContent}<br>`;
-      html += `<strong>${T[currentLang].remainAmount}</strong> ${refs.remainAmount.textContent}</p>`;
+document.getElementById("shareInvoiceBtn").addEventListener("click", () => {
+  html2canvas(document.getElementById("invoiceModal"), { scale: 2 }).then(canvas => {
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "pt", "a4");
 
-      refs.invoiceBody.innerHTML = html;
-      refs.invoiceModal.classList.add("show");
+    const imgWidth = 595;
+    const pageHeight = 842;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
     }
-    
-    refs.printInvoiceBtn.addEventListener("click", () => window.print());
-    
-    refs.downloadPdfBtn.addEventListener("click", () => {
-  const pdf = new jspdf.jsPDF("p", "pt", "a4");
-  pdf.html(refs.invoiceBody, {
-    callback: function (pdf) {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-      if (isMobile) {
-        // افتح الفاتورة في نافذة جديدة للموبايل
-        const pdfUrl = pdf.output("bloburl");
-        window.open(pdfUrl, "_blank");
-      } else {
-        // تنزيل مباشر للكمبيوتر
-        const pdfBlob = pdf.output("blob");
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(pdfBlob);
-        link.download = "invoice.pdf";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-      }
+    const pdfBlob = pdf.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    // 🖥️ الكمبيوتر → تنزيل
+    if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      const link = document.createElement("a");
+      link.href = pdfUrl;
+      link.download = "invoice.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(pdfUrl);
+      return;
+    }
+
+    // 📱 الموبايل → مشاركة
+    if (navigator.share) {
+      navigator.share({
+        title: "فاتورة الشراء",
+        text: "هذه نسخة الفاتورة الخاصة بك",
+        url: pdfUrl
+      }).catch(err => {
+        console.error("فشل في المشاركة:", err);
+        alert("لم يتم إرسال الفاتورة.");
+      });
+    } else {
+      // fallback لو جهاز قديم
+      window.open(pdfUrl, "_blank");
     }
   });
 });
+
 
     /* ---------- SETTINGS OPEN initial sync ---------- */
     function onSettingsOpen() {
