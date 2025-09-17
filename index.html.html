@@ -1635,18 +1635,37 @@
     // =============================
     // NEW: Improved PDF Download for Mobile
     // =============================
-   refs.downloadPdfBtn.addEventListener("click", () => {
-  const pdf = new jspdf.jsPDF("p", "pt", "a4");
-  pdf.html(refs.invoiceBody, {
-    callback: function (pdf) {
-      const pdfBlob = pdf.output("blob");
+refs.downloadPdfBtn.addEventListener("click", () => {
+  html2canvas(refs.invoiceBody, {
+    scale: 2, // جودة أعلى
+    useCORS: true
+  }).then(canvas => {
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jspdf.jsPDF("p", "pt", "a4");
+
+    // مقاس الصفحة
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // أبعاد الصورة
+    const imgWidth = pageWidth;
+    const imgHeight = canvas.height * imgWidth / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+
+    const pdfBlob = pdf.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      window.open(pdfUrl, "_blank"); // على الموبايل يفتح في المتصفح
+    } else {
       const link = document.createElement("a");
-      link.href = URL.createObjectURL(pdfBlob);
+      link.href = pdfUrl;
       link.download = "invoice.pdf";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
+      URL.revokeObjectURL(pdfUrl);
     }
   });
 });
