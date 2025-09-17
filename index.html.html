@@ -1635,126 +1635,21 @@
     // =============================
     // NEW: Improved PDF Download for Mobile
     // =============================
-    refs.downloadPdfBtn.addEventListener("click", async () => {
-      try {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF();
-        
-        // إعداد المحتوى العربي
-        pdf.setFont("Helvetica");
-        
-        // عنوان الفاتورة
-        pdf.setFontSize(18);
-        pdf.text(T[currentLang].invoiceTitle, 105, 20, { align: 'center' });
-        
-        // معلومات العميل
-        pdf.setFontSize(12);
-        pdf.text(`${T[currentLang].parentName}: ${refs.custName.value || "-"}`, 20, 35);
-        pdf.text(`${T[currentLang].phone}: ${refs.custPhone.value || "-"}`, 20, 42);
-        pdf.text(`${T[currentLang].address}: ${refs.custAddress.value || "-"}`, 20, 49);
-        
-        // عناوين الجدول
-        pdf.setFillColor(64, 64, 64);
-        pdf.rect(20, 60, 170, 10, 'F');
-        pdf.setTextColor(255, 255, 255);
-        pdf.text("المنتج", 160, 67);
-        pdf.text("الكمية", 120, 67);
-        pdf.text("السعر", 90, 67);
-        pdf.text("الإجمالي", 50, 67);
-        
-        pdf.setTextColor(0, 0, 0);
-        let yPosition = 75;
-        
-        // عناصر الفاتورة
-        cart.forEach(item => {
-          if (yPosition > 250) {
-            pdf.addPage();
-            yPosition = 20;
-          }
-          
-          pdf.text(item.name.substring(0, 20), 160, yPosition, { align: 'right' });
-          pdf.text(item.qty.toString(), 120, yPosition);
-          pdf.text(formatCurrency(item.price), 90, yPosition);
-          pdf.text(formatCurrency(item.qty * item.price), 50, yPosition);
-          yPosition += 10;
-        });
-        
-        yPosition += 10;
-        pdf.text(`${T[currentLang].subtotalAll}: ${refs.subtotalAll.textContent}`, 160, yPosition, { align: 'right' });
-        yPosition += 10;
-        pdf.text(`${T[currentLang].totalDiscount}: ${refs.totalDiscount.textContent}`, 160, yPosition, { align: 'right' });
-        yPosition += 10;
-        pdf.text(`${T[currentLang].grandTotal}: ${refs.grandTotal.textContent}`, 160, yPosition, { align: 'right' });
-        yPosition += 10;
-        pdf.text(`${T[currentLang].depositAmount}: ${refs.depositAmount.textContent}`, 160, yPosition, { align: 'right' });
-        yPosition += 10;
-        pdf.text(`${T[currentLang].remainAmount}: ${refs.remainAmount.textContent}`, 160, yPosition, { align: 'right' });
-
-        async function shareInvoiceOnWhatsApp() {
-  const { jsPDF } = window.jspdf;
-  const invoiceElement = document.getElementById("invoiceModal");
-
-  // نعمل Capture للفاتورة
-  const canvas = await html2canvas(invoiceElement, { scale: 2 });
-  const imgData = canvas.toDataURL("image/png");
-  const pdf = new jsPDF("p", "pt", "a4");
-  const imgWidth = 595;
-  const pageHeight = 842;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  let heightLeft = imgHeight;
-  let position = 0;
-
-  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-  }
-
-  // نحوله Blob
-  const pdfBlob = pdf.output("blob");
-
-  try {
-    // رفع على Firebase
-    const storageRef = firebase.storage().ref();
-    const fileName = `invoices/invoice_${Date.now()}.pdf`;
-    const invoiceRef = storageRef.child(fileName);
-    await invoiceRef.put(pdfBlob);
-    const url = await invoiceRef.getDownloadURL();
-
-    // فتح واتساب باللينك
-    const msg = encodeURIComponent(`📄 دي فاتورتك بصيغة PDF:\n${url}`);
-    window.open(`https://wa.me/?text=${msg}`, "_blank");
-  } catch (err) {
-    console.error("خطأ في مشاركة الفاتورة:", err);
-    showToast("فشل إرسال الفاتورة", "error");
-  }
-}
-
-// اربطه بزرار واتساب للموبايل
-if (/Mobi|Android/i.test(navigator.userAgent)) {
-  refs.downloadPdfBtn.textContent = "إرسال واتس آب";
-  refs.downloadPdfBtn.onclick = shareInvoiceOnWhatsApp;
-}
-
-        // حفظ الملف مع معالجة خاصة للهواتف
-        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-          // iOS - فتح في نافذة جديدة
-          const pdfBlob = pdf.output('blob');
-          const url = URL.createObjectURL(pdfBlob);
-          window.open(url, '_blank');
-        } else {
-          // Android والأجهزة الأخرى - تحميل مباشر
-          pdf.save('invoice.pdf');
-        }
-        
-        showToast("تم إنشاء الفاتورة بنجاح", "success");
-      } catch (error) {
-        console.error("خطأ في إنشاء PDF:", error);
-        showToast("تعذر إنشاء الفاتورة. حاول مرة أخرى.", "error");
-      }
-    });
+   refs.downloadPdfBtn.addEventListener("click", () => {
+  const pdf = new jspdf.jsPDF("p", "pt", "a4");
+  pdf.html(refs.invoiceBody, {
+    callback: function (pdf) {
+      const pdfBlob = pdf.output("blob");
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(pdfBlob);
+      link.download = "invoice.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    }
+  });
+});
 
     // =============================
     // NEW: WhatsApp Sharing
