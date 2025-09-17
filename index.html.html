@@ -1625,14 +1625,14 @@
         window.open(pdfUrl, "_blank");
       } else {
         // تنزيل مباشر للكمبيوتر
-    const adminPhone = "201143717677"; // رقمك أنت بصيغة دولية بدون +
-const clientPhone = refs.custPhone.value || "غير مسجل"; 
-const clientName  = refs.custName.value || "عميل غير معروف";
-
-const msg = `📄 فاتورة جديدة\n\n👤 الاسم: ${clientName}\n📞 الهاتف: ${clientPhone}\n🔗 رابط الفاتورة: ${pdfUrl}`;
-
-const waLink = `https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
-window.open(waLink, "_blank");
+        const pdfBlob = pdf.output("blob");
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(pdfBlob);
+        link.download = "invoice.pdf";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
       }
     }
   });
