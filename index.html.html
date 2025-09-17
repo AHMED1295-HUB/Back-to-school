@@ -396,6 +396,22 @@
         padding: 15px;
       }
     }
+
+    /* تحسينات خاصة للطباعة */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #invoiceBody, #invoiceBody * {
+        visibility: visible;
+      }
+      #invoiceBody {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -581,6 +597,7 @@
       <div style="margin-top:8px;display:flex;gap:6px">
         <button id="printInvoiceBtn" class="btn btn-primary">طباعة</button>
         <button id="downloadPdfBtn" class="btn btn-primary">تحميل PDF</button>
+        <button id="whatsappBtn" class="btn btn-accent"><i class="fab fa-whatsapp"></i> واتساب</button>
       </div>
     </div>
   </div>
@@ -615,38 +632,6 @@
       firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.firestore();
-// كود الدولة الثابت
-const COUNTRY_CODE = "20"; // مصر
-
-// رقمك على واتساب مع كود الدولة
-const ADMIN_WHATSAPP = "201143717677"; // غيره برقمك الحقيقي
-
-// رفع الفاتورة إلى Firebase Storage
-async function uploadInvoiceToFirebase() {
-  const pdf = new jspdf.jsPDF("p", "pt", "a4");
-
-  return new Promise((resolve, reject) => {
-    pdf.html(refs.invoiceBody, {
-      callback: async function (pdf) {
-        try {
-          const pdfBlob = pdf.output("blob");
-          const storageRef = firebase.storage().ref();
-          const fileName = `invoices/invoice_${Date.now()}.pdf`;
-          const invoiceRef = storageRef.child(fileName);
-
-          // رفع الملف
-          await invoiceRef.put(pdfBlob);
-
-          // جلب رابط التحميل
-          const url = await invoiceRef.getDownloadURL();
-          resolve(url);
-        } catch (err) {
-          reject(err);
-        }
-      }
-    });
-  });
-}
 
     /* =========================
        XY System - JavaScript مع دعم Firebase
@@ -989,6 +974,7 @@ async function uploadInvoiceToFirebase() {
       invoiceBody: document.getElementById("invoiceBody"),
       printInvoiceBtn: document.getElementById("printInvoiceBtn"),
       downloadPdfBtn: document.getElementById("downloadPdfBtn"),
+      whatsappBtn: document.getElementById("whatsappBtn"),
 
       // filters admin elements
       filtersStages: document.getElementById("filtersStages"),
@@ -1086,6 +1072,7 @@ async function uploadInvoiceToFirebase() {
       if (document.getElementById("invoiceTitle")) document.getElementById("invoiceTitle").textContent = t.invoiceTitle;
       if (refs.printInvoiceBtn) refs.printInvoiceBtn.textContent = t.print;
       if (refs.downloadPdfBtn) refs.downloadPdfBtn.innerHTML = `<i class="fas fa-file-pdf"></i> ${t.pdf}`;
+      if (refs.whatsappBtn) refs.whatsappBtn.innerHTML = `<i class="fab fa-whatsapp"></i> ${t.whatsapp}`;
 
       // Customer form (labels + placeholders)
       if (document.querySelector("label[for='custName']")) document.querySelector("label[for='custName']").textContent = t.parentName;
@@ -1644,55 +1631,112 @@ async function uploadInvoiceToFirebase() {
     }
     
     refs.printInvoiceBtn.addEventListener("click", () => window.print());
-  refs.printInvoiceBtn.addEventListener("click", () => window.print());
-
-// ⬇️ الكود الجديد هنا
-async function handleInvoiceAction() {
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-  if (isMobile) {
-    // ====== على الموبايل → واتساب ======
-    try {
-      const url = await uploadInvoiceToFirebase();
-
-      // تجهيز رقم العميل مع كود الدولة
-      let customerPhone = refs.custPhone.value.trim();
-      if (customerPhone.startsWith("0")) {
-        customerPhone = customerPhone.substring(1);
-      }
-      customerPhone = COUNTRY_CODE + customerPhone;
-
-      const customerName = refs.custName.value || "عميل";
-
-      // الرسالة اللي هتتبعت
-      const msg = encodeURIComponent(
-        `📩 فاتورة جديدة من ${customerName}\nرقم العميل: ${customerPhone}\nرابط الفاتورة: ${url}`
-      );
-
-      // فتح واتساب مباشر على رقمك
-      window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`, "_blank");
-
-    } catch (err) {
-      console.error("خطأ في رفع الفاتورة:", err);
-      showToast("فشل إرسال الفاتورة", "error");
-    }
-
-  } else {
-    // ====== على الكمبيوتر → تحميل PDF ======
-    const pdf = new jspdf.jsPDF("p", "pt", "a4");
-    pdf.html(refs.invoiceBody, {
-      callback: function (pdf) {
-        pdf.save("invoice.pdf");
+    
+    // =============================
+    // NEW: Improved PDF Download for Mobile
+    // =============================
+    refs.downloadPdfBtn.addEventListener("click", async () => {
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        
+        // إعداد المحتوى العربي
+        pdf.setFont("Helvetica");
+        
+        // عنوان الفاتورة
+        pdf.setFontSize(18);
+        pdf.text(T[currentLang].invoiceTitle, 105, 20, { align: 'center' });
+        
+        // معلومات العميل
+        pdf.setFontSize(12);
+        pdf.text(`${T[currentLang].parentName}: ${refs.custName.value || "-"}`, 20, 35);
+        pdf.text(`${T[currentLang].phone}: ${refs.custPhone.value || "-"}`, 20, 42);
+        pdf.text(`${T[currentLang].address}: ${refs.custAddress.value || "-"}`, 20, 49);
+        
+        // عناوين الجدول
+        pdf.setFillColor(64, 64, 64);
+        pdf.rect(20, 60, 170, 10, 'F');
+        pdf.setTextColor(255, 255, 255);
+        pdf.text("المنتج", 160, 67);
+        pdf.text("الكمية", 120, 67);
+        pdf.text("السعر", 90, 67);
+        pdf.text("الإجمالي", 50, 67);
+        
+        pdf.setTextColor(0, 0, 0);
+        let yPosition = 75;
+        
+        // عناصر الفاتورة
+        cart.forEach(item => {
+          if (yPosition > 250) {
+            pdf.addPage();
+            yPosition = 20;
+          }
+          
+          pdf.text(item.name.substring(0, 20), 160, yPosition, { align: 'right' });
+          pdf.text(item.qty.toString(), 120, yPosition);
+          pdf.text(formatCurrency(item.price), 90, yPosition);
+          pdf.text(formatCurrency(item.qty * item.price), 50, yPosition);
+          yPosition += 10;
+        });
+        
+        yPosition += 10;
+        pdf.text(`${T[currentLang].subtotalAll}: ${refs.subtotalAll.textContent}`, 160, yPosition, { align: 'right' });
+        yPosition += 10;
+        pdf.text(`${T[currentLang].totalDiscount}: ${refs.totalDiscount.textContent}`, 160, yPosition, { align: 'right' });
+        yPosition += 10;
+        pdf.text(`${T[currentLang].grandTotal}: ${refs.grandTotal.textContent}`, 160, yPosition, { align: 'right' });
+        yPosition += 10;
+        pdf.text(`${T[currentLang].depositAmount}: ${refs.depositAmount.textContent}`, 160, yPosition, { align: 'right' });
+        yPosition += 10;
+        pdf.text(`${T[currentLang].remainAmount}: ${refs.remainAmount.textContent}`, 160, yPosition, { align: 'right' });
+        
+        // حفظ الملف مع معالجة خاصة للهواتف
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          // iOS - فتح في نافذة جديدة
+          const pdfBlob = pdf.output('blob');
+          const url = URL.createObjectURL(pdfBlob);
+          window.open(url, '_blank');
+        } else {
+          // Android والأجهزة الأخرى - تحميل مباشر
+          pdf.save('invoice.pdf');
+        }
+        
+        showToast("تم إنشاء الفاتورة بنجاح", "success");
+      } catch (error) {
+        console.error("خطأ في إنشاء PDF:", error);
+        showToast("تعذر إنشاء الفاتورة. حاول مرة أخرى.", "error");
       }
     });
-  }
-}
 
-// ربط الزر
-refs.downloadPdfBtn.addEventListener("click", () => {
-  handleInvoiceAction();
-});
-
+    // =============================
+    // NEW: WhatsApp Sharing
+    // =============================
+    refs.whatsappBtn.addEventListener("click", () => {
+      if (cart.length === 0) {
+        showToast(T[currentLang].cartEmpty, "info");
+        return;
+      }
+      
+      const phone = refs.custPhone.value || "";
+      let message = `*${T[currentLang].invoiceTitle}*\n\n`;
+      message += `*${T[currentLang].parentName}:* ${refs.custName.value || "-"}\n`;
+      message += `*${T[currentLang].phone}:* ${phone}\n`;
+      message += `*${T[currentLang].address}:* ${refs.custAddress.value || "-"}\n\n`;
+      message += `*${T[currentLang].grandTotal}:* ${refs.grandTotal.textContent}\n`;
+      message += `*${T[currentLang].depositAmount}:* ${refs.depositAmount.textContent}\n`;
+      message += `*${T[currentLang].remainAmount}:* ${refs.remainAmount.textContent}\n\n`;
+      
+      // إضافة المنتجات
+      message += "*المنتجات:*\n";
+      cart.forEach(item => {
+        message += `- ${item.name} (${item.qty} × ${formatCurrency(item.price)})\n`;
+      });
+      
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+      
+      window.open(whatsappUrl, '_blank');
+    });
 
     /* ---------- SETTINGS OPEN initial sync ---------- */
     function onSettingsOpen() {
